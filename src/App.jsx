@@ -13,7 +13,7 @@ import ThemeToggle from "./components/ui/sidebar/ThemeToggle";
 import { useSidebarColors } from "./components/ui/sidebar/SidebarTokens";
 import useAuth from "./hooks/useAuth";
 import useSeason from "./hooks/useSeason";
-
+import { useTheme } from "./context/ThemeContext";
 function App() {
   const { user, setUser, checkSession, logout } = useAuth();
   const { seasons, fetchAll } = useSeason();
@@ -22,6 +22,7 @@ function App() {
   const [checking, setChecking] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const C = useSidebarColors();
+  const { theme } = useTheme();
   const handleAvatarUpdate = (avatarUrl) => {
     setUser((prev) => ({ ...prev, avatar: avatarUrl }));
   };
@@ -138,28 +139,38 @@ function App() {
           }}
         />
       )}
-
       {/* Hamburger + Theme toggle (mobile only) */}
       <div
         style={{
           display: "none",
           position: "fixed",
-          top: "1rem",
-          left: "1rem",
+          top: 0,
+          left: 0,
+          right: 0,
           zIndex: 60,
           gap: "0.5rem",
           alignItems: "center",
+          padding: "0.75rem 1rem",
+          background:
+            theme === "light" ? "rgba(255,247,240,0.6)" : "rgba(13,13,13,0.5)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
         }}
         className="mobile-hamburger"
       >
         <button
           onClick={() => setSidebarOpen((v) => !v)}
           style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "34px",
+            height: "34px",
             background: C.bgPanel,
             border: `1px solid ${C.border}`,
             color: C.yellow,
             cursor: "pointer",
-            padding: "6px 8px",
+            padding: 0,
             fontFamily: "monospace",
             fontSize: "1rem",
             lineHeight: 1,
