@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Plus, RefreshCw, X } from "lucide-react";
 import useOrder from "../hooks/useOrder";
-import { C } from "../constants/dataPage.constants";
+import { useDataPageColors, glow } from "../constants/dataPage.constants";
+import { useTheme } from "../context/ThemeContext";
 import CircuitBg from "../components/ui/CircuitBg";
 import CornerGlow from "../components/ui/CornerGlow";
 import SummaryCards from "../components/DataPages/SummaryCards";
@@ -38,6 +39,7 @@ const TODAY = `${_t.getFullYear()}-${String(_t.getMonth() + 1).padStart(2, "0")}
 
 // ── Filter bar ────────────────────────────────────────────
 const FilterBar = ({ filters, onChange, onReset }) => {
+  const C = useDataPageColors();
   const hasFilter =
     filters.dateFrom || filters.dateTo || filters.status || filters.workerName;
 
@@ -141,7 +143,7 @@ const FilterBar = ({ filters, onChange, onReset }) => {
             value={filters.status}
             onChange={(e) => onChange({ status: e.target.value })}
             style={{
-              background: "#0A0A0C",
+              background: C.trackBg,
               border: `1px solid ${filters.status ? C.cyan : C.border}`,
               color: filters.status ? C.cyan : C.muted,
               padding: "5px 10px",
@@ -182,7 +184,7 @@ const FilterBar = ({ filters, onChange, onReset }) => {
             }
             placeholder="ACIL"
             style={{
-              background: "#0A0A0C",
+              background: C.trackBg,
               border: `1px solid ${filters.workerName ? C.cyan : C.border}`,
               color: filters.workerName ? C.cyan : C.text,
               padding: "5px 10px",
@@ -223,6 +225,8 @@ const FilterBar = ({ filters, onChange, onReset }) => {
 
 // ── Main DataPage ─────────────────────────────────────────
 const DataPage = ({ season }) => {
+  const C = useDataPageColors();
+  const { theme } = useTheme();
   const {
     orders,
     summary,
@@ -404,7 +408,7 @@ const DataPage = ({ season }) => {
               textTransform: "uppercase",
               fontFamily: "'Courier New', monospace",
               lineHeight: 0.9,
-              textShadow: `0 0 40px ${C.yellow}60`,
+              textShadow: glow(theme, `0 0 40px ${C.yellow}60`),
             }}
           >
             {season.name}
@@ -412,7 +416,7 @@ const DataPage = ({ season }) => {
           <div
             style={{
               fontSize: "0.78rem",
-              color: "#9A9A9A",
+              color: C.mutedAlt,
               fontFamily: "monospace",
               marginTop: "8px",
               fontWeight: 600,
@@ -447,7 +451,7 @@ const DataPage = ({ season }) => {
             }}
             style={{
               background: "transparent",
-              border: "1px solid rgba(255,255,255,0.25)",
+              border: `1px solid ${C.outlineBorder}`,
               color: C.text,
               padding: "0.6rem 1rem",
               cursor: "pointer",
@@ -460,10 +464,10 @@ const DataPage = ({ season }) => {
               fontFamily: "'Courier New', monospace",
             }}
             onMouseEnter={(e) =>
-              (e.currentTarget.style.borderColor = "rgba(255,255,255,0.5)")
+              (e.currentTarget.style.borderColor = C.outlineBorderHover)
             }
             onMouseLeave={(e) =>
-              (e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)")
+              (e.currentTarget.style.borderColor = C.outlineBorder)
             }
           >
             <RefreshCw size={13} strokeWidth={2} /> REFRESH

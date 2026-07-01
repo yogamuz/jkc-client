@@ -1,13 +1,14 @@
 import { ChevronRight } from "lucide-react";
-import { C, cell } from "./workers.utils";
+import { useWorkersColors, cell } from "./workers.utils";
 
 const AdminsTable = ({ admins, loading, onSelectAdmin }) => {
+  const C = useWorkersColors();
   return (
     <div
       style={{
         border: `1px solid ${C.yellow}60`,
         overflow: "hidden",
-        background: "#0F0F14",
+        background: C.panel,
         position: "relative",
         zIndex: 1,
       }}
@@ -28,7 +29,7 @@ const AdminsTable = ({ admins, loading, onSelectAdmin }) => {
                     textAlign: "left",
                     color: C.yellow,
                     borderRight: `1px solid ${C.border}`,
-                    background: "#0D0D0F",
+                    background: C.bg,
                     fontFamily: "'Courier New', monospace",
                     fontWeight: 900,
                     whiteSpace: "nowrap",
@@ -78,19 +79,19 @@ const AdminsTable = ({ admins, loading, onSelectAdmin }) => {
                   key={a._id}
                   style={{
                     borderBottom: `1px solid ${C.border}`,
-                    background: i % 2 === 0 ? "#0F0F14" : "#0D0D0F",
+                    background: i % 2 === 0 ? C.panel : C.rowAlt,
                   }}
                 >
                   <td
                     style={{
-                      ...cell(false),
-                      color: "#444450",
+                      ...cell(false, C),
+                      color: C.muted,
                       fontSize: "0.72rem",
                     }}
                   >
                     {i + 1}
                   </td>
-                  <td style={{ ...cell(true), color: C.yellow }}>
+                  <td style={{ ...cell(true, C), color: C.yellow }}>
                     <div
                       style={{
                         display: "flex",
@@ -117,7 +118,7 @@ const AdminsTable = ({ admins, loading, onSelectAdmin }) => {
                             width: "22px",
                             height: "22px",
                             borderRadius: "50%",
-                            background: "#1A1A1A",
+                            background: C.hoverBg,
                             border: `1px solid ${C.border}`,
                             display: "flex",
                             alignItems: "center",
@@ -135,7 +136,7 @@ const AdminsTable = ({ admins, loading, onSelectAdmin }) => {
                       {a.username.toUpperCase()}
                     </div>
                   </td>
-                  <td style={{ ...cell(false) }}>
+                  <td style={{ ...cell(false, C) }}>
                     {a.lastLogin
                       ? new Date(a.lastLogin).toLocaleDateString("id-ID", {
                           day: "numeric",
@@ -146,7 +147,7 @@ const AdminsTable = ({ admins, loading, onSelectAdmin }) => {
                         })
                       : "—"}
                   </td>
-                  <td style={{ ...cell(false), textAlign: "center" }}>
+                  <td style={{ ...cell(false, C), textAlign: "center" }}>
                     <button
                       onClick={() => onSelectAdmin(a)}
                       style={{

@@ -4,22 +4,26 @@ import CornerGlow from "../components/ui/CornerGlow";
 import AdminsTable from "../components/DataPages/AdminsTable.jsx";
 import AdminDetailPanel from "../components/DataPages/AdminDetailPanel";
 import { getUsers, createUser } from "../services/authService";
-import { C } from "../components/DataPages/workers.utils";
-
-const inputStyle = {
-  padding: "0.6rem 0.875rem",
-  background: "#0A0A0C",
-  border: `1px solid #2A2A2E`,
-  color: "#E8E8E8",
-  fontFamily: "'Courier New', monospace",
-  fontSize: "0.78rem",
-  outline: "none",
-  letterSpacing: "1px",
-  width: "160px",
-  boxSizing: "border-box",
-};
+import { useWorkersColors, glow } from "../components/DataPages/workers.utils";
+import { useTheme } from "../context/ThemeContext";
 
 const AdminsPage = () => {
+  const C = useWorkersColors();
+  const { theme } = useTheme();
+
+  const inputStyle = {
+    padding: "0.6rem 0.875rem",
+    background: C.trackBg,
+    border: `1px solid ${C.border}`,
+    color: C.text,
+    fontFamily: "'Courier New', monospace",
+    fontSize: "0.78rem",
+    outline: "none",
+    letterSpacing: "1px",
+    width: "160px",
+    boxSizing: "border-box",
+  };
+
   const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -132,7 +136,7 @@ const AdminsPage = () => {
               textTransform: "uppercase",
               fontFamily: "'Courier New', monospace",
               lineHeight: 0.9,
-              textShadow: `0 0 40px ${C.yellow}60`,
+              textShadow: glow(theme, `0 0 40px ${C.yellow}60`),
             }}
           >
             Admins
@@ -143,7 +147,7 @@ const AdminsPage = () => {
               height: "2px",
               background: C.yellow,
               marginTop: "10px",
-              boxShadow: `0 0 10px ${C.yellow}`,
+              boxShadow: glow(theme, `0 0 10px ${C.yellow}`),
             }}
           />
         </div>
@@ -153,7 +157,7 @@ const AdminsPage = () => {
       <div
         style={{
           border: `1px solid ${C.border}`,
-          background: "#131318",
+          background: C.panel,
           padding: "1rem 1.25rem",
           marginBottom: "1.25rem",
           position: "relative",
@@ -208,7 +212,7 @@ const AdminsPage = () => {
               letterSpacing: "2px",
               cursor: createLoading ? "not-allowed" : "pointer",
               fontFamily: "'Courier New', monospace",
-              boxShadow: createLoading ? "none" : `0 0 14px ${C.yellow}40`,
+              boxShadow: createLoading ? "none" : glow(theme, `0 0 14px ${C.yellow}40`),
             }}
           >
             {createLoading ? "..." : "+ TAMBAH"}
@@ -245,7 +249,7 @@ const AdminsPage = () => {
       {error && (
         <div
           style={{
-            background: "rgba(255,60,172,0.06)",
+            background: C.magentaBg,
             border: `1px solid ${C.magenta}`,
             padding: "0.75rem 1.25rem",
             color: C.magenta,

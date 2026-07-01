@@ -1,10 +1,12 @@
-import { useEffect } from 'react'
+import { useContext, useEffect } from 'react'
 import { ShoppingBag, TrendingUp, Users, DollarSign, Wallet, SlidersHorizontal, ArrowRight, BarChart2 } from 'lucide-react'
 import useOrder from '../hooks/useOrder'
 import CircuitBg from '../components/ui/CircuitBg'
 import CornerGlow from '../components/ui/CornerGlow'
+import ThemeContext from '../context/ThemeContext' // sesuaikan path
 
-const C = {
+/* ── Design tokens ─────────────────────────────────────── */
+const darkColors = {
   bg:      '#0D0D0F',
   panel:   '#131318',
   border:  '#2A2A2E',
@@ -15,12 +17,38 @@ const C = {
   text:    '#E8E8E8',
   muted:   '#666670',
   dim:     '#2A2A2E',
+  mutedAlt: '#9A9A9A',
+  trackBg:  '#0A0A0C',
 }
 
-const glassCard = (accentColor) => ({
+const lightColors = {
+  bg:      '#FAF7F0',
+  panel:   '#FFFFFF',
+  border:  '#1A1A1A',
+  yellow:  '#B8860B',
+  cyan:    '#0089A0',
+  magenta: '#CC2E89',
+  green:   '#1F9D2E',
+  text:    '#1A1A1A',
+  muted:   '#8A8A8F',
+  dim:     '#D8D4C8',
+  mutedAlt: '#6B6B70',
+  trackBg:  '#EAE6DA',
+}
+
+const getColors = (theme) => (theme === 'light' ? lightColors : darkColors)
+const useDashboardColors = () => {
+  const { theme } = useContext(ThemeContext)
+  return getColors(theme)
+}
+
+/* glow dimatiin di light mode biar gak norak */
+const glow = (theme, value) => (theme === 'light' ? 'none' : value)
+
+const glassCard = (accentColor, c) => ({
   position: 'relative',
   overflow: 'hidden',
-  background: `radial-gradient(ellipse at 60% 40%, ${accentColor}18 0%, #13131800 60%), #131318`,
+  background: `radial-gradient(ellipse at 60% 40%, ${accentColor}18 0%, ${c.panel}00 60%), ${c.panel}`,
   border: `1px solid ${accentColor}60`,
   padding: '1.1rem 1.25rem 1rem',
   flex: '1 1 140px',
@@ -34,7 +62,7 @@ const fmtK   = (n) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}jt` : n >= 
 // ── Analytics Preview Sub-components ────────────────────
 
 /** Mini vertical bar chart untuk preview */
-const MiniVBar = ({ data, colorKey = C.yellow }) => {
+const MiniVBar = ({ data, colorKey, C }) => {
   if (!data?.length) return (
     <div style={{ color: C.dim, fontFamily: 'monospace', fontSize: '0.65rem', letterSpacing: '2px', padding: '0.5rem 0' }}>NO DATA</div>
   )
@@ -60,7 +88,7 @@ const MiniVBar = ({ data, colorKey = C.yellow }) => {
 }
 
 /** Mini donut untuk status order */
-const MiniDonut = ({ slices }) => {
+const MiniDonut = ({ slices, C }) => {
   if (!slices?.length) return null
   const total = slices.reduce((s, x) => s + x.value, 0)
   if (total === 0) return null
@@ -98,6 +126,8 @@ const MiniDonut = ({ slices }) => {
 // ── Main ─────────────────────────────────────────────────
 
 const DashboardPage = ({ onNavigate, seasons = [] }) => {
+  const C = useDashboardColors()
+  const { theme } = useContext(ThemeContext)
   const { orders, summary, dashboard, workerSummary, fetchOrders, fetchSummary, fetchWorkerSummary, fetchDashboard, loading } = useOrder()
 
   useEffect(() => {
@@ -186,7 +216,7 @@ const DashboardPage = ({ onNavigate, seasons = [] }) => {
         </h1>
         <div style={{
           width: '40px', height: '2px', background: C.yellow,
-          marginTop: '12px', boxShadow: `0 0 10px ${C.yellow}`,
+          marginTop: '12px', boxShadow: glow(theme, `0 0 10px ${C.yellow}`),
         }} />
       </div>
 
@@ -200,12 +230,12 @@ const DashboardPage = ({ onNavigate, seasons = [] }) => {
         zIndex: 1,
       }}>
         {STATS.map(s => (
-          <div key={s.label} style={glassCard(s.accent)}>
+          <div key={s.label} style={glassCard(s.accent, C)}>
             <div style={{ position: 'absolute', top: '14px', right: '14px', color: s.accent, opacity: 0.7 }}>
               <s.Icon size={20} strokeWidth={1.5} />
             </div>
             <div style={{
-              fontSize: '0.55rem', color: '#9A9A9A', fontWeight: 700,
+              fontSize: '0.55rem', color: C.mutedAlt, fontWeight: 700,
               letterSpacing: '2.5px', fontFamily: "'Courier New', monospace", marginBottom: '8px',
             }}>
               {s.label}
@@ -215,7 +245,7 @@ const DashboardPage = ({ onNavigate, seasons = [] }) => {
               fontWeight: 900, color: s.accent,
               fontFamily: "'Courier New', monospace", lineHeight: 1,
               letterSpacing: typeof s.value === 'string' && s.value.startsWith('Rp') ? '-0.5px' : '-2px',
-              textShadow: `0 0 20px ${s.accent}60`,
+              textShadow: glow(theme, `0 0 20px ${s.accent}60`),
             }}>
               {s.value}
             </div>
@@ -366,7 +396,7 @@ const DashboardPage = ({ onNavigate, seasons = [] }) => {
               TREND OMSET — 14 HARI
             </div>
             {activeSeason ? (
-              <MiniVBar data={trendPreview} colorKey={C.yellow} />
+              <MiniVBar data={trendPreview} colorKey={C.yellow} C={C} />
             ) : (
               <div style={{ color: C.muted, fontFamily: 'monospace', fontSize: '0.65rem', letterSpacing: '2px', padding: '1.5rem 0', textAlign: 'center' }}>PILIH SEASON</div>
             )}
@@ -378,7 +408,7 @@ const DashboardPage = ({ onNavigate, seasons = [] }) => {
               STATUS ORDER
             </div>
             {activeSeason && statusSlices.length > 0 ? (
-              <MiniDonut slices={statusSlices} />
+              <MiniDonut slices={statusSlices} C={C} />
             ) : (
               <div style={{ color: C.muted, fontFamily: 'monospace', fontSize: '0.65rem', letterSpacing: '2px', padding: '1.5rem 0', textAlign: 'center' }}>
                 {activeSeason ? 'NO DATA' : 'PILIH SEASON'}
@@ -401,7 +431,7 @@ const DashboardPage = ({ onNavigate, seasons = [] }) => {
                     <div style={{ fontSize: '0.6rem', fontFamily: 'monospace', color: C.muted, width: '72px', flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {w.name}
                     </div>
-                    <div style={{ flex: 1, background: '#0A0A0C', height: '12px', position: 'relative' }}>
+                    <div style={{ flex: 1, background: C.trackBg, height: '12px', position: 'relative' }}>
                       <div style={{
                         position: 'absolute', left: 0, top: 0, bottom: 0,
                         width: `${(w.totalEarned / workerMax) * 100}%`,
@@ -441,12 +471,12 @@ const DashboardPage = ({ onNavigate, seasons = [] }) => {
                         {((row.value / summary.totalOmset) * 100).toFixed(1)}%
                       </span>
                     </div>
-                    <div style={{ background: '#0A0A0C', height: '8px' }}>
+                    <div style={{ background: C.trackBg, height: '8px' }}>
                       <div style={{
                         height: '100%',
                         width: `${(row.value / summary.totalOmset) * 100}%`,
                         background: row.color,
-                        boxShadow: `0 0 4px ${row.color}40`,
+                        boxShadow: glow(theme, `0 0 4px ${row.color}40`),
                         transition: 'width 0.4s ease',
                       }} />
                     </div>
@@ -467,7 +497,7 @@ const DashboardPage = ({ onNavigate, seasons = [] }) => {
       </div>
 
       {loading && (
-        <div style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', background: '#131318', border: `1px solid ${C.border}`, padding: '8px 16px', fontSize: '0.65rem', fontFamily: 'monospace', color: C.cyan, letterSpacing: '2px', zIndex: 999 }}>
+        <div style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', background: C.panel, border: `1px solid ${C.border}`, padding: '8px 16px', fontSize: '0.65rem', fontFamily: 'monospace', color: C.cyan, letterSpacing: '2px', zIndex: 999 }}>
           MEMUAT...
         </div>
       )}

@@ -3,10 +3,11 @@ import { Camera } from "lucide-react";
 import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { uploadAvatar } from "../../../services/authService";
-import { C } from "./SidebarTokens";
+import { useSidebarColors } from "./SidebarTokens";
 import CropAvatarModal from "./CropAvatarModal";
 
 const SidebarUserInfo = ({ user, onAvatarUpdate }) => {
+  const C = useSidebarColors();
   const [cropModal, setCropModal] = useState(false);
   const [imgSrc, setImgSrc] = useState("");
   const [crop, setCrop] = useState();

@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
-import { C, inputS, labelS } from "../../constants/dataPage.constants";
+import { useDataPageColors, getInputS, getLabelS } from "../../constants/dataPage.constants";
 import DatePicker from "../ui/DatePicker";
 
 const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
+  const C = useDataPageColors();
+  const inputS = getInputS(C);
+  const labelS = getLabelS(C);
+
   const TIERS =
     season?.rateHistory?.length > 0
       ? [...season.rateHistory]
@@ -106,7 +110,7 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
     >
       <div
         style={{
-          background: "#131318",
+          background: C.modalBg,
           border: `1px solid ${C.border}`,
           boxShadow: `0 0 60px rgba(0,229,255,0.08)`,
           width: "calc(100% - 2rem)",
@@ -301,7 +305,7 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
                   border: `1px solid ${C.border}`,
                   padding: "0.75rem",
                   marginBottom: "0.5rem",
-                  background: "rgba(255,255,255,0.02)",
+                  background: C.subtleBg,
                 }}
               >
                 <div
@@ -391,7 +395,7 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
             display: "flex",
             gap: "0.75rem",
             justifyContent: "flex-end",
-            background: "#0D0D0F",
+            background: C.modalFooterBg,
           }}
         >
           <button

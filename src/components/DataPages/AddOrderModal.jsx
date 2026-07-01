@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { DEFAULT_COLUMNS } from "../../constants/joki.constants";
-import { C, inputS, labelS } from "../../constants/dataPage.constants";
+import { useDataPageColors, getInputS, getLabelS } from "../../constants/dataPage.constants";
 import DatePicker from "../ui/DatePicker";
 
 const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
+  const C = useDataPageColors();
+  const inputS = getInputS(C);
+  const labelS = getLabelS(C);
+
   // state tambahan untuk display
   const [priceDisplay, setPriceDisplay] = useState("");
 
@@ -96,9 +100,9 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
     >
       <div
         style={{
-          background: "#131318",
+          background: C.modalBg,
           border: `1px solid ${C.border}`,
-          boxShadow: `0 0 60px rgba(255,230,0,0.08), 0 0 0 1px #1a1a20`,
+          boxShadow: `0 0 60px rgba(255,230,0,0.08), 0 0 0 1px ${C.border}`,
           width: "calc(100% - 2rem)",
           maxWidth: "640px",
           maxHeight: "90dvh",
@@ -277,7 +281,7 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
                   border: `1px solid ${C.border}`,
                   padding: "0.75rem",
                   marginBottom: "0.5rem",
-                  background: "rgba(255,255,255,0.02)",
+                  background: C.subtleBg,
                   position: "relative",
                 }}
               >
@@ -367,7 +371,7 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
             display: "flex",
             gap: "0.75rem",
             justifyContent: "flex-end",
-            background: "#0D0D0F",
+            background: C.modalFooterBg,
           }}
         >
           <button

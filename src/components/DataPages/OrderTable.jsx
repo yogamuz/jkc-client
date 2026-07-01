@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Trash2, Pencil } from "lucide-react";
-import { C, cell } from "../../constants/dataPage.constants";
+import { useDataPageColors, cell } from "../../constants/dataPage.constants";
 import StatusBadge from "../ui/StatusBadge";
 import PaidBadge from "../ui/PaidBadge";
 import EditOrderModal from "./EditOrderModal";
@@ -16,6 +16,7 @@ const OrderTable = ({
   onMarkPaid,
   onUpdate,
 }) => {
+  const C = useDataPageColors();
   const [editOrder, setEditOrder] = useState(null);
 
   const fmtRp = (n) => `Rp ${(n || 0).toLocaleString("id-ID")}`;
@@ -39,7 +40,7 @@ const OrderTable = ({
         style={{
           border: `1px solid ${C.yellow}60`,
           overflow: "hidden",
-          background: "#0F0F14",
+          background: C.tableBg,
           position: "relative",
           zIndex: 1,
         }}
@@ -66,7 +67,7 @@ const OrderTable = ({
                       minWidth: col.width,
                       color: C.yellow,
                       borderRight: `1px solid ${C.border}`,
-                      background: "#0D0D0F",
+                      background: C.bg,
                       fontFamily: "'Courier New', monospace",
                       fontWeight: 900,
                       whiteSpace: "nowrap",
@@ -116,13 +117,13 @@ const OrderTable = ({
                     key={order.id}
                     style={{
                       borderBottom: `1px solid ${C.border}`,
-                      background: i % 2 === 0 ? "#0F0F14" : "#0D0D0F",
+                      background: i % 2 === 0 ? C.tableBg : C.rowAlt,
                     }}
                   >
                     <td
                       style={{
-                        ...cell(false),
-                        color: "#444450",
+                        ...cell(false, C),
+                        color: C.muted,
                         fontSize: "0.72rem",
                       }}
                     >
@@ -130,7 +131,7 @@ const OrderTable = ({
                     </td>
                     <td
                       style={{
-                        ...cell(true),
+                        ...cell(true, C),
                         display: "flex",
                         alignItems: "center",
                         gap: "6px",
@@ -158,7 +159,7 @@ const OrderTable = ({
                             width: "18px",
                             height: "18px",
                             borderRadius: "50%",
-                            background: "#1A1A1A",
+                            background: C.hoverBg,
                             border: `1px solid ${C.border}`,
                             display: "inline-flex",
                             alignItems: "center",
@@ -174,46 +175,46 @@ const OrderTable = ({
                         </div>
                       ) : null}
                     </td>
-                    <td style={cell(false)}>{fmtDate(order.date)}</td>
-                    <td style={cell(false)}>{order.category}</td>
-                    <td style={cell(false)}>{order.payment || "—"}</td>
+                    <td style={cell(false, C)}>{fmtDate(order.date)}</td>
+                    <td style={cell(false, C)}>{order.category}</td>
+                    <td style={cell(false, C)}>{order.payment || "—"}</td>
                     <td
-                      style={{ ...cell(false), color: C.text, fontWeight: 600 }}
+                      style={{ ...cell(false, C), color: C.text, fontWeight: 600 }}
                     >
                       {fmtRp(order.price)}
                     </td>
-                    <td style={cell(false)}>
+                    <td style={cell(false, C)}>
                       {order.workers?.length > 0
                         ? order.workers.map((w) => w.name).join(", ")
                         : "—"}
                     </td>
                     <td
-                      style={{ ...cell(false), color: C.text, fontWeight: 600 }}
+                      style={{ ...cell(false, C), color: C.text, fontWeight: 600 }}
                     >
                       {fmtRp(order.totalWorkerSalary)}
                     </td>
                     <td
                       style={{
-                        ...cell(true),
+                        ...cell(true, C),
                         color: order.profit >= 0 ? C.text : C.magenta,
                       }}
                     >
                       {fmtRp(order.profit)}
                     </td>
-                    <td style={{ ...cell(false), verticalAlign: "middle" }}>
+                    <td style={{ ...cell(false, C), verticalAlign: "middle" }}>
                       <StatusBadge
                         status={order.status}
                         onClick={() => onUpdateStatus(order.id, order.status)}
                       />
                     </td>
                     {extraCols.map((c) => (
-                      <td key={c.key} style={cell(false)}>
+                      <td key={c.key} style={cell(false, C)}>
                         {order.extraFields?.get?.(c.key) ??
                           order.extraFields?.[c.key] ??
                           "—"}
                       </td>
                     ))}
-                    <td style={cell(false)}>
+                    <td style={cell(false, C)}>
                       {order.workers?.length > 0 ? (
                         <div
                           style={{
@@ -237,7 +238,7 @@ const OrderTable = ({
                       )}
                     </td>
 
-                    <td style={{ ...cell(false), textAlign: "center" }}>
+                    <td style={{ ...cell(false, C), textAlign: "center" }}>
                       <div
                         style={{
                           display: "flex",

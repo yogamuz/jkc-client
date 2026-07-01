@@ -3,22 +3,26 @@ import { ChevronLeft } from "lucide-react";
 import CircuitBg from "../ui/CircuitBg";
 import CornerGlow from "../ui/CornerGlow";
 import { resetUserPassword, deleteUser } from "../../services/authService";
-import { C } from "./workers.utils";
+import { useWorkersColors, textGlow } from "./workers.utils";
+import { useTheme } from "../../context/ThemeContext";
 
-const inputStyle = {
+const getInputStyle = (C) => ({
   padding: "0.6rem 0.875rem",
-  background: "#0A0A0C",
-  border: `1px solid #2A2A2E`,
-  color: "#E8E8E8",
+  background: C.trackBg,
+  border: `1px solid ${C.border}`,
+  color: C.text,
   fontFamily: "'Courier New', monospace",
   fontSize: "0.78rem",
   outline: "none",
   width: "280px",
   boxSizing: "border-box",
   letterSpacing: "1px",
-};
+});
 
 const AdminDetailPanel = ({ admin, onBack, onDeleted }) => {
+  const C = useWorkersColors();
+  const { theme } = useTheme();
+  const inputStyle = getInputStyle(C);
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -139,7 +143,7 @@ const AdminDetailPanel = ({ admin, onBack, onDeleted }) => {
                   width: "52px",
                   height: "52px",
                   borderRadius: "50%",
-                  background: "#1A1A1A",
+                  background: C.hoverBg,
                   border: `2px solid ${C.cyan}`,
                   display: "flex",
                   alignItems: "center",
@@ -164,7 +168,7 @@ const AdminDetailPanel = ({ admin, onBack, onDeleted }) => {
                   letterSpacing: "-2px",
                   fontFamily: "'Courier New', monospace",
                   lineHeight: 0.9,
-                  textShadow: `0 0 40px ${C.cyan}60`,
+                  textShadow: textGlow(C.cyan, theme),
                 }}
               >
                 {admin.username.toUpperCase()}
@@ -211,7 +215,7 @@ const AdminDetailPanel = ({ admin, onBack, onDeleted }) => {
         <div
           style={{
             border: `1px solid ${C.border}`,
-            background: "#131318",
+            background: C.panel,
             padding: "1.25rem",
           }}
         >

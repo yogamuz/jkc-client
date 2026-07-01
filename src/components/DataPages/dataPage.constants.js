@@ -18,8 +18,15 @@ const darkColors = {
   trackBg: "#0A0A0C",
   mutedAlt: "#9A9A9A",
   hoverBg: "#1A1A1F",
-  /* ── tambahan disamakan dengan workers.utils (badge bg + row alt) ── */
+  /* ── tambahan untuk light mode (modal & table di DataPage) ── */
+  modalBg: "#131318",
+  modalFooterBg: "#0D0D0F",
   rowAlt: "#0D0D0F",
+  tableBg: "#0F0F14",
+  subtleBg: "rgba(255,255,255,0.02)",
+  outlineBorder: "rgba(255,255,255,0.25)",
+  outlineBorderHover: "rgba(255,255,255,0.5)",
+  /* ── tambahan untuk badge bg (StatusBadge/PaidBadge) ── */
   yellowBg: "rgba(255,230,0,0.08)",
   cyanBg: "rgba(0,229,255,0.08)",
   greenBg: "rgba(57,255,20,0.08)",
@@ -35,15 +42,22 @@ const lightColors = {
   magenta: "#CC2E89",
   green: "#1F9D2E",
   text: "#1A1A1A",
-  muted: "#5C5C62",
+  muted: "#8A8A8F",
   dim: "#D8D4C8",
   /* ── tambahan untuk AnalyticsPage (eks-hardcoded hex) ── */
   panel2: "#FFFFFF",
   trackBg: "#EAE6DA",
   mutedAlt: "#6B6B70",
   hoverBg: "#F0ECE0",
-  /* ── tambahan disamakan dengan workers.utils (badge bg + row alt) ── */
+  /* ── tambahan untuk light mode (modal & table di DataPage) ── */
+  modalBg: "#FFFFFF",
+  modalFooterBg: "#FAF7F0",
   rowAlt: "#F2EFE6",
+  tableBg: "#FFFFFF",
+  subtleBg: "rgba(0,0,0,0.025)",
+  outlineBorder: "rgba(0,0,0,0.25)",
+  outlineBorderHover: "rgba(0,0,0,0.5)",
+  /* ── tambahan untuk badge bg (StatusBadge/PaidBadge) — lebih pekat biar gak nyaru di bg terang ── */
   yellowBg: "rgba(184,134,11,0.16)",
   cyanBg: "rgba(0,137,160,0.16)",
   greenBg: "rgba(31,157,46,0.16)",

@@ -4,9 +4,10 @@ import CornerGlow from "../components/ui/CornerGlow";
 import WorkerDetailPanel from "../components/DataPages/WorkersDetailPanel";
 import WorkersTable from "../components/DataPages/WorkersTable";
 import WorkersSummaryCards from "../components/DataPages/WorkersSummaryCards";
-import { C, apiFetch } from "../components/DataPages/workers.utils";
+import { useWorkersColors, apiFetch } from "../components/DataPages/workers.utils";
 
 const WorkersPage = ({ seasons = [], activeSeasonId = "" }) => {
+  const C = useWorkersColors();
   const [seasonId, setSeasonId] = useState(activeSeasonId || "");
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -62,7 +63,7 @@ const WorkersPage = ({ seasons = [], activeSeasonId = "" }) => {
           <select
             value={seasonId}
             onChange={(e) => setSeasonId(e.target.value)}
-            style={{ background: "#0A0A0C", border: `1px solid ${C.border}`, color: C.text, padding: "0.6rem 0.875rem", fontFamily: "'Courier New', monospace", fontSize: "0.78rem", fontWeight: 700, outline: "none", cursor: "pointer", letterSpacing: "1px" }}
+            style={{ background: C.bg, border: `1px solid ${C.border}`, color: C.text, padding: "0.6rem 0.875rem", fontFamily: "'Courier New', monospace", fontSize: "0.78rem", fontWeight: 700, outline: "none", cursor: "pointer", letterSpacing: "1px" }}
           >
             <option value="">SEMUA SEASON</option>
             {seasons.map((s) => (

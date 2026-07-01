@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { LogOut, Sparkles } from "lucide-react";
 import { changePassword } from "../../services/authService";
-import { C } from "./sidebar/SidebarTokens";
+import { useSidebarColors } from "./sidebar/SidebarTokens";
 import SidebarUserInfo from "./sidebar/SidebarUserInfo";
 import SidebarNav from "./sidebar/SidebarNav";
 import AccountModal from "./sidebar/AccountModal";
+import ThemeToggle from "./sidebar/ThemeToggle";
 
 const Sidebar = ({
   activePage,
@@ -17,6 +18,7 @@ const Sidebar = ({
   isOpen,
   onAvatarUpdate,
 }) => {
+  const C = useSidebarColors();
   const [showChangePw, setShowChangePw] = useState(false);
 
   const [pwForm, setPwForm] = useState({
@@ -148,6 +150,11 @@ const Sidebar = ({
             onNavigate("admins");
           }}
         />
+
+        {/* Theme toggle */}
+        <div style={{ padding: "0 1.25rem 0.75rem", flexShrink: 0 }}>
+          <ThemeToggle />
+        </div>
 
         {/* Logout */}
         <div

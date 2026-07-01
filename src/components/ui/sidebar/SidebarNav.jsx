@@ -8,7 +8,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
-import { C, subNavBtnStyle } from "./SidebarTokens";
+import { useSidebarColors, getSubNavBtnStyle } from "./SidebarTokens";
 
 const SidebarNav = ({
   activePage,
@@ -20,6 +20,8 @@ const SidebarNav = ({
   onOpenChangePw,
   onOpenManageAdmin,
 }) => {
+  const C = useSidebarColors();
+  const subNavBtnStyle = getSubNavBtnStyle(C);
   const [dataOpen, setDataOpen] = useState(true);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
 
@@ -29,18 +31,18 @@ const SidebarNav = ({
     gap: "0.6rem",
     width: "100%",
     padding: "0.65rem 1.25rem",
-    background: isActive ? "rgba(255,230,0,0.08)" : "transparent",
+    background: isActive ? C.activeBg : "transparent",
     border: "none",
-    borderLeft: isActive ? `3px solid ${C.yellow}` : "3px solid transparent",
+    borderLeft: isActive ? `4px solid ${C.yellow}` : "4px solid transparent",
     color: isActive ? C.yellow : C.muted,
-    fontWeight: 900,
+    fontWeight: isActive ? 900 : 700,
     fontSize: "0.72rem",
     letterSpacing: "1.5px",
     cursor: "pointer",
     textAlign: "left",
     fontFamily: "'Courier New', monospace",
     textTransform: "uppercase",
-    transition: "color 0.15s, background 0.15s",
+    transition: "color 0.15s, background 0.15s, border-left-color 0.15s",
   });
 
   const hoverOn = (e, isActive) => {
@@ -98,7 +100,7 @@ const SidebarNav = ({
         {dataOpen && (
           <div
             style={{
-              background: "rgba(0,0,0,0.3)",
+              background: C.submenuBg,
               borderBottom: `1px solid ${C.border}`,
             }}
           >
@@ -129,21 +131,20 @@ const SidebarNav = ({
                       gap: "0.5rem",
                       width: "100%",
                       padding: "0.5rem 1.25rem 0.5rem 2.5rem",
-                      background: isActive
-                        ? "rgba(255,230,0,0.06)"
-                        : "transparent",
+                      background: isActive ? C.activeBgSoft : "transparent",
                       border: "none",
                       borderLeft: isActive
-                        ? `3px solid ${C.yellow}`
-                        : "3px solid transparent",
+                        ? `4px solid ${C.yellow}`
+                        : "4px solid transparent",
                       color: isActive ? C.yellow : C.muted,
-                      fontWeight: 800,
+                      fontWeight: isActive ? 900 : 800,
                       fontSize: "0.7rem",
                       letterSpacing: "1.5px",
                       cursor: "pointer",
                       textAlign: "left",
                       fontFamily: "'Courier New', monospace",
                       textTransform: "uppercase",
+                      transition: "color 0.15s, background 0.15s, border-left-color 0.15s",
                     }}
                     onMouseEnter={(e) => {
                       if (!isActive) {
@@ -184,7 +185,7 @@ const SidebarNav = ({
                 padding: "0.5rem 1.25rem 0.5rem 2.5rem",
                 background: "transparent",
                 border: "none",
-                borderLeft: "3px solid transparent",
+                borderLeft: "4px solid transparent",
                 color: C.dimmed,
                 fontWeight: 700,
                 fontSize: "0.65rem",
@@ -271,7 +272,7 @@ const SidebarNav = ({
           {showAccountMenu && (
             <div
               style={{
-                background: "rgba(0,0,0,0.3)",
+                background: C.submenuBg,
                 borderBottom: `1px solid ${C.border}`,
               }}
             >

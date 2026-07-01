@@ -2,40 +2,8 @@ import { useState } from "react";
 import useSeason from "../hooks/useSeason";
 import CircuitBg from "../components/ui/CircuitBg";
 import CornerGlow from "../components/ui/CornerGlow";
-
-const C = {
-  bg:      "#0D0D0F",
-  panel:   "#121214",
-  border:  "#2A2A2E",
-  yellow:  "#FFE600",
-  cyan:    "#00E5FF",
-  magenta: "#FF3CAC",
-  text:    "#E8E8E8",
-  muted:   "#666670",
-};
-
-const inputS = {
-  background: "#0A0A0C",
-  border: `1px solid ${C.border}`,
-  padding: "0.55rem 0.875rem",
-  color: C.text,
-  fontWeight: 600,
-  fontSize: "0.88rem",
-  outline: "none",
-  fontFamily: "'Courier New', monospace",
-  width: "100%",
-  boxSizing: "border-box",
-};
-
-const labelS = {
-  fontSize: "0.58rem",
-  color: C.muted,
-  fontWeight: 900,
-  letterSpacing: "2px",
-  fontFamily: "'Courier New', monospace",
-  marginBottom: "5px",
-  display: "block",
-};
+import { useDataPageColors, glow } from "../constants/dataPage.constants";
+import { useTheme } from "../context/ThemeContext";
 
 const toDisplay = (n) => (n ? Number(n).toLocaleString("id-ID") : "");
 const fromDisplay = (s) => Number(s.replace(/\./g, "")) || 0;
@@ -51,7 +19,32 @@ const emptyRate = (tier = "") => ({
 });
 
 const NewSeasonPage = ({ onCreated }) => {
+  const C = useDataPageColors();
+  const { theme } = useTheme();
   const { create, loading, error } = useSeason();
+
+  const inputS = {
+    background: C.trackBg,
+    border: `1px solid ${C.border}`,
+    padding: "0.55rem 0.875rem",
+    color: C.text,
+    fontWeight: 600,
+    fontSize: "0.88rem",
+    outline: "none",
+    fontFamily: "'Courier New', monospace",
+    width: "100%",
+    boxSizing: "border-box",
+  };
+
+  const labelS = {
+    fontSize: "0.58rem",
+    color: C.muted,
+    fontWeight: 900,
+    letterSpacing: "2px",
+    fontFamily: "'Courier New', monospace",
+    marginBottom: "5px",
+    display: "block",
+  };
 
   const [name, setName]   = useState("");
   const [label, setLabel] = useState("");
@@ -96,14 +89,14 @@ const NewSeasonPage = ({ onCreated }) => {
         <h1 style={{ fontSize: "clamp(2rem, 8vw, 3.5rem)", fontWeight: 900, color: C.text, margin: 0, letterSpacing: "-3px", textTransform: "uppercase", fontFamily: "'Courier New', monospace", lineHeight: 0.9 }}>
           New Season
         </h1>
-        <div style={{ width: "40px", height: "2px", background: C.yellow, marginTop: "12px", boxShadow: `0 0 10px ${C.yellow}` }} />
+        <div style={{ width: "40px", height: "2px", background: C.yellow, marginTop: "12px", boxShadow: glow(theme, `0 0 10px ${C.yellow}`) }} />
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", position: "relative", zIndex: 1, maxWidth: "800px" }}>
 
         {/* Basic info */}
         <div style={{ background: C.panel, border: `1px solid ${C.border}`, overflow: "hidden" }}>
-          <div style={{ borderBottom: `1px solid ${C.border}`, padding: "0.65rem 1.25rem", background: "rgba(255,230,0,0.04)" }}>
+          <div style={{ borderBottom: `1px solid ${C.border}`, padding: "0.65rem 1.25rem", background: C.yellowBg }}>
             <span style={{ fontSize: "0.62rem", fontWeight: 900, letterSpacing: "3px", color: C.yellow, fontFamily: "'Courier New', monospace" }}>
               // INFO SEASON
             </span>
@@ -134,7 +127,7 @@ const NewSeasonPage = ({ onCreated }) => {
 
         {/* Rate setup */}
         <div style={{ background: C.panel, border: `1px solid ${C.border}`, overflow: "hidden" }}>
-          <div style={{ borderBottom: `1px solid ${C.border}`, padding: "0.65rem 1.25rem", background: "rgba(255,230,0,0.04)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
+          <div style={{ borderBottom: `1px solid ${C.border}`, padding: "0.65rem 1.25rem", background: C.yellowBg, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
             <span style={{ fontSize: "0.62rem", fontWeight: 900, letterSpacing: "3px", color: C.yellow, fontFamily: "'Courier New', monospace" }}>
               // RATE AWAL (opsional)
             </span>
@@ -198,7 +191,7 @@ const NewSeasonPage = ({ onCreated }) => {
 
         {/* Error */}
         {error && (
-          <div style={{ background: "rgba(255,60,172,0.06)", border: `1px solid ${C.magenta}`, padding: "0.75rem 1.25rem", color: C.magenta, fontWeight: 900, fontSize: "0.85rem", fontFamily: "'Courier New', monospace" }}>
+          <div style={{ background: C.magentaBg, border: `1px solid ${C.magenta}`, padding: "0.75rem 1.25rem", color: C.magenta, fontWeight: 900, fontSize: "0.85rem", fontFamily: "'Courier New', monospace" }}>
             ⚠ {error}
           </div>
         )}
@@ -215,7 +208,7 @@ const NewSeasonPage = ({ onCreated }) => {
               padding: "0.65rem 2rem", fontWeight: 900, fontSize: "0.85rem",
               cursor: loading || !name.trim() ? "not-allowed" : "pointer",
               fontFamily: "'Courier New', monospace", letterSpacing: "2px",
-              boxShadow: loading || !name.trim() ? "none" : `0 0 20px ${C.yellow}40`,
+              boxShadow: loading || !name.trim() ? "none" : glow(theme, `0 0 20px ${C.yellow}40`),
             }}
           >
             {loading ? "MENYIMPAN..." : "BUAT SEASON"}

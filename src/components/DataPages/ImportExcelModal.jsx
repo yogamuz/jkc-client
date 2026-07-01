@@ -1,13 +1,17 @@
 import { useState } from "react";
 import * as XLSX from "xlsx";
 import {
-  C,
-  inputS,
-  labelS,
+  useDataPageColors,
+  getInputS,
+  getLabelS,
   COLUMN_MAP,
 } from "../../constants/dataPage.constants";
 
 const ImportExcelModal = ({ season, onClose, onCreate, loading }) => {
+  const C = useDataPageColors();
+  const inputS = getInputS(C);
+  const labelS = getLabelS(C);
+
   const [rows, setRows] = useState([]);
   const [preview, setPreview] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -169,7 +173,7 @@ const ImportExcelModal = ({ season, onClose, onCreate, loading }) => {
     >
       <div
         style={{
-          background: "#131318",
+          background: C.modalBg,
           border: `1px solid ${C.border}`,
           width: "calc(100% - 2rem)",
           maxWidth: "700px",
@@ -279,7 +283,7 @@ const ImportExcelModal = ({ season, onClose, onCreate, loading }) => {
                     <tr
                       style={{
                         borderBottom: `1px solid ${C.border}`,
-                        background: "#0D0D0F",
+                        background: C.bg,
                       }}
                     >
                       {["NAME", "DATE", "KATEGORI", "BAYAR", "HARGA"].map(
@@ -307,19 +311,19 @@ const ImportExcelModal = ({ season, onClose, onCreate, loading }) => {
                         key={i}
                         style={{
                           borderBottom: `1px solid ${C.border}`,
-                          background: i % 2 === 0 ? "#0F0F14" : "#0D0D0F",
+                          background: i % 2 === 0 ? C.tableBg : C.rowAlt,
                         }}
                       >
                         <td style={{ padding: "5px 10px", color: C.text }}>
                           {r.customerName}
                         </td>
-                        <td style={{ padding: "5px 10px", color: "#8A8A9A" }}>
+                        <td style={{ padding: "5px 10px", color: C.mutedAlt }}>
                           {r.date}
                         </td>
-                        <td style={{ padding: "5px 10px", color: "#8A8A9A" }}>
+                        <td style={{ padding: "5px 10px", color: C.mutedAlt }}>
                           {r.category}
                         </td>
-                        <td style={{ padding: "5px 10px", color: "#8A8A9A" }}>
+                        <td style={{ padding: "5px 10px", color: C.mutedAlt }}>
                           {r.payment}
                         </td>
                         <td style={{ padding: "5px 10px", color: C.green }}>
@@ -364,7 +368,7 @@ const ImportExcelModal = ({ season, onClose, onCreate, loading }) => {
             display: "flex",
             gap: "0.75rem",
             justifyContent: "flex-end",
-            background: "#0D0D0F",
+            background: C.modalFooterBg,
           }}
         >
           <button

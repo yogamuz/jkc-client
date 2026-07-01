@@ -1,5 +1,6 @@
 import { ShoppingBag, TrendingUp, User, DollarSign } from "lucide-react";
-import { C, glassCard } from "../../constants/dataPage.constants";
+import { useDataPageColors, glassCard, glow } from "../../constants/dataPage.constants";
+import { useTheme } from "../../context/ThemeContext";
 
 /**
  * SummaryCards
@@ -9,6 +10,8 @@ import { C, glassCard } from "../../constants/dataPage.constants";
  *   hasFilter       : boolean — apakah ada filter aktif
  */
 const SummaryCards = ({ summary, filteredOrders = [], hasFilter = false }) => {
+  const C = useDataPageColors();
+  const { theme } = useTheme();
   const fmtRp = (n) => `Rp ${(n || 0).toLocaleString("id-ID")}`;
 
   // Kalau ada filter aktif, hitung dari filteredOrders
@@ -38,18 +41,18 @@ const SummaryCards = ({ summary, filteredOrders = [], hasFilter = false }) => {
       zIndex: 1,
     }}>
       {summaryCards.map((s) => (
-        <div key={s.label} style={glassCard(s.accent)}>
+        <div key={s.label} style={glassCard(s.accent, C)}>
           <div style={{ position: "absolute", top: "14px", right: "14px", color: s.accent, opacity: 0.7 }}>
             <s.Icon size={22} strokeWidth={1.5} />
           </div>
-          <div style={{ fontSize: "0.58rem", color: "#9A9A9A", fontWeight: 700, letterSpacing: "2.5px", fontFamily: "'Courier New', monospace", marginBottom: "8px" }}>
+          <div style={{ fontSize: "0.58rem", color: C.mutedAlt, fontWeight: 700, letterSpacing: "2.5px", fontFamily: "'Courier New', monospace", marginBottom: "8px" }}>
             {s.label}
           </div>
           <div style={{
             fontSize: s.label === "TOTAL ORDER" ? "clamp(1.4rem, 5vw, 2.2rem)" : "clamp(0.9rem, 3vw, 1.5rem)",
             fontWeight: 900, color: s.accent, fontFamily: "'Courier New', monospace", lineHeight: 1.1,
             letterSpacing: s.label === "TOTAL ORDER" ? "-2px" : "-0.5px",
-            textShadow: `0 0 20px ${s.accent}60`,
+            textShadow: glow(theme, `0 0 20px ${s.accent}60`),
           }}>
             {s.value}
           </div>
