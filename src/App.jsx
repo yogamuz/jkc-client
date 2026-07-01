@@ -9,6 +9,8 @@ import NewSeasonPage from "./pages/NewSeasonPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import AdminsPage from "./pages/AdminsPage";
 import Sidebar from "./components/ui/Sidebar";
+import ThemeToggle from "./components/ui/sidebar/ThemeToggle";
+import { useSidebarColors } from "./components/ui/sidebar/SidebarTokens";
 import useAuth from "./hooks/useAuth";
 import useSeason from "./hooks/useSeason";
 
@@ -19,6 +21,7 @@ function App() {
   const [activeSeasonId, setActiveSeasonId] = useState(null);
   const [checking, setChecking] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const C = useSidebarColors();
   const handleAvatarUpdate = (avatarUrl) => {
     setUser((prev) => ({ ...prev, avatar: avatarUrl }));
   };
@@ -120,7 +123,7 @@ function App() {
         display: "flex",
         height: "100vh",
         overflow: "hidden",
-        background: "#0D0D0D",
+        background: C.bg,
       }}
     >
       {/* Overlay mobile */}
@@ -136,28 +139,36 @@ function App() {
         />
       )}
 
-      {/* Hamburger button (mobile only) */}
-      <button
-        onClick={() => setSidebarOpen((v) => !v)}
+      {/* Hamburger + Theme toggle (mobile only) */}
+      <div
         style={{
           display: "none",
           position: "fixed",
           top: "1rem",
           left: "1rem",
           zIndex: 60,
-          background: "#111",
-          border: "1px solid #2A2A2A",
-          color: "#FFE600",
-          cursor: "pointer",
-          padding: "6px 8px",
-          fontFamily: "monospace",
-          fontSize: "1rem",
-          lineHeight: 1,
+          gap: "0.5rem",
+          alignItems: "center",
         }}
         className="mobile-hamburger"
       >
-        ☰
-      </button>
+        <button
+          onClick={() => setSidebarOpen((v) => !v)}
+          style={{
+            background: C.bgPanel,
+            border: `1px solid ${C.border}`,
+            color: C.yellow,
+            cursor: "pointer",
+            padding: "6px 8px",
+            fontFamily: "monospace",
+            fontSize: "1rem",
+            lineHeight: 1,
+          }}
+        >
+          ☰
+        </button>
+        <ThemeToggle iconOnly />
+      </div>
       <Sidebar
         activePage={activePage}
         activeSeasonId={activeSeasonId}

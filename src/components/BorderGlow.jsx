@@ -216,7 +216,7 @@ const BorderGlow = ({
           transition: isVisible ? 'opacity 0.25s ease-out' : 'opacity 0.75s ease-in-out',
         }}
       >
-        <spanW
+        <span
           className="absolute rounded-[inherit]"
           style={{
             inset: `${glowRadius}px`,
