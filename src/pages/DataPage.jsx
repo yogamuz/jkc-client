@@ -224,7 +224,8 @@ const FilterBar = ({ filters, onChange, onReset }) => {
 };
 
 // ── Main DataPage ─────────────────────────────────────────
-const DataPage = ({ season }) => {
+const DataPage = ({ season, user }) => {
+  const isOwner = user?.role === "owner";
   const C = useDataPageColors();
   const { theme } = useTheme();
   const {
@@ -251,9 +252,9 @@ const DataPage = ({ season }) => {
   useEffect(() => {
     if (season?.id) {
       fetchOrders(season.id);
-      fetchSummary(season.id);
+      if (isOwner) fetchSummary(season.id);
     }
-  }, [season?.id]);
+  }, [season?.id, isOwner]);
 
   const handleFilterChange = (patch) => setFilters((f) => ({ ...f, ...patch }));
   const handleFilterReset = () =>
@@ -285,7 +286,7 @@ const DataPage = ({ season }) => {
     if (res) {
       setShowModal(false);
       fetchOrders(season.id);
-      fetchSummary(season.id);
+      if (isOwner) fetchSummary(season.id);
     }
   };
 
@@ -336,7 +337,7 @@ const DataPage = ({ season }) => {
       extra: true,
     })),
     { key: "paid", label: "PAID", width: "110px" },
-{ key: "aksi", label: "AKSI", width: "80px" },
+    { key: "aksi", label: "AKSI", width: "80px" },
   ];
 
   if (!season)
@@ -532,9 +533,10 @@ const DataPage = ({ season }) => {
         summary={summary}
         filteredOrders={filteredOrders}
         hasFilter={hasFilter}
+        isOwner={isOwner}
       />
 
-      {error && (
+      {error && isOwner && (
         <div
           style={{
             background: "rgba(255,60,172,0.06)",
@@ -568,7 +570,6 @@ const DataPage = ({ season }) => {
         onDelete={handleDelete}
         onUpdateStatus={handleUpdateStatus}
         onMarkPaid={handleMarkPaid}
-        
         onUpdate={handleUpdate}
       />
 

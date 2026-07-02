@@ -13,7 +13,14 @@ import {
   fromDisplay,
 } from "./rateConfig.utils";
 
-const RateForm = ({ seasonId, onSaved, updateRates, loading }) => {
+const RateForm = ({
+  seasonId,
+  onSaved,
+  updateRates,
+  updateSeason,
+  currentAdminFee = 0,
+  loading,
+}) => {
   const C = useRateConfigColors();
   const { theme } = useTheme();
   const inputS = getInputS(C);
@@ -24,6 +31,12 @@ const RateForm = ({ seasonId, onSaved, updateRates, loading }) => {
   );
   const [note, setNote] = useState("");
   const [usePreset, setUsePreset] = useState(true);
+
+  // ── Admin fee — terpisah dari rates, owner-only, tidak snapshot per tier ──
+  const [adminFeeDisplay, setAdminFeeDisplay] = useState(
+    toDisplay(currentAdminFee),
+  );
+  const [adminFeeSaving, setAdminFeeSaving] = useState(false);
 
   const setRate = (i, field, val) =>
     setRates((prev) => {
@@ -46,211 +59,309 @@ const RateForm = ({ seasonId, onSaved, updateRates, loading }) => {
     onSaved();
   };
 
-  return (
-    <div
-      style={{
-        background: C.panel,
-        border: `1px solid ${C.border}`,
-        overflow: "hidden",
-      }}
-    >
-      {/* header */}
-      <div
-        style={{
-          borderBottom: `1px solid ${C.border}`,
-          padding: "0.65rem 1.25rem",
-          background: "rgba(255,230,0,0.04)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <span
-          style={{
-            fontSize: "0.62rem",
-            fontWeight: 900,
-            letterSpacing: "3px",
-            color: C.yellow,
-            fontFamily: "'Courier New', monospace",
-          }}
-        >
-          // SET RATE BARU
-        </span>
-        <button
-          onClick={addRow}
-          style={{
-            background: "transparent",
-            border: `1px solid ${C.cyan}`,
-            color: C.cyan,
-            padding: "3px 10px",
-            fontSize: "0.6rem",
-            fontWeight: 900,
-            letterSpacing: "1.5px",
-            cursor: "pointer",
-            fontFamily: "'Courier New', monospace",
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-          }}
-        >
-          <Plus size={11} strokeWidth={2.5} /> TAMBAH TIER
-        </button>
-      </div>
+  const handleSaveAdminFee = async () => {
+    if (!updateSeason) return;
+    setAdminFeeSaving(true);
+    try {
+      await updateSeason(seasonId, { adminFee: fromDisplay(adminFeeDisplay) });
+      onSaved();
+    } finally {
+      setAdminFeeSaving(false);
+    }
+  };
 
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+      {/* ── FEE ADMIN / ID — terpisah, tidak terikat tier ── */}
       <div
         style={{
-          padding: "1.25rem",
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.75rem",
-          overflowX: "auto",
+          background: C.panel,
+          border: `1px solid ${C.border}`,
+          overflow: "hidden",
         }}
       >
-        {/* table header */}
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "100px 1fr 1fr 1fr 1fr 36px",
-            minWidth: "480px",
-            gap: "0.5rem",
-            marginBottom: "2px",
+            borderBottom: `1px solid ${C.border}`,
+            padding: "0.65rem 1.25rem",
+            background: "rgba(0,229,255,0.04)",
           }}
         >
-          {RATE_HEADERS.map((h) => (
-            <div
-              key={h}
-              style={{
-                fontSize: "0.55rem",
-                color: C.muted,
-                fontWeight: 900,
-                letterSpacing: "1.5px",
-                fontFamily: "'Courier New', monospace",
-              }}
-            >
-              {h}
-            </div>
-          ))}
+          <span
+            style={{
+              fontSize: "0.62rem",
+              fontWeight: 900,
+              letterSpacing: "3px",
+              color: C.cyan,
+              fontFamily: "'Courier New', monospace",
+            }}
+          >
+            // FEE ADMIN / ID
+          </span>
+        </div>
+        <div
+          style={{
+            padding: "1.25rem",
+            display: "flex",
+            alignItems: "flex-end",
+            gap: "0.75rem",
+            flexWrap: "wrap",
+          }}
+        >
+          <div style={{ maxWidth: "200px" }}>
+            <label style={labelS}>FEE PER ID (Rp)</label>
+            <input
+              style={{ ...inputS, color: C.cyan }}
+              type="text"
+              inputMode="numeric"
+              value={adminFeeDisplay}
+              placeholder="5.000"
+              onChange={(e) =>
+                setAdminFeeDisplay(toDisplay(fromDisplay(e.target.value)))
+              }
+            />
+          </div>
+          <button
+            onClick={handleSaveAdminFee}
+            disabled={adminFeeSaving || !updateSeason}
+            style={{
+              background: adminFeeSaving ? "transparent" : C.cyan,
+              border: `1px solid ${adminFeeSaving ? C.muted : C.cyan}`,
+              color: adminFeeSaving ? C.muted : "#000",
+              padding: "0.55rem 1.5rem",
+              fontWeight: 900,
+              fontSize: "0.75rem",
+              cursor: adminFeeSaving ? "not-allowed" : "pointer",
+              fontFamily: "'Courier New', monospace",
+              letterSpacing: "1.5px",
+              boxShadow: adminFeeSaving
+                ? "none"
+                : glow(theme, `0 0 14px ${C.cyan}40`),
+            }}
+          >
+            {adminFeeSaving ? "MENYIMPAN..." : "SIMPAN FEE"}
+          </button>
+          <div
+            style={{
+              fontSize: "0.62rem",
+              color: C.muted,
+              fontFamily: "monospace",
+              letterSpacing: "0.5px",
+              flexBasis: "100%",
+            }}
+          >
+            Berlaku langsung untuk order baru & yang diedit. Admin hanya input
+            jumlah ID, fee dihitung otomatis dari nilai ini.
+          </div>
+        </div>
+      </div>
+
+      {/* ── Rate per tier — form asli, tidak berubah ── */}
+      <div
+        style={{
+          background: C.panel,
+          border: `1px solid ${C.border}`,
+          overflow: "hidden",
+        }}
+      >
+        {/* header */}
+        <div
+          style={{
+            borderBottom: `1px solid ${C.border}`,
+            padding: "0.65rem 1.25rem",
+            background: "rgba(255,230,0,0.04)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <span
+            style={{
+              fontSize: "0.62rem",
+              fontWeight: 900,
+              letterSpacing: "3px",
+              color: C.yellow,
+              fontFamily: "'Courier New', monospace",
+            }}
+          >
+            // SET RATE BARU
+          </span>
+          <button
+            onClick={addRow}
+            style={{
+              background: "transparent",
+              border: `1px solid ${C.cyan}`,
+              color: C.cyan,
+              padding: "3px 10px",
+              fontSize: "0.6rem",
+              fontWeight: 900,
+              letterSpacing: "1.5px",
+              cursor: "pointer",
+              fontFamily: "'Courier New', monospace",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+            }}
+          >
+            <Plus size={11} strokeWidth={2.5} /> TAMBAH TIER
+          </button>
         </div>
 
-        {/* rows */}
-        {rates.map((r, i) => (
+        <div
+          style={{
+            padding: "1.25rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem",
+            overflowX: "auto",
+          }}
+        >
+          {/* table header */}
           <div
-            key={i}
             style={{
               display: "grid",
               gridTemplateColumns: "100px 1fr 1fr 1fr 1fr 36px",
-              gap: "0.5rem",
-              alignItems: "center",
               minWidth: "480px",
+              gap: "0.5rem",
+              marginBottom: "2px",
             }}
           >
-            <input
+            {RATE_HEADERS.map((h) => (
+              <div
+                key={h}
+                style={{
+                  fontSize: "0.55rem",
+                  color: C.muted,
+                  fontWeight: 900,
+                  letterSpacing: "1.5px",
+                  fontFamily: "'Courier New', monospace",
+                }}
+              >
+                {h}
+              </div>
+            ))}
+          </div>
+
+          {/* rows */}
+          {rates.map((r, i) => (
+            <div
+              key={i}
               style={{
-                ...inputS,
-                fontWeight: 900,
-                color: C.yellow,
-                letterSpacing: "1px",
-              }}
-              value={r.tier}
-              placeholder="EPIC"
-              onChange={(e) => setRate(i, "tier", e.target.value)}
-            />
-            <input
-              style={inputS}
-              type="text"
-              inputMode="numeric"
-              value={toDisplay(r.rate_store_joki)}
-              placeholder="5.000"
-              onChange={(e) =>
-                setRate(i, "rate_store_joki", fromDisplay(e.target.value))
-              }
-            />
-            <input
-              style={inputS}
-              type="text"
-              inputMode="numeric"
-              value={toDisplay(r.rate_store_jokgen)}
-              placeholder="7.000"
-              onChange={(e) =>
-                setRate(i, "rate_store_jokgen", fromDisplay(e.target.value))
-              }
-            />
-            <input
-              style={{ ...inputS, color: C.cyan }}
-              type="text"
-              inputMode="numeric"
-              value={toDisplay(r.rate_worker_joki)}
-              placeholder="2.500"
-              onChange={(e) =>
-                setRate(i, "rate_worker_joki", fromDisplay(e.target.value))
-              }
-            />
-            <input
-              style={{ ...inputS, color: C.cyan }}
-              type="text"
-              inputMode="numeric"
-              value={toDisplay(r.rate_worker_jokgen)}
-              placeholder="3.000"
-              onChange={(e) =>
-                setRate(i, "rate_worker_jokgen", fromDisplay(e.target.value))
-              }
-            />
-            <button
-              onClick={() => removeRow(i)}
-              style={{
-                background: "transparent",
-                border: "none",
-                color: C.muted,
-                cursor: "pointer",
-                padding: "4px",
-                display: "flex",
+                display: "grid",
+                gridTemplateColumns: "100px 1fr 1fr 1fr 1fr 36px",
+                gap: "0.5rem",
                 alignItems: "center",
+                minWidth: "480px",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = C.magenta)}
-              onMouseLeave={(e) => (e.currentTarget.style.color = C.muted)}
             >
-              <Trash2 size={13} strokeWidth={1.5} />
+              <input
+                style={{
+                  ...inputS,
+                  fontWeight: 900,
+                  color: C.yellow,
+                  letterSpacing: "1px",
+                }}
+                value={r.tier}
+                placeholder="EPIC"
+                onChange={(e) => setRate(i, "tier", e.target.value)}
+              />
+              <input
+                style={inputS}
+                type="text"
+                inputMode="numeric"
+                value={toDisplay(r.rate_store_joki)}
+                placeholder="5.000"
+                onChange={(e) =>
+                  setRate(i, "rate_store_joki", fromDisplay(e.target.value))
+                }
+              />
+              <input
+                style={inputS}
+                type="text"
+                inputMode="numeric"
+                value={toDisplay(r.rate_store_jokgen)}
+                placeholder="7.000"
+                onChange={(e) =>
+                  setRate(i, "rate_store_jokgen", fromDisplay(e.target.value))
+                }
+              />
+              <input
+                style={{ ...inputS, color: C.cyan }}
+                type="text"
+                inputMode="numeric"
+                value={toDisplay(r.rate_worker_joki)}
+                placeholder="2.500"
+                onChange={(e) =>
+                  setRate(i, "rate_worker_joki", fromDisplay(e.target.value))
+                }
+              />
+              <input
+                style={{ ...inputS, color: C.cyan }}
+                type="text"
+                inputMode="numeric"
+                value={toDisplay(r.rate_worker_jokgen)}
+                placeholder="3.000"
+                onChange={(e) =>
+                  setRate(i, "rate_worker_jokgen", fromDisplay(e.target.value))
+                }
+              />
+              <button
+                onClick={() => removeRow(i)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: C.muted,
+                  cursor: "pointer",
+                  padding: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = C.magenta)}
+                onMouseLeave={(e) => (e.currentTarget.style.color = C.muted)}
+              >
+                <Trash2 size={13} strokeWidth={1.5} />
+              </button>
+            </div>
+          ))}
+
+          {/* note */}
+          <div style={{ marginTop: "0.25rem" }}>
+            <label style={labelS}>CATATAN (opsional)</label>
+            <input
+              style={inputS}
+              value={note}
+              placeholder="misal: update rate minggu ke-2 Juni"
+              onChange={(e) => setNote(e.target.value)}
+            />
+          </div>
+
+          {/* save */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: "0.25rem",
+            }}
+          >
+            <button
+              onClick={handleSave}
+              disabled={loading}
+              style={{
+                background: loading ? "transparent" : C.yellow,
+                border: `1px solid ${loading ? C.muted : C.yellow}`,
+                color: loading ? C.muted : "#000",
+                padding: "0.5rem 1.75rem",
+                fontWeight: 900,
+                fontSize: "0.8rem",
+                cursor: loading ? "not-allowed" : "pointer",
+                fontFamily: "'Courier New', monospace",
+                letterSpacing: "2px",
+                boxShadow: loading ? "none" : glow(theme, `0 0 16px ${C.yellow}40`),
+              }}
+            >
+              {loading ? "MENYIMPAN..." : "SIMPAN RATE"}
             </button>
           </div>
-        ))}
-
-        {/* note */}
-        <div style={{ marginTop: "0.25rem" }}>
-          <label style={labelS}>CATATAN (opsional)</label>
-          <input
-            style={inputS}
-            value={note}
-            placeholder="misal: update rate minggu ke-2 Juni"
-            onChange={(e) => setNote(e.target.value)}
-          />
-        </div>
-
-        {/* save */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: "0.25rem",
-          }}
-        >
-          <button
-            onClick={handleSave}
-            disabled={loading}
-            style={{
-              background: loading ? "transparent" : C.yellow,
-              border: `1px solid ${loading ? C.muted : C.yellow}`,
-              color: loading ? C.muted : "#000",
-              padding: "0.5rem 1.75rem",
-              fontWeight: 900,
-              fontSize: "0.8rem",
-              cursor: loading ? "not-allowed" : "pointer",
-              fontFamily: "'Courier New', monospace",
-              letterSpacing: "2px",
-              boxShadow: loading ? "none" : glow(theme, `0 0 16px ${C.yellow}40`),
-            }}
-          >
-            {loading ? "MENYIMPAN..." : "SIMPAN RATE"}
-          </button>
         </div>
       </div>
     </div>

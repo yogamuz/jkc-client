@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Lightfall from "./components/LightFall";
+import SoftAurora from "./components/SoftAurora";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import DataPage from "./pages/DataPage";
@@ -72,23 +72,24 @@ function App() {
           width: "100vw",
           height: "100vh",
           position: "relative",
-          backgroundColor: "#0A29FF",
+          backgroundColor: "#0D0D0D",
         }}
       >
-        <Lightfall
-          colors={["#A6C8FF", "#5227FF", "#FF9FFC"]}
-          backgroundColor="#0A29FF"
-          speed={0.5}
-          streakCount={2}
-          streakWidth={1}
-          streakLength={1}
-          glow={0.6}
-          density={0.6}
-          twinkle={0}
-          zoom={3.9}
-          backgroundGlow={0.5}
-          opacity={1}
-          mouseInteraction={false}
+        <SoftAurora
+          speed={0.6}
+          scale={1.5}
+          brightness={1}
+          color1="#10B981"
+          color2="#06B6D4"
+          noiseFrequency={2.5}
+          noiseAmplitude={1}
+          bandHeight={0.5}
+          bandSpread={1}
+          octaveDecay={0.1}
+          layerOffset={0}
+          colorSpeed={1}
+          enableMouseInteraction
+          mouseInfluence={0.25}
         />
         <LoginPage onLoginSuccess={setUser} />
       </div>
@@ -99,9 +100,15 @@ function App() {
   const renderPage = () => {
     switch (activePage) {
       case "dashboard":
-        return <DashboardPage onNavigate={setActivePage} seasons={seasons} />;
+        return (
+          <DashboardPage
+            onNavigate={setActivePage}
+            seasons={seasons}
+            user={user}
+          />
+        );
       case "data":
-        return <DataPage season={activeSeason} />;
+        return <DataPage season={activeSeason} user={user} />;
       case "newSeason":
         return <NewSeasonPage onCreated={(id) => handleSelectSeason(id)} />;
       case "workers":
@@ -111,7 +118,11 @@ function App() {
       case "analytics":
         return <AnalyticsPage season={activeSeason} seasons={seasons} />;
       case "rates":
-        return <RateConfigPage seasons={seasons} />;
+        return user.role === "owner" ? (
+          <RateConfigPage seasons={seasons} />
+        ) : (
+          <AccessDenied />
+        );
       case "admins":
         return <AdminsPage />;
       default:

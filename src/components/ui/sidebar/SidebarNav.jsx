@@ -86,7 +86,9 @@ const SidebarNav = ({
             hoverOff(e, activePage === "data" && !activeSeasonId)
           }
         >
-          <span style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+          <span
+            style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}
+          >
             <Database size={14} strokeWidth={2} />
             Data
           </span>
@@ -144,7 +146,8 @@ const SidebarNav = ({
                       textAlign: "left",
                       fontFamily: "'Courier New', monospace",
                       textTransform: "uppercase",
-                      transition: "color 0.15s, background 0.15s, border-left-color 0.15s",
+                      transition:
+                        "color 0.15s, background 0.15s, border-left-color 0.15s",
                     }}
                     onMouseEnter={(e) => {
                       if (!isActive) {
@@ -175,38 +178,40 @@ const SidebarNav = ({
                 );
               })
             )}
-            <button
-              onClick={() => onNavigate("newSeason")}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                width: "100%",
-                padding: "0.5rem 1.25rem 0.5rem 2.5rem",
-                background: "transparent",
-                border: "none",
-                borderLeft: "4px solid transparent",
-                color: C.dimmed,
-                fontWeight: 700,
-                fontSize: "0.65rem",
-                letterSpacing: "1.5px",
-                cursor: "pointer",
-                textAlign: "left",
-                fontFamily: "'Courier New', monospace",
-                textTransform: "uppercase",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = C.cyan;
-                e.currentTarget.style.borderLeftColor = C.cyan;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = C.dimmed;
-                e.currentTarget.style.borderLeftColor = "transparent";
-              }}
-            >
-              <span style={{ fontSize: "0.9rem" }}>＋</span>
-              Season Baru
-            </button>
+            {user?.role === "owner" && (
+              <button
+                onClick={() => onNavigate("newSeason")}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  width: "100%",
+                  padding: "0.5rem 1.25rem 0.5rem 2.5rem",
+                  background: "transparent",
+                  border: "none",
+                  borderLeft: "4px solid transparent",
+                  color: C.dimmed,
+                  fontWeight: 700,
+                  fontSize: "0.65rem",
+                  letterSpacing: "1.5px",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  fontFamily: "'Courier New', monospace",
+                  textTransform: "uppercase",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = C.cyan;
+                  e.currentTarget.style.borderLeftColor = C.cyan;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = C.dimmed;
+                  e.currentTarget.style.borderLeftColor = "transparent";
+                }}
+              >
+                <span style={{ fontSize: "0.9rem" }}>＋</span>
+                Season Baru
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -221,28 +226,31 @@ const SidebarNav = ({
         <Users size={14} strokeWidth={2} />
         Workers
       </button>
+      {/* Analytics — owner only */}
+      {user?.role === "owner" && (
+        <button
+          onClick={() => onNavigate("analytics")}
+          style={navItemStyle(activePage === "analytics")}
+          onMouseEnter={(e) => hoverOn(e, activePage === "analytics")}
+          onMouseLeave={(e) => hoverOff(e, activePage === "analytics")}
+        >
+          <BarChart2 size={14} strokeWidth={2} />
+          Analytics
+        </button>
+      )}
 
-      {/* Analytics */}
-      <button
-        onClick={() => onNavigate("analytics")}
-        style={navItemStyle(activePage === "analytics")}
-        onMouseEnter={(e) => hoverOn(e, activePage === "analytics")}
-        onMouseLeave={(e) => hoverOff(e, activePage === "analytics")}
-      >
-        <BarChart2 size={14} strokeWidth={2} />
-        Analytics
-      </button>
-
-      {/* Rate Config */}
-      <button
-        onClick={() => onNavigate("rates")}
-        style={navItemStyle(activePage === "rates")}
-        onMouseEnter={(e) => hoverOn(e, activePage === "rates")}
-        onMouseLeave={(e) => hoverOff(e, activePage === "rates")}
-      >
-        <SlidersHorizontal size={14} strokeWidth={2} />
-        Rate Config
-      </button>
+      {/* Rate Config — owner only */}
+      {user?.role === "owner" && (
+        <button
+          onClick={() => onNavigate("rates")}
+          style={navItemStyle(activePage === "rates")}
+          onMouseEnter={(e) => hoverOn(e, activePage === "rates")}
+          onMouseLeave={(e) => hoverOff(e, activePage === "rates")}
+        >
+          <SlidersHorizontal size={14} strokeWidth={2} />
+          Rate Config
+        </button>
+      )}
 
       {/* Account — owner only */}
       {user?.role === "owner" && (
