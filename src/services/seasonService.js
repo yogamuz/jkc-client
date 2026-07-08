@@ -13,6 +13,7 @@ const apiFetch = async (path, options = {}) => {
 
 export const getAllSeasons  = ()       => apiFetch('/api/seasons')
 export const getSeasonById  = (id)     => apiFetch(`/api/seasons/${id}`)
+export const getPublicRates = () => apiFetch('/api/seasons/public/rates')
 export const createSeason   = (body)   => apiFetch('/api/seasons', { method: 'POST',   body: JSON.stringify(body) })
 export const updateSeason   = (id, b)  => apiFetch(`/api/seasons/${id}`, { method: 'PATCH',  body: JSON.stringify(b) })
 export const deleteSeason   = (id)     => apiFetch(`/api/seasons/${id}`, { method: 'DELETE' })

@@ -14,7 +14,10 @@ import { useSidebarColors } from "./components/ui/sidebar/SidebarTokens";
 import useAuth from "./hooks/useAuth";
 import useSeason from "./hooks/useSeason";
 import { useTheme } from "./context/ThemeContext";
-function App() {
+import { Routes, Route } from "react-router-dom";
+import PublicRatesPage from "./pages/PublicRatesPage";
+
+function AdminApp() {
   const { user, setUser, checkSession, logout } = useAuth();
   const { seasons, fetchAll } = useSeason();
   const [activePage, setActivePage] = useState("dashboard");
@@ -258,5 +261,14 @@ const PlaceholderPage = ({ title }) => (
     />
   </div>
 );
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<PublicRatesPage />} />
+      <Route path="/login" element={<AdminApp />} />
+    </Routes>
+  );
+}
 
 export default App;
