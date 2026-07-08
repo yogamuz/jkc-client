@@ -268,7 +268,7 @@ const PublicRatesPage = () => {
         )}
 
         <a
-          href={buildWaLink("mau joko rank dong")}
+          href={buildWaLink("mau joko dong")}
           target="_blank"
           rel="noopener noreferrer"
           style={{
