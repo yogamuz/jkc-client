@@ -115,7 +115,7 @@ const PublicRatesPage = () => {
           </div>
           <h1
             style={{
-              fontSize: "2.25rem",
+              fontSize: "clamp(1.5rem, 7vw, 2.25rem)",
               fontWeight: 900,
               color: textPrimary,
               margin: 0,
@@ -130,7 +130,7 @@ const PublicRatesPage = () => {
             style={{
               textAlign: "center",
               color: isLight ? "#0891b2" : "#00E5FF",
-              fontSize: "0.8rem",
+              fontSize: "clamp(0.7rem, 3.2vw, 0.8rem)",
               lineHeight: 1.6,
               maxWidth: "520px",
               margin: "1.25rem auto 2rem",
@@ -141,7 +141,8 @@ const PublicRatesPage = () => {
             season baru ada.
             <br />
             <br />
-            Coba chat aja dulu, kalo mood atmin lagi bagus bisa dapet promno :v #ronaldoPulang
+            Coba chat aja dulu, kalo mood atmin lagi bagus bisa dapet promno :v
+            #ronaldoPulang
           </p>
           <div
             style={{
@@ -220,7 +221,7 @@ const PublicRatesPage = () => {
                     alignItems: "center",
                     gap: "0.6rem",
                     fontWeight: 700,
-                    fontSize: "0.9rem",
+                    fontSize: "clamp(0.7rem, 3.5vw, 0.9rem)",
                     color: textPrimary,
                     textTransform: "uppercase",
                   }}
@@ -243,7 +244,10 @@ const PublicRatesPage = () => {
                     textAlign: "right",
                     color: r.rate_store_joki > 0 ? accent : textMuted,
                     fontWeight: 700,
-                    fontSize: r.rate_store_joki > 0 ? "1rem" : "0.75rem",
+                    fontSize:
+                      r.rate_store_joki > 0
+                        ? "clamp(0.8rem, 4vw, 1rem)"
+                        : "clamp(0.65rem, 3vw, 0.75rem)",
                   }}
                 >
                   {formatRupiah(r.rate_store_joki)}
