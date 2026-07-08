@@ -202,8 +202,8 @@ const PublicRatesPage = () => {
               margin: "1.25rem auto 2rem",
             }}
           >
-            Chat via Whatsapp buat order joki ya bray. Harga yang tertera di
-            toko adalah harga awal season. Awal season blm ada bonus ⭐ mid
+            Harga yang tertera di poster toko adalah harga awal season. Harga
+            berubah seiring berjalannya season. Awal season blm ada bonus ⭐ mid
             season baru ada.
             <br />
             <br />
@@ -333,41 +333,39 @@ const PublicRatesPage = () => {
           </div>
         )}
 
-<div
-  style={{
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "nowrap",
-    gap: "0.5rem",
-    marginTop: "1.5rem",
-  }}
->
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "nowrap",
+            gap: "0.5rem",
+            marginTop: "1.5rem",
+          }}
+        >
+          <WaOrderCard
+            href={buildWaLink("mau joko rank dong")}
+            label="JOKI RANK"
+            accentColor={cyan}
+            cardBg={cardBg}
+            textMuted={textMuted}
+          />
 
-  <WaOrderCard
-    href={buildWaLink("mau joko rank dong")}
-    label="JOKI RANK"
-    accentColor={cyan}  
-    cardBg={cardBg}
-    textMuted={textMuted}
-  />
+          <WaOrderCard
+            href={buildWaLink("mau jokgen dong")}
+            label="JOKI GENDONG"
+            accentColor={magenta}
+            cardBg={cardBg}
+            textMuted={textMuted}
+          />
 
-  <WaOrderCard
-    href={buildWaLink("mau jokgen dong")}
-    label="JOKI GENDONG"
-    accentColor={magenta}
-    cardBg={cardBg}
-    textMuted={textMuted}
-  />
-
-  <WaOrderCard
-    href={buildWaLink("mau joko rising star dong")}
-    label="RISING STAR"
-    accentColor={accent}
-    cardBg={cardBg}
-    textMuted={textMuted}
-  />
-</div>
-
+          <WaOrderCard
+            href={buildWaLink("mau joko rising star dong")}
+            label="RISING STAR"
+            accentColor={accent}
+            cardBg={cardBg}
+            textMuted={textMuted}
+          />
+        </div>
 
         <p
           style={{
