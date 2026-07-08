@@ -43,6 +43,70 @@ const TIER_ICONS = {
 const getTierIcon = (tier) =>
   TIER_ICONS[tier.toUpperCase()] ||
   `https://placehold.co/32x32/1a1a1a/FFE600?text=${tier.charAt(0)}`;
+
+const WaIcon = ({ color = "#fff", size = 14 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill={color}
+    style={{ flexShrink: 0 }}
+  >
+    <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2.05 22l5.25-1.38a9.87 9.87 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.92 0-2.65-1.03-5.14-2.9-7.01A9.86 9.86 0 0 0 12.04 2zm5.8 14.09c-.24.68-1.4 1.3-1.93 1.38-.5.08-1.12.11-1.81-.11-.42-.13-.95-.31-1.64-.6-2.88-1.24-4.76-4.14-4.9-4.33-.14-.19-1.17-1.56-1.17-2.98 0-1.41.74-2.1 1-2.39.26-.28.57-.35.76-.35.19 0 .38 0 .55.01.18.01.41-.07.64.49.24.58.81 2 .88 2.14.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.16-.29.36-.42.49-.14.14-.28.29-.12.57.16.28.71 1.17 1.52 1.9 1.05.94 1.93 1.23 2.21 1.37.28.14.44.12.6-.07.16-.19.68-.79.87-1.06.19-.28.37-.23.63-.14.26.09 1.66.79 1.94.93.28.14.47.21.54.33.07.12.07.68-.17 1.36z" />
+  </svg>
+);
+
+/* ── Slim terminal-style order CTA, tetap horizontal di mobile ── */
+const WaOrderCard = ({ href, label, accentColor, cardBg, textMuted }) => (
+  <a
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "0.35rem",
+      flex: "1 1 0",
+      minWidth: 0,
+      textDecoration: "none",
+      background: `radial-gradient(ellipse at 70% 15%, ${accentColor}22 0%, ${cardBg}00 60%), ${cardBg}`,
+      border: `1px solid ${accentColor}55`,
+      borderRadius: "8px",
+      padding: "0.55rem 0.4rem",
+      transition:
+        "border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease",
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.borderColor = accentColor;
+      e.currentTarget.style.boxShadow = `0 0 14px ${accentColor}35`;
+      e.currentTarget.style.transform = "translateY(-1px)";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.borderColor = `${accentColor}55`;
+      e.currentTarget.style.boxShadow = "none";
+      e.currentTarget.style.transform = "translateY(0)";
+    }}
+  >
+    <WaIcon color={accentColor} size={13} />
+    <span
+      style={{
+        fontSize: "clamp(0.55rem, 2.4vw, 0.7rem)",
+        fontWeight: 800,
+        color: accentColor,
+        fontFamily: "'Courier New', monospace",
+        textTransform: "uppercase",
+        letterSpacing: "0.2px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      }}
+    >
+      {label}
+    </span>
+  </a>
+);
+
 const PublicRatesPage = () => {
   const { theme } = useTheme();
   const isLight = theme === "light";
@@ -66,6 +130,8 @@ const PublicRatesPage = () => {
   const accent = isLight ? "#B8860B" : "#FFE600";
   const cardBg = isLight ? "#ffffff" : "#141414";
   const border = isLight ? "#e5d9c8" : "#2a2a2a";
+  const cyan = isLight ? "#0089A0" : "#00E5FF";
+  const magenta = isLight ? "#CC2E89" : "#FF3CAC";
 
   return (
     <div
@@ -267,30 +333,41 @@ const PublicRatesPage = () => {
           </div>
         )}
 
-        <a
-          href={buildWaLink("mau joko dong")}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "0.5rem",
-            marginTop: "1.5rem",
-            background: "#25D366",
-            color: "#fff",
-            padding: "0.85rem",
-            borderRadius: "10px",
-            textDecoration: "none",
-            fontWeight: 700,
-            fontSize: "0.9rem",
-          }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
-            <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2.05 22l5.25-1.38a9.87 9.87 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.92 0-2.65-1.03-5.14-2.9-7.01A9.86 9.86 0 0 0 12.04 2zm5.8 14.09c-.24.68-1.4 1.3-1.93 1.38-.5.08-1.12.11-1.81-.11-.42-.13-.95-.31-1.64-.6-2.88-1.24-4.76-4.14-4.9-4.33-.14-.19-1.17-1.56-1.17-2.98 0-1.41.74-2.1 1-2.39.26-.28.57-.35.76-.35.19 0 .38 0 .55.01.18.01.41-.07.64.49.24.58.81 2 .88 2.14.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.16-.29.36-.42.49-.14.14-.28.29-.12.57.16.28.71 1.17 1.52 1.9 1.05.94 1.93 1.23 2.21 1.37.28.14.44.12.6-.07.16-.19.68-.79.87-1.06.19-.28.37-.23.63-.14.26.09 1.66.79 1.94.93.28.14.47.21.54.33.07.12.07.68-.17 1.36z" />
-          </svg>
-          Chat Admin via WhatsApp
-        </a>
+<div
+  style={{
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "nowrap",
+    gap: "0.5rem",
+    marginTop: "1.5rem",
+  }}
+>
+
+  <WaOrderCard
+    href={buildWaLink("mau joko rank dong")}
+    label="JOKI RANK"
+    accentColor={cyan}  
+    cardBg={cardBg}
+    textMuted={textMuted}
+  />
+
+  <WaOrderCard
+    href={buildWaLink("mau jokgen dong")}
+    label="JOKI GENDONG"
+    accentColor={magenta}
+    cardBg={cardBg}
+    textMuted={textMuted}
+  />
+
+  <WaOrderCard
+    href={buildWaLink("mau joko rising star dong")}
+    label="RISING STAR"
+    accentColor={accent}
+    cardBg={cardBg}
+    textMuted={textMuted}
+  />
+</div>
+
 
         <p
           style={{
