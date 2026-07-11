@@ -31,6 +31,9 @@ const WA_NUMBER = "62895385134865";
 
 const buildWaLink = (message) =>
   `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`;
+
+
+
 const TIER_ICONS = {
   EPIC: "/assets/epig.png",
   LEGEND: "/assets/legend.png",
@@ -45,15 +48,17 @@ const TIER_BONUS = {
   LEGEND: "Order 10+1 bonus ⭐",
   MAWI: "Order 10+1 bonus ⭐",
   HONOR: "Order 10+1 bonus ⭐",
+  GLORY: "-",
+  IMO: "-",
 };
 
 const TIER_BONUS_COLOR = {
   EPIC: "#4ADE80", // hijau
   LEGEND: "#FACC15", // kuning/emas
   MAWI: "#C0C0C0", // silver
-  HONOR: "#A78BFA", // ungu
+  HONOR: "#22D3EE", // cyan
   GLORY: "#FB923C", // oranye
-  IMO: "#22D3EE", // cyan
+  IMO: "#A78BFA", // ungu
 };
 
 const getTierIcon = (tier) =>
