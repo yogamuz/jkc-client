@@ -40,6 +40,22 @@ const TIER_ICONS = {
   IMO: "/assets/immortal.png",
 };
 
+const TIER_BONUS = {
+  EPIC: "Order 10+1 bonus ⭐",
+  LEGEND: "Order 10+1 bonus ⭐",
+  MAWI: "Order 10+1 bonus ⭐",
+  HONOR: "Order 10+1 bonus ⭐",
+};
+
+const TIER_BONUS_COLOR = {
+  EPIC: "#4ADE80", // hijau
+  LEGEND: "#FACC15", // kuning/emas
+  MAWI: "#C0C0C0", // silver
+  HONOR: "#A78BFA", // ungu
+  GLORY: "#FB923C", // oranye
+  IMO: "#22D3EE", // cyan
+};
+
 const getTierIcon = (tier) =>
   TIER_ICONS[tier.toUpperCase()] ||
   `https://placehold.co/32x32/1a1a1a/FFE600?text=${tier.charAt(0)}`;
@@ -203,8 +219,7 @@ const PublicRatesPage = () => {
             }}
           >
             Harga yang tertera di poster toko adalah harga awal season. Harga
-            berubah seiring berjalannya season. Awal season blm ada bonus ⭐ mid
-            season baru ada.
+            berubah seiring berjalannya season. Karena mau deket mid season promo bonus tipis-tipis dulu h3h3
             <br />
             <br />
             Coba chat aja dulu, kalo mood atmin lagi bagus bisa dapet promno :v
@@ -281,30 +296,52 @@ const PublicRatesPage = () => {
                   padding: "0.9rem 1rem",
                 }}
               >
-                <span
+                <div
                   style={{
                     display: "flex",
-                    alignItems: "center",
-                    gap: "0.6rem",
-                    fontWeight: 700,
-                    fontSize: "clamp(0.7rem, 3.5vw, 0.9rem)",
-                    color: textPrimary,
-                    textTransform: "uppercase",
+                    flexDirection: "column",
+                    gap: "0.2rem",
                   }}
                 >
-                  <img
-                    src={getTierIcon(r.tier)}
-                    alt={r.tier}
+                  <span
                     style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: "6px",
-                      flexShrink: 0,
-                      objectFit: "cover",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.6rem",
+                      fontWeight: 700,
+                      fontSize: "clamp(0.7rem, 3.5vw, 0.9rem)",
+                      color: textPrimary,
+                      textTransform: "uppercase",
                     }}
-                  />
-                  {r.tier}
-                </span>
+                  >
+                    <img
+                      src={getTierIcon(r.tier)}
+                      alt={r.tier}
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: "6px",
+                        flexShrink: 0,
+                        objectFit: "cover",
+                      }}
+                    />
+                    {r.tier}
+                  </span>
+                  {TIER_BONUS[r.tier.toUpperCase()] && (
+                    <span
+                      style={{
+                        fontSize: "clamp(0.55rem, 2.4vw, 0.65rem)",
+                        fontWeight: 600,
+                        color:
+                          TIER_BONUS_COLOR[r.tier.toUpperCase()] || textMuted,
+                        textTransform: "none",
+                        marginLeft: "2.6rem",
+                      }}
+                    >
+                      {TIER_BONUS[r.tier.toUpperCase()]}
+                    </span>
+                  )}
+                </div>
                 <span
                   style={{
                     textAlign: "right",
