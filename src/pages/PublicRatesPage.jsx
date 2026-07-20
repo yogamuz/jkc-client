@@ -44,11 +44,11 @@ const TIER_ICONS = {
 };
 
 const TIER_BONUS = {
-  EPIC: "Order 10+1 bonus ⭐",
-  LEGEND: "Order 10+1 bonus ⭐",
-  MAWI: "Order 10+1 bonus ⭐",
-  HONOR: "Order 10+1 bonus ⭐",
-  GLORY: "-",
+  EPIC: "Order 10+2 bonus ⭐",
+  LEGEND: "Order 10+2 bonus ⭐",
+  MAWI: "Order 10+2 bonus ⭐",
+  HONOR: "Order 10+2 bonus ⭐",
+  GLORY: "Order 10+2 bonus ⭐",
   IMO: "-",
 };
 
@@ -224,11 +224,10 @@ const PublicRatesPage = () => {
             }}
           >
             Harga yang tertera di poster toko adalah harga awal season. Harga
-            berubah seiring berjalannya season. Karena mau deket mid season promo bonus tipis-tipis dulu h3h3
+            berubah seiring berjalannya season. Mid season order 10+2 bonus ⭐
             <br />
             <br />
             Coba chat aja dulu, kalo mood atmin lagi bagus bisa dapet promno :v
-            #ronaldoPulang
           </p>
           <div
             style={{
