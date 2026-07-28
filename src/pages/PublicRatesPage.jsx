@@ -1,27 +1,36 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import CornerGlow from "../components/ui/CornerGlow";
 import CircuitBg from "../components//ui/CircuitBg";
 import ThemeToggle from "../components/ui/sidebar/ThemeToggle";
 import { useTheme } from "../context/ThemeContext";
-import { getPublicRates } from "../services/seasonService";
 
-const CACHE_KEY = "jokicalm_public_rates_cache";
-
-const readCache = () => {
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-};
-
-const writeCache = (data) => {
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-  } catch {
-    // abaikan
-  }
+/*
+ * ── SUMBER DATA RATE (CUSTOM, MANUAL) ──
+ * Dulu data ini diambil dari getPublicRates() (API) + di-cache ke localStorage.
+ * Sekarang cukup edit langsung object di bawah ini sesuai kebutuhan.
+ *
+ * Struktur HARUS tetap sama seperti response API sebelumnya:
+ * {
+ *   seasonName: string,
+ *   rates: [
+ *     { tier: "EPIC", rate_store_joki: number, rate_store_jokgen: number },
+ *     ...
+ *   ]
+ * }
+ *
+ * Isi rate_store_joki / rate_store_jokgen dengan 0 (atau angka <=0) jika
+ * ingin tampil "Belum tersedia" pada kartu.
+ */
+const STATIC_RATES = {
+  seasonName: "Rate Joki",
+  rates: [
+    { tier: "EPIC", rate_store_joki: 7000, rate_store_jokgen: 9000 },
+    { tier: "LEGEND", rate_store_joki: 8000, rate_store_jokgen: 10000 },
+    { tier: "MAWI", rate_store_joki: 15000, rate_store_jokgen: 17000 },
+    { tier: "HONOR", rate_store_joki: 17000, rate_store_jokgen: 19000 },
+    { tier: "GLORY", rate_store_joki: 24000, rate_store_jokgen: 29000 },
+    { tier: "IMO", rate_store_joki: 26000, rate_store_jokgen: 0 },
+  ],
 };
 
 const formatRupiah = (n) =>
@@ -31,8 +40,6 @@ const WA_NUMBER = "62895385134865";
 
 const buildWaLink = (message) =>
   `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`;
-
-
 
 const TIER_ICONS = {
   EPIC: "/assets/epig.png",
@@ -59,6 +66,23 @@ const TIER_BONUS_COLOR = {
   HONOR: "#22D3EE", // cyan
   GLORY: "#FB923C", // oranye
   IMO: "#A78BFA", // ungu
+};
+
+/*
+ * ── HARGA PROMO 10+2 PER TIER (CUSTOM, MANUAL) ──
+ * Edit angka di bawah ini sesuai harga promo order 10+2 masing-masing tier.
+ * "joki" untuk promo Joki Rank, "jokgen" untuk promo Joki Gendong — boleh
+ * beda harga. Isi dengan 0 pada salah satu (atau keduanya) jika tier
+ * tersebut belum punya promo 10+2 untuk layanan itu (tombol otomatis
+ * tidak akan ditampilkan).
+ */
+const TIER_PROMO_PRICE = {
+  EPIC: { joki: 65000, jokgen: 85000 },
+  LEGEND: { joki: 75000, jokgen: 95000 },
+  MAWI: { joki: 140000, jokgen: 165000 },
+  HONOR: { joki: 160000, jokgen: 185000 },
+  GLORY: { joki: 230000, jokgen: 285000 },
+  IMO: { joki: 0, jokgen: 0 },
 };
 
 const getTierIcon = (tier) =>
@@ -128,22 +152,71 @@ const WaOrderCard = ({ href, label, accentColor, cardBg, textMuted }) => (
   </a>
 );
 
+/*
+ * ── Tombol order promo 10+2, dipecah jadi 2 segmen ──
+ * Segmen kiri disejajarkan dengan kolom "Joki Rank", segmen kanan
+ * disejajarkan dengan kolom "Joki Gendong" (lihat grid 1fr 1fr 1fr
+ * di bawah, kolom pertama dikosongkan agar sejajar dengan kolom Tier).
+ */
+const PromoOrderButton = ({ message, price, accentColor, cardBg }) => (
+  <a
+    href={buildWaLink(message)}
+    target="_blank"
+    rel="noopener noreferrer"
+    style={{
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      justifySelf: "end",
+      width: "fit-content",
+      maxWidth: "100%",
+      gap: "0.3rem",
+      textDecoration: "none",
+      background: `radial-gradient(ellipse at 70% 15%, ${accentColor}22 0%, ${cardBg}00 60%), ${cardBg}`,
+      border: `1px solid ${accentColor}55`,
+      borderRadius: "8px",
+      padding: "0.4rem 0.55rem",
+      transition:
+        "border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease",
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.borderColor = accentColor;
+      e.currentTarget.style.boxShadow = `0 0 14px ${accentColor}35`;
+      e.currentTarget.style.transform = "translateY(-1px)";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.borderColor = `${accentColor}55`;
+      e.currentTarget.style.boxShadow = "none";
+      e.currentTarget.style.transform = "translateY(0)";
+    }}
+  >
+    <WaIcon color={accentColor} size={11} />
+    <span
+      style={{
+        fontSize: "clamp(0.5rem, 2.1vw, 0.62rem)",
+        fontWeight: 800,
+        color: accentColor,
+        fontFamily: "'Courier New', monospace",
+        textTransform: "uppercase",
+        letterSpacing: "0.2px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      }}
+    >
+     10+2 {formatRupiah(price)}
+    </span>
+  </a>
+);
+
 const PublicRatesPage = () => {
   const { theme } = useTheme();
   const isLight = theme === "light";
-  const [data, setData] = useState(() => readCache());
-  const [loading, setLoading] = useState(!readCache());
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    getPublicRates()
-      .then((res) => {
-        setData(res.data);
-        writeCache(res.data);
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
+  // Data langsung dari STATIC_RATES (tanpa fetch API / cache / loading).
+  const [data] = useState(STATIC_RATES);
+  const loading = false;
+  const error = null;
 
   const bg = isLight ? "#FFF7F0" : "#0D0D0D";
   const textPrimary = isLight ? "#1a1a1a" : "#E8E8E8";
@@ -286,91 +359,140 @@ const PublicRatesPage = () => {
               <span style={{ textAlign: "right" }}>Joki Gendong</span>
             </div>
 
-            {data.rates.map((r) => (
-              <div
-                key={r.tier}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr 1fr",
-                  alignItems: "center",
-                  gap: "0.75rem",
-                  background: cardBg,
-                  border: `1px solid ${border}`,
-                  borderRadius: "10px",
-                  padding: "0.9rem 1rem",
-                }}
-              >
+            {data.rates.map((r) => {
+              const tierUpper = r.tier.toUpperCase();
+              const tierLower = r.tier.toLowerCase();
+              const promo = TIER_PROMO_PRICE[tierUpper] || { joki: 0, jokgen: 0 };
+              const btnColor = TIER_BONUS_COLOR[tierUpper] || accent;
+
+              return (
                 <div
+                  key={r.tier}
                   style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.2rem",
+                    background: cardBg,
+                    border: `1px solid ${border}`,
+                    borderRadius: "10px",
+                    padding: "0.9rem 1rem",
                   }}
                 >
-                  <span
+                  <div
                     style={{
-                      display: "flex",
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr 1fr",
                       alignItems: "center",
-                      gap: "0.6rem",
-                      fontWeight: 700,
-                      fontSize: "clamp(0.7rem, 3.5vw, 0.9rem)",
-                      color: textPrimary,
-                      textTransform: "uppercase",
+                      gap: "0.75rem",
                     }}
                   >
-                    <img
-                      src={getTierIcon(r.tier)}
-                      alt={r.tier}
+                    <div
                       style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: "6px",
-                        flexShrink: 0,
-                        objectFit: "cover",
-                      }}
-                    />
-                    {r.tier}
-                  </span>
-                  {TIER_BONUS[r.tier.toUpperCase()] && (
-                    <span
-                      style={{
-                        fontSize: "clamp(0.55rem, 2.4vw, 0.65rem)",
-                        fontWeight: 600,
-                        color:
-                          TIER_BONUS_COLOR[r.tier.toUpperCase()] || textMuted,
-                        textTransform: "none",
-                        marginLeft: "2.6rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "0.2rem",
                       }}
                     >
-                      {TIER_BONUS[r.tier.toUpperCase()]}
+                      <span
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.6rem",
+                          fontWeight: 700,
+                          fontSize: "clamp(0.7rem, 3.5vw, 0.9rem)",
+                          color: textPrimary,
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        <img
+                          src={getTierIcon(r.tier)}
+                          alt={r.tier}
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: "6px",
+                            flexShrink: 0,
+                            objectFit: "cover",
+                          }}
+                        />
+                        {r.tier}
+                      </span>
+                      {TIER_BONUS[tierUpper] && (
+                        <span
+                          style={{
+                            fontSize: "clamp(0.55rem, 2.4vw, 0.65rem)",
+                            fontWeight: 600,
+                            color: TIER_BONUS_COLOR[tierUpper] || textMuted,
+                            textTransform: "none",
+                            marginLeft: "2.6rem",
+                          }}
+                        >
+                          {TIER_BONUS[tierUpper]}
+                        </span>
+                      )}
+                    </div>
+                    <span
+                      style={{
+                        textAlign: "right",
+                        color: r.rate_store_joki > 0 ? accent : textMuted,
+                        fontWeight: 700,
+                        fontSize:
+                          r.rate_store_joki > 0
+                            ? "clamp(0.8rem, 4vw, 1rem)"
+                            : "clamp(0.65rem, 3vw, 0.75rem)",
+                      }}
+                    >
+                      {formatRupiah(r.rate_store_joki)}
                     </span>
+                    <span
+                      style={{
+                        textAlign: "right",
+                        color: r.rate_store_jokgen > 0 ? accent : textMuted,
+                        fontWeight: 700,
+                        fontSize: r.rate_store_jokgen > 0 ? "1rem" : "0.75rem",
+                      }}
+                    >
+                      {formatRupiah(r.rate_store_jokgen)}
+                    </span>
+                  </div>
+
+                  {(promo.joki > 0 || promo.jokgen > 0) && (
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr 1fr",
+                        gap: "0.75rem",
+                        marginTop: "0.6rem",
+                      }}
+                    >
+                      {/* spacer, sejajar dengan kolom Tier */}
+                      <div />
+
+                      {/* segmen Joki Rank, sejajar dengan kolom Joki Rank */}
+                      {promo.joki > 0 ? (
+                        <PromoOrderButton
+                          message={`mau joki ${tierLower} 10+2 dong`}
+                          price={promo.joki}
+                          accentColor={btnColor}
+                          cardBg={cardBg}
+                        />
+                      ) : (
+                        <div />
+                      )}
+
+                      {/* segmen Joki Gendong, sejajar dengan kolom Joki Gendong */}
+                      {promo.jokgen > 0 ? (
+                        <PromoOrderButton
+                          message={`mau jokgen ${tierLower} 10+2`}
+                          price={promo.jokgen}
+                          accentColor={btnColor}
+                          cardBg={cardBg}
+                        />
+                      ) : (
+                        <div />
+                      )}
+                    </div>
                   )}
                 </div>
-                <span
-                  style={{
-                    textAlign: "right",
-                    color: r.rate_store_joki > 0 ? accent : textMuted,
-                    fontWeight: 700,
-                    fontSize:
-                      r.rate_store_joki > 0
-                        ? "clamp(0.8rem, 4vw, 1rem)"
-                        : "clamp(0.65rem, 3vw, 0.75rem)",
-                  }}
-                >
-                  {formatRupiah(r.rate_store_joki)}
-                </span>
-                <span
-                  style={{
-                    textAlign: "right",
-                    color: r.rate_store_jokgen > 0 ? accent : textMuted,
-                    fontWeight: 700,
-                    fontSize: r.rate_store_jokgen > 0 ? "1rem" : "0.75rem",
-                  }}
-                >
-                  {formatRupiah(r.rate_store_jokgen)}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
