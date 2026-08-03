@@ -22,14 +22,14 @@ import { useTheme } from "../context/ThemeContext";
  * ingin tampil "Belum tersedia" pada kartu.
  */
 const STATIC_RATES = {
-  seasonName: "Rate Joki",
+  seasonName: "PRICE LIST S41",
   rates: [
     { tier: "EPIC", rate_store_joki: 7000, rate_store_jokgen: 9000 },
     { tier: "LEGEND", rate_store_joki: 8000, rate_store_jokgen: 10000 },
-    { tier: "MAWI", rate_store_joki: 15000, rate_store_jokgen: 17000 },
-    { tier: "HONOR", rate_store_joki: 17000, rate_store_jokgen: 19000 },
-    { tier: "GLORY", rate_store_joki: 24000, rate_store_jokgen: 29000 },
-    { tier: "IMO", rate_store_joki: 26000, rate_store_jokgen: 0 },
+    { tier: "MAWI", rate_store_joki: 13000, rate_store_jokgen: 16000 },
+    { tier: "HONOR", rate_store_joki: 15000, rate_store_jokgen: 18000 },
+    { tier: "GLORY", rate_store_joki: 20000, rate_store_jokgen: 27000 },
+    { tier: "IMO", rate_store_joki: 25000, rate_store_jokgen: 0 },
   ],
 };
 
@@ -79,9 +79,9 @@ const TIER_BONUS_COLOR = {
 const TIER_PROMO_PRICE = {
   EPIC: { joki: 65000, jokgen: 85000 },
   LEGEND: { joki: 75000, jokgen: 95000 },
-  MAWI: { joki: 140000, jokgen: 165000 },
-  HONOR: { joki: 160000, jokgen: 185000 },
-  GLORY: { joki: 230000, jokgen: 285000 },
+  MAWI: { joki: 125000, jokgen: 155000 },
+  HONOR: { joki: 145000, jokgen: 175000 },
+  GLORY: { joki: 195000, jokgen: 265000 },
   IMO: { joki: 0, jokgen: 0 },
 };
 
@@ -249,7 +249,6 @@ const PublicRatesPage = () => {
           zIndex: 10,
         }}
       >
-        <ThemeToggle iconOnly />
       </div>
 
       <div
@@ -271,7 +270,6 @@ const PublicRatesPage = () => {
               marginBottom: "6px",
             }}
           >
-            // DAFTAR HARGA
           </div>
           <h1
             style={{
@@ -300,7 +298,7 @@ const PublicRatesPage = () => {
             berubah seiring berjalannya season. Mid season order 10+2 bonus ⭐
             <br />
             <br />
-            Coba chat aja dulu, kalo mood atmin lagi bagus bisa dapet promno :v
+            Price terakhir diupdate 3 august 10:00 AM WIB.
           </p>
           <div
             style={{
