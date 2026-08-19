@@ -26,10 +26,10 @@ const STATIC_RATES = {
   rates: [
     { tier: "EPIC", rate_store_joki: 7000, rate_store_jokgen: 9000 },
     { tier: "LEGEND", rate_store_joki: 8000, rate_store_jokgen: 10000 },
-    { tier: "MAWI", rate_store_joki: 13000, rate_store_jokgen: 16000 },
-    { tier: "HONOR", rate_store_joki: 15000, rate_store_jokgen: 18000 },
-    { tier: "GLORY", rate_store_joki: 20000, rate_store_jokgen: 27000 },
-    { tier: "IMO", rate_store_joki: 25000, rate_store_jokgen: 0 },
+    { tier: "MAWI", rate_store_joki: 12000, rate_store_jokgen: 15000 },
+    { tier: "HONOR", rate_store_joki: 13000, rate_store_jokgen: 16000 },
+    { tier: "GLORY", rate_store_joki: 18000, rate_store_jokgen: 22000 },
+    { tier: "IMO", rate_store_joki: 21000, rate_store_jokgen: 26000 },
   ],
 };
 
@@ -56,7 +56,7 @@ const TIER_BONUS = {
   MAWI: "Order 10+2 bonus ⭐",
   HONOR: "Order 10+2 bonus ⭐",
   GLORY: "Order 10+2 bonus ⭐",
-  IMO: "-",
+  IMO: "Order 10+2 bonus ⭐",
 };
 
 const TIER_BONUS_COLOR = {
@@ -77,12 +77,12 @@ const TIER_BONUS_COLOR = {
  * tidak akan ditampilkan).
  */
 const TIER_PROMO_PRICE = {
-  EPIC: { joki: 65000, jokgen: 85000 },
-  LEGEND: { joki: 75000, jokgen: 95000 },
-  MAWI: { joki: 125000, jokgen: 155000 },
-  HONOR: { joki: 145000, jokgen: 175000 },
-  GLORY: { joki: 195000, jokgen: 265000 },
-  IMO: { joki: 0, jokgen: 0 },
+  EPIC: { joki: 70000, jokgen: 90000 },
+  LEGEND: { joki: 80000, jokgen: 10000 },
+  MAWI: { joki: 12000, jokgen: 150000 },
+  HONOR: { joki: 13000, jokgen: 160000 },
+  GLORY: { joki: 18000, jokgen: 22000 },
+  IMO: { joki: 21000, jokgen: 26000 },
 };
 
 const getTierIcon = (tier) =>
@@ -298,7 +298,7 @@ const PublicRatesPage = () => {
             berubah seiring berjalannya season. Mid season order 10+2 bonus ⭐
             <br />
             <br />
-            Price terakhir diupdate 3 august 10:00 AM WIB.
+            Price terakhir diupdate 19 Agustus.
           </p>
           <div
             style={{
