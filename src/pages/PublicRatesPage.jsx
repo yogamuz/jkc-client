@@ -24,12 +24,12 @@ import { useTheme } from "../context/ThemeContext";
 const STATIC_RATES = {
   seasonName: "PRICE LIST S41",
   rates: [
-    { tier: "EPIC", rate_store_joki: 7000, rate_store_jokgen: 9000 },
-    { tier: "LEGEND", rate_store_joki: 8000, rate_store_jokgen: 10000 },
-    { tier: "MAWI", rate_store_joki: 12000, rate_store_jokgen: 15000 },
-    { tier: "HONOR", rate_store_joki: 13000, rate_store_jokgen: 16000 },
-    { tier: "GLORY", rate_store_joki: 18000, rate_store_jokgen: 22000 },
-    { tier: "IMO", rate_store_joki: 21000, rate_store_jokgen: 26000 },
+    { tier: "EPIC", rate_store_joki: 6000, rate_store_jokgen: 8000 },
+    { tier: "LEGEND", rate_store_joki: 7000, rate_store_jokgen: 9000 },
+    { tier: "MAWI", rate_store_joki: 11000, rate_store_jokgen: 13500 },
+    { tier: "HONOR", rate_store_joki: 12000, rate_store_jokgen: 14500 },
+    { tier: "GLORY", rate_store_joki: 16000, rate_store_jokgen: 20000 },
+    { tier: "IMO", rate_store_joki: 20000, rate_store_jokgen: 27000 },
   ],
 };
 
@@ -76,13 +76,15 @@ const TIER_BONUS_COLOR = {
  * tersebut belum punya promo 10+2 untuk layanan itu (tombol otomatis
  * tidak akan ditampilkan).
  */
+
+// HARGA PROMO 10+2 PER TIER (CUSTOM, MANUAL)
 const TIER_PROMO_PRICE = {
-  EPIC: { joki: 70000, jokgen: 90000 },
-  LEGEND: { joki: 80000, jokgen: 10000 },
-  MAWI: { joki: 12000, jokgen: 150000 },
-  HONOR: { joki: 13000, jokgen: 160000 },
-  GLORY: { joki: 18000, jokgen: 22000 },
-  IMO: { joki: 21000, jokgen: 26000 },
+  EPIC: { joki: 60000, jokgen: 80000 },
+  LEGEND: { joki: 70000, jokgen: 90000 },
+  MAWI: { joki: 110000, jokgen: 135000 },
+  HONOR: { joki: 120000, jokgen: 145000 },
+  GLORY: { joki: 160000, jokgen: 200000 },
+  IMO: { joki: 200000, jokgen: 270000 },
 };
 
 const getTierIcon = (tier) =>
@@ -466,7 +468,7 @@ const PublicRatesPage = () => {
                       {/* segmen Joki Rank, sejajar dengan kolom Joki Rank */}
                       {promo.joki > 0 ? (
                         <PromoOrderButton
-                          message={`mau joki ${tierLower} 10+2 dong`}
+                          message={`mau joko ${tierLower} 10+2 dong`}
                           price={promo.joki}
                           accentColor={btnColor}
                           cardBg={cardBg}
