@@ -300,7 +300,7 @@ const PublicRatesPage = () => {
             berubah seiring berjalannya season. Mid season order 10+2 bonus ⭐
             <br />
             <br />
-            Price terakhir diupdate 19 Agustus.
+            Price terakhir diupdate 25 Agustus.
           </p>
           <div
             style={{
