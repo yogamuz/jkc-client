@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import CircuitBg from "../components/ui/CircuitBg";
 import CornerGlow from "../components/ui/CornerGlow";
 import DatePicker from "../components/ui/DatePicker";
-import AuditLogTable from "../components/auditLog/AuditLogTable";
+import AuditLogTable from "../components/AuditLog/AuditLogTable";
 import useAuditLog from "../hooks/useAuditLog";
 import { useDataPageColors } from "../constants/dataPage.constants";
 
