@@ -6,7 +6,10 @@ import CornerGlow from "../components/ui/CornerGlow";
 import { useTheme } from "../context/ThemeContext"; // sesuaikan path
 import RateForm from "../components/RateConfig/RateForm";
 import RateHistoryPanel from "../components/RateConfig/RateHistoryPanel";
-import { useRateConfigColors, glow } from "../components/RateConfig/rateConfig.utils";
+import {
+  useRateConfigColors,
+  glow,
+} from "../components/RateConfig/rateConfig.utils";
 
 // ── Main RateConfigPage ───────────────────────────────────
 const RateConfigPage = ({ seasons = [] }) => {
@@ -162,6 +165,14 @@ const RateConfigPage = ({ seasons = [] }) => {
             seasonId={selectedSeason.id}
             onSaved={handleSaved}
             updateRates={updateRates}
+            currentRates={
+              selectedSeason.rateHistory?.length > 0
+                ? [...selectedSeason.rateHistory].sort(
+                    (a, b) =>
+                      new Date(b.effectiveDate) - new Date(a.effectiveDate),
+                  )[0].rates
+                : []
+            }
             loading={loading}
           />
 

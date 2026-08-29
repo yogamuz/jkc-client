@@ -8,6 +8,7 @@ import RateConfigPage from "./pages/RateConfigPage";
 import NewSeasonPage from "./pages/NewSeasonPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import AdminsPage from "./pages/AdminsPage";
+import AuditLogPage from "./pages/AuditLogPage";
 import Sidebar from "./components/ui/Sidebar";
 import ThemeToggle from "./components/ui/sidebar/ThemeToggle";
 import { useSidebarColors } from "./components/ui/sidebar/SidebarTokens";
@@ -16,7 +17,6 @@ import useSeason from "./hooks/useSeason";
 import { useTheme } from "./context/ThemeContext";
 import { Routes, Route } from "react-router-dom";
 import PublicRatesPage from "./pages/PublicRatesPage";
-
 function AdminApp() {
   const { user, setUser, checkSession, logout } = useAuth();
   const { seasons, fetchAll } = useSeason();
@@ -128,6 +128,8 @@ function AdminApp() {
         );
       case "admins":
         return <AdminsPage />;
+      case "auditLog":
+        return user.role === "owner" ? <AuditLogPage /> : <AccessDenied />;
       default:
     }
   };

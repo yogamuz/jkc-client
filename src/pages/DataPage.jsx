@@ -323,6 +323,7 @@ const DataPage = ({ season, user }) => {
     { key: "no", label: "#", width: "44px" },
     { key: "customerName", label: "CUSTOMER", width: "140px" },
     { key: "date", label: "TANGGAL", width: "140px" },
+    { key: "time", label: "JAM", width: "90px" },
     { key: "category", label: "KATEGORI", width: "130px" },
     { key: "payment", label: "BAYAR", width: "80px" },
     { key: "price", label: "HARGA", width: "110px" },

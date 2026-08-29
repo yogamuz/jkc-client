@@ -4,6 +4,7 @@ import {
   Users,
   BarChart2,
   SlidersHorizontal,
+  History,
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
@@ -249,6 +250,19 @@ const SidebarNav = ({
         >
           <SlidersHorizontal size={14} strokeWidth={2} />
           Rate Config
+        </button>
+      )}
+
+      {/* Audit Log — owner only */}
+      {user?.role === "owner" && (
+        <button
+          onClick={() => onNavigate("auditLog")}
+          style={navItemStyle(activePage === "auditLog")}
+          onMouseEnter={(e) => hoverOn(e, activePage === "auditLog")}
+          onMouseLeave={(e) => hoverOff(e, activePage === "auditLog")}
+        >
+          <History size={14} strokeWidth={2} />
+          Audit Log
         </button>
       )}
 

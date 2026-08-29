@@ -25,10 +25,15 @@ const OrderTable = ({
       ? new Date(d).toLocaleDateString("id-ID", {
           day: "numeric",
           month: "long",
-          year: "numeric",
         })
       : "—";
-
+  const fmtTime = (d) =>
+    d
+      ? new Date(d).toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : null;
   const handleUpdate = async (id, body) => {
     await onUpdate(id, body);
     setEditOrder(null);
@@ -176,10 +181,23 @@ const OrderTable = ({
                       ) : null}
                     </td>
                     <td style={cell(false, C)}>{fmtDate(order.date)}</td>
+                    <td
+                      style={{
+                        ...cell(false, C),
+                        fontVariantNumeric: "tabular-nums",
+                        color: C.muted,
+                      }}
+                    >
+                      {order.createdAt ? fmtTime(order.createdAt) : "—"}
+                    </td>
                     <td style={cell(false, C)}>{order.category}</td>
                     <td style={cell(false, C)}>{order.payment || "—"}</td>
                     <td
-                      style={{ ...cell(false, C), color: C.text, fontWeight: 600 }}
+                      style={{
+                        ...cell(false, C),
+                        color: C.text,
+                        fontWeight: 600,
+                      }}
                     >
                       {fmtRp(order.price)}
                     </td>
@@ -189,7 +207,11 @@ const OrderTable = ({
                         : "—"}
                     </td>
                     <td
-                      style={{ ...cell(false, C), color: C.text, fontWeight: 600 }}
+                      style={{
+                        ...cell(false, C),
+                        color: C.text,
+                        fontWeight: 600,
+                      }}
                     >
                       {fmtRp(order.totalWorkerSalary)}
                     </td>

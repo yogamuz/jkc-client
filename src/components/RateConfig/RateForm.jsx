@@ -19,6 +19,7 @@ const RateForm = ({
   updateRates,
   updateSeason,
   currentAdminFee = 0,
+  currentRates = [],
   loading,
 }) => {
   const C = useRateConfigColors();
@@ -26,9 +27,23 @@ const RateForm = ({
   const inputS = getInputS(C);
   const labelS = getLabelS(C);
 
-  const [rates, setRates] = useState(
-    TIER_PRESETS.map((tier) => ({ ...emptyRate(), tier })),
-  );
+const [rates, setRates] = useState(() => {
+    if (currentRates.length > 0) {
+      const existingTiers = new Set(currentRates.map((r) => r.tier));
+      const mapped = currentRates.map((r) => ({
+        tier: r.tier,
+        rate_store_joki: r.rate_store_joki || 0,
+        rate_store_jokgen: r.rate_store_jokgen || 0,
+        rate_worker_joki: r.rate_worker_joki || 0,
+        rate_worker_jokgen: r.rate_worker_jokgen || 0,
+      }));
+      const extra = TIER_PRESETS.filter((t) => !existingTiers.has(t)).map(
+        (tier) => ({ ...emptyRate(), tier }),
+      );
+      return [...mapped, ...extra];
+    }
+    return TIER_PRESETS.map((tier) => ({ ...emptyRate(), tier }));
+  });
   const [note, setNote] = useState("");
   const [usePreset, setUsePreset] = useState(true);
 
@@ -356,7 +371,9 @@ const RateForm = ({
                 cursor: loading ? "not-allowed" : "pointer",
                 fontFamily: "'Courier New', monospace",
                 letterSpacing: "2px",
-                boxShadow: loading ? "none" : glow(theme, `0 0 16px ${C.yellow}40`),
+                boxShadow: loading
+                  ? "none"
+                  : glow(theme, `0 0 16px ${C.yellow}40`),
               }}
             >
               {loading ? "MENYIMPAN..." : "SIMPAN RATE"}
