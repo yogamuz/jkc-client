@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { DEFAULT_COLUMNS } from "../../constants/joki.constants";
-import { useDataPageColors, getInputS, getLabelS } from "../../constants/dataPage.constants";
+import {
+  useDataPageColors,
+  getInputS,
+  getLabelS,
+} from "../../constants/dataPage.constants";
 import DatePicker from "../ui/DatePicker";
 
 const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
@@ -10,6 +14,8 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
 
   // state tambahan untuk display
   const [priceDisplay, setPriceDisplay] = useState("");
+  // tambahkan state baru, setelah state priceDisplay
+  const [time, setTime] = useState("");
 
   const handlePriceChange = (e) => {
     const raw = e.target.value.replace(/\./g, "");
@@ -72,10 +78,18 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
 
   const handleSubmit = () => {
     if (!form.customerName || !form.price) return;
+    const finalTime =
+      time ||
+      (() => {
+        const t = new Date();
+        return `${String(t.getHours()).padStart(2, "0")}:${String(
+          t.getMinutes(),
+        ).padStart(2, "0")}`;
+      })();
     onCreate({
       seasonId: season.id,
       customerName: form.customerName,
-      date: form.date,
+      date: `${form.date}T${finalTime}:00+07:00`,
       category: form.category,
       payment: form.payment,
       price: Number(form.price),
@@ -175,11 +189,19 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
             </div>
             <div>
               <label style={labelS}>TANGGAL *</label>
-              <DatePicker
-                value={form.date}
-                onChange={(val) => setField("date", val)}
-                style={{ width: "100%", boxSizing: "border-box" }}
-              />
+              <div style={{ display: "flex", gap: "0.4rem" }}>
+                <DatePicker
+                  value={form.date}
+                  onChange={(val) => setField("date", val)}
+                  style={{ width: "100%", boxSizing: "border-box" }}
+                />
+                <input
+                  type="time"
+                  style={{ ...inputS, width: "100px", flexShrink: 0 }}
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                />
+              </div>
             </div>
           </div>
 

@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
-import { useDataPageColors, getInputS, getLabelS } from "../../constants/dataPage.constants";
+import {
+  useDataPageColors,
+  getInputS,
+  getLabelS,
+} from "../../constants/dataPage.constants";
 import DatePicker from "../ui/DatePicker";
 
 const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
@@ -19,6 +23,14 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
   const [form, setForm] = useState({
     customerName: order.customerName || "",
     date: order.date ? new Date(order.date).toISOString().split("T")[0] : "",
+    time: order.date
+      ? (() => {
+          const d = new Date(order.date);
+          return `${String(d.getHours()).padStart(2, "0")}:${String(
+            d.getMinutes(),
+          ).padStart(2, "0")}`;
+        })()
+      : "",
     category: order.category || "JOKI RANK",
     payment: order.payment || "QRIS",
     price: order.price || "",
@@ -77,9 +89,17 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
   const handleSubmit = () => {
     if (!form.customerName || !form.price) return;
     const rawPrice = String(form.price).replace(/\./g, "");
+    const finalTime =
+      form.time ||
+      (() => {
+        const t = new Date();
+        return `${String(t.getHours()).padStart(2, "0")}:${String(
+          t.getMinutes(),
+        ).padStart(2, "0")}`;
+      })();
     onUpdate(order.id, {
       customerName: form.customerName,
-      date: form.date,
+      date: `${form.date}T${finalTime}:00+07:00`,
       category: form.category,
       payment: form.payment,
       price: Number(rawPrice),
@@ -185,11 +205,19 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
             </div>
             <div>
               <label style={labelS}>TANGGAL *</label>
-              <DatePicker
-                value={form.date}
-                onChange={(val) => setField("date", val)}
-                style={{ width: "100%", boxSizing: "border-box" }}
-              />
+              <div style={{ display: "flex", gap: "0.4rem" }}>
+                <DatePicker
+                  value={form.date}
+                  onChange={(val) => setField("date", val)}
+                  style={{ width: "100%", boxSizing: "border-box" }}
+                />
+                <input
+                  type="time"
+                  style={{ ...inputS, width: "100px", flexShrink: 0 }}
+                  value={form.time}
+                  onChange={(e) => setField("time", e.target.value)}
+                />
+              </div>
             </div>
           </div>
 

@@ -188,7 +188,7 @@ const OrderTable = ({
                         color: C.muted,
                       }}
                     >
-                      {order.createdAt ? fmtTime(order.createdAt) : "—"}
+                      {order.date ? fmtTime(order.date) : "—"}
                     </td>
                     <td style={cell(false, C)}>{order.category}</td>
                     <td style={cell(false, C)}>{order.payment || "—"}</td>
