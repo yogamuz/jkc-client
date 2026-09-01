@@ -405,7 +405,7 @@ const DashboardPage = ({ onNavigate, seasons = [], user }) => {
             marginBottom: "4px",
           }}
         >
-          // OVERVIEW
+          OVERVIEW
         </div>
         <h1
           style={{
@@ -533,7 +533,7 @@ const DashboardPage = ({ onNavigate, seasons = [], user }) => {
               fontFamily: "'Courier New', monospace",
             }}
           >
-            // RATE AKTIF — {activeSeason?.name || "—"}
+            RATE AKTIF — {activeSeason?.name || "—"}
             {activeRates && (
               <span
                 style={{
@@ -776,7 +776,7 @@ const DashboardPage = ({ onNavigate, seasons = [], user }) => {
             }}
           >
             <BarChart2 size={13} strokeWidth={2} />
-            // ANALYTICS PREVIEW — {activeSeason?.name || "NO SEASON"}
+            ANALYTICS PREVIEW — {activeSeason?.name || "NO SEASON"}
           </div>
           <button
             onClick={() => onNavigate("analytics")}

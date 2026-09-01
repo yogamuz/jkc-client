@@ -117,7 +117,7 @@ const AdminDetailPanel = ({ admin, onBack, onDeleted }) => {
               marginBottom: "4px",
             }}
           >
-            // ADMIN DETAIL
+            ADMIN DETAIL
           </div>
 
           {/* Avatar + name */}
@@ -229,7 +229,7 @@ const AdminDetailPanel = ({ admin, onBack, onDeleted }) => {
               marginBottom: "1rem",
             }}
           >
-            // RESET PASSWORD
+             RESET PASSWORD
           </div>
           <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
             <input

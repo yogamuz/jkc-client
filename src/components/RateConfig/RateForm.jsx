@@ -111,7 +111,7 @@ const [rates, setRates] = useState(() => {
               fontFamily: "'Courier New', monospace",
             }}
           >
-            // FEE ADMIN / ID
+             FEE ADMIN / ID
           </span>
         </div>
         <div
@@ -199,7 +199,7 @@ const [rates, setRates] = useState(() => {
               fontFamily: "'Courier New', monospace",
             }}
           >
-            // SET RATE BARU
+            SET RATE BARU
           </span>
           <button
             onClick={addRow}

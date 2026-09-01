@@ -398,7 +398,7 @@ const DataPage = ({ season, user }) => {
               marginBottom: "4px",
             }}
           >
-            // DATA
+            DATA
           </div>
           <h1
             style={{

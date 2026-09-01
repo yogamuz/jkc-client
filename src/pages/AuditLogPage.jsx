@@ -61,7 +61,7 @@ const AuditLogPage = () => {
               marginBottom: "4px",
             }}
           >
-            // OWNER ONLY
+            OWNER ONLY
           </div>
           <h1
             style={{

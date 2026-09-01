@@ -131,7 +131,7 @@ const WorkerDetailPanel = ({ workerName, seasons, onBack }) => {
               marginBottom: "4px",
             }}
           >
-            // WORKER DETAIL
+             WORKER DETAIL
           </div>
           <h1
             style={{
@@ -320,7 +320,7 @@ const WorkerDetailPanel = ({ workerName, seasons, onBack }) => {
               fontFamily: "'Courier New', monospace",
             }}
           >
-            // HISTORY ORDER
+             HISTORY ORDER
           </span>
         </div>
         <div style={{ overflowX: "auto" }}>

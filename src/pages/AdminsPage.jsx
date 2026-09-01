@@ -124,7 +124,7 @@ const AdminsPage = () => {
               marginBottom: "4px",
             }}
           >
-            // ACCOUNT
+            ACCOUNT
           </div>
           <h1
             style={{
@@ -174,7 +174,7 @@ const AdminsPage = () => {
             marginBottom: "0.875rem",
           }}
         >
-          // BUAT AKUN ADMIN
+          BUAT AKUN ADMIN
         </div>
         <div
           style={{

@@ -233,7 +233,7 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
               marginBottom: "4px",
             }}
           >
-            // ANALYTICS
+            ANALYTICS
           </div>
           <h1
             style={{
@@ -382,15 +382,15 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
             zIndex: 1,
           }}
         >
-          <Section title="// TREND OMSET — 30 HARI TERAKHIR" accent={C.yellow}>
+          <Section title=" TREND OMSET — 30 HARI TERAKHIR" accent={C.yellow}>
             <VBarChart data={trendDaily} />
           </Section>
 
-          <Section title="// TREND OMSET — PER BULAN" accent={C.yellow}>
+          <Section title=" TREND OMSET — PER BULAN" accent={C.yellow}>
             <VBarChart data={trendMonthly} />
           </Section>
 
-          <Section title="// OMSET PER KATEGORI" accent={C.cyan}>
+          <Section title=" OMSET PER KATEGORI" accent={C.cyan}>
             <HBarChart
               data={byCategory}
               valueKey="value"
@@ -407,7 +407,7 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
             />
           </Section>
 
-          <Section title="// ORDER PER METODE BAYAR" accent={C.cyan}>
+          <Section title=" ORDER PER METODE BAYAR" accent={C.cyan}>
             <HBarChart
               data={byPayment}
               valueKey="value"
@@ -424,7 +424,7 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
             />
           </Section>
 
-          <Section title="// STATUS ORDER" accent={C.magenta}>
+          <Section title=" STATUS ORDER" accent={C.magenta}>
             <DonutChart slices={byStatus} />
             <HBarChart
               data={byStatus}
@@ -435,7 +435,7 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
             />
           </Section>
 
-          <Section title="// MARGIN RATE" accent={C.green}>
+          <Section title="MARGIN RATE" accent={C.green}>
             {summary && summary.totalOmset > 0 ? (
               <div
                 style={{
@@ -527,7 +527,7 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
             zIndex: 1,
           }}
         >
-          <Section title="// LEADERBOARD GAJI WORKER" accent={C.yellow}>
+          <Section title=" LEADERBOARD GAJI WORKER" accent={C.yellow}>
             <HBarChart
               data={topWorkers.map((w) => ({
                 label: w.name,
@@ -548,7 +548,7 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
             />
           </Section>
 
-          <Section title="// ORDER COUNT PER WORKER" accent={C.cyan}>
+          <Section title=" ORDER COUNT PER WORKER" accent={C.cyan}>
             <HBarChart
               data={[...(workerSummary || [])]
                 .sort((a, b) => b.orderCount - a.orderCount)
@@ -561,7 +561,7 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
             />
           </Section>
 
-          <Section title="// WORKER BELUM DIBAYAR" accent={C.magenta}>
+          <Section title=" WORKER BELUM DIBAYAR" accent={C.magenta}>
             {unpaidWorkers.length === 0 ? (
               <div
                 style={{
@@ -588,7 +588,7 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
           </Section>
 
           <div style={{ gridColumn: "1 / -1" }}>
-            <Section title="// DETAIL SEMUA WORKER" accent={C.cyan}>
+            <Section title=" DETAIL SEMUA WORKER" accent={C.cyan}>
               <div style={{ overflowX: "auto" }}>
                 <table
                   style={{

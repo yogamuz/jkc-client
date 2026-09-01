@@ -51,7 +51,7 @@ const WorkersPage = ({ seasons = [], activeSeasonId = "" }) => {
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "1.75rem", flexWrap: "wrap", gap: "1rem", position: "relative", zIndex: 1 }}>
         <div>
           <div style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "4px", color: C.muted, fontFamily: "'Courier New', monospace", marginBottom: "4px" }}>
-            // DATA
+             DATA
           </div>
           <h1 style={{ fontSize: "clamp(2rem, 8vw, 4rem)", fontWeight: 900, color: C.yellow, margin: 0, letterSpacing: "-2px", textTransform: "uppercase", fontFamily: "'Courier New', monospace", lineHeight: 0.9, textShadow: `0 0 40px ${C.yellow}60` }}>
             Workers

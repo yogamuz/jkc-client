@@ -56,7 +56,7 @@ const RateConfigPage = ({ seasons = [] }) => {
             marginBottom: "4px",
           }}
         >
-          // KONFIGURASI
+           KONFIGURASI
         </div>
         <div
           style={{
