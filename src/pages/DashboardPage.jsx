@@ -47,9 +47,28 @@ const lightColors = {
 };
 
 const getColors = (theme) => (theme === "light" ? lightColors : darkColors);
+
 const useDashboardColors = () => {
   const { theme } = useContext(ThemeContext);
   return getColors(theme);
+};
+
+const TIER_COLORS = {
+  EPIC: "#4ADE80",
+  LEGEND: "#FACC15",
+  MAWI: "#C0C0C0",
+  HONOR: "#22D3EE",
+  GLORY: "#FB923C",
+  IMO: "#A78BFA",
+};
+
+const TIER_ICONS = {
+  EPIC: "/assets/epig.png",
+  LEGEND: "/assets/legend.png",
+  MAWI: "/assets/mawi.png",
+  HONOR: "/assets/honor.png",
+  GLORY: "/assets/glory.png",
+  IMO: "/assets/immortal.png",
 };
 
 /* glow dimatiin di light mode biar gak norak */
@@ -611,92 +630,120 @@ const DashboardPage = ({ onNavigate, seasons = [], user }) => {
                 </tr>
               </thead>
               <tbody>
-                {activeRates.rates.map((r, i) => (
-                  <tr
-                    key={r.tier}
-                    style={{
-                      borderBottom:
-                        i < activeRates.rates.length - 1
-                          ? `1px solid ${C.border}`
-                          : "none",
-                      background:
-                        i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)",
-                    }}
-                  >
-                    <td
-                      style={{
-                        padding: "0.6rem 1.25rem",
-                        fontFamily: "'Courier New', monospace",
-                        fontWeight: 900,
-                        fontSize: "0.82rem",
-                        color: C.yellow,
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {r.tier}
-                    </td>
-                    <td
-                      style={{
-                        padding: "0.6rem 1.25rem",
-                        fontFamily: "monospace",
-                        fontSize: "0.8rem",
-                        color: C.text,
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {fmtRp(r.rate_store_joki)}
-                      <span style={{ color: C.muted, fontSize: "0.65rem" }}>
-                        {" "}
-                        / ⭐
-                      </span>
-                    </td>
-                    <td
-                      style={{
-                        padding: "0.6rem 1.25rem",
-                        fontFamily: "monospace",
-                        fontSize: "0.8rem",
-                        color: C.text,
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {fmtRp(r.rate_store_jokgen)}
-                      <span style={{ color: C.muted, fontSize: "0.65rem" }}>
-                        {" "}
-                        / ⭐
-                      </span>
-                    </td>
-                    <td
-                      style={{
-                        padding: "0.6rem 1.25rem",
-                        fontFamily: "monospace",
-                        fontSize: "0.8rem",
-                        color: C.cyan,
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {fmtRp(r.rate_worker_joki)}
-                      <span style={{ color: C.muted, fontSize: "0.65rem" }}>
-                        {" "}
-                        / ⭐
-                      </span>
-                    </td>
-                    <td
-                      style={{
-                        padding: "0.6rem 1.25rem",
-                        fontFamily: "monospace",
-                        fontSize: "0.8rem",
-                        color: C.cyan,
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {fmtRp(r.rate_worker_jokgen)}
-                      <span style={{ color: C.muted, fontSize: "0.65rem" }}>
-                        {" "}
-                        / ⭐
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+{activeRates.rates.map((r, i) => {
+  const tierColor = TIER_COLORS[r.tier?.toUpperCase()] || C.yellow;
+  const tierIcon = TIER_ICONS[r.tier?.toUpperCase()];
+  return (
+    <tr
+      key={r.tier}
+      style={{
+        borderBottom:
+          i < activeRates.rates.length - 1
+            ? `1px solid ${C.border}`
+            : "none",
+        borderLeft: `3px solid ${tierColor}`,
+        background: `${tierColor}${theme === "light" ? "10" : "28"}`,
+      }}
+    >
+      <td
+        style={{
+          padding: "0.6rem 1.25rem",
+          fontFamily: "'Courier New', monospace",
+          fontWeight: 900,
+          fontSize: "0.82rem",
+          color: tierColor,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {r.tier}
+      </td>
+      <td
+        style={{
+          padding: "0.6rem 1.25rem",
+          fontFamily: "monospace",
+          fontSize: "0.8rem",
+          color: C.text,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {fmtRp(r.rate_store_joki)}
+        <span style={{ color: C.muted, fontSize: "0.65rem" }}>
+          {" "}
+          / ⭐
+        </span>
+      </td>
+      <td
+        style={{
+          padding: "0.6rem 1.25rem",
+          fontFamily: "monospace",
+          fontSize: "0.8rem",
+          color: C.text,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {fmtRp(r.rate_store_jokgen)}
+        <span style={{ color: C.muted, fontSize: "0.65rem" }}>
+          {" "}
+          / ⭐
+        </span>
+      </td>
+      <td
+        style={{
+          padding: "0.6rem 1.25rem",
+          fontFamily: "monospace",
+          fontSize: "0.8rem",
+          color: C.cyan,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {fmtRp(r.rate_worker_joki)}
+        <span style={{ color: C.muted, fontSize: "0.65rem" }}>
+          {" "}
+          / ⭐
+        </span>
+      </td>
+      <td
+        style={{
+          padding: "0.6rem 1.25rem",
+          fontFamily: "monospace",
+          fontSize: "0.8rem",
+          color: C.cyan,
+          whiteSpace: "nowrap",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.5rem",
+          }}
+        >
+          <span>
+            {fmtRp(r.rate_worker_jokgen)}
+            <span style={{ color: C.muted, fontSize: "0.65rem" }}>
+              {" "}
+              / ⭐
+            </span>
+          </span>
+          {tierIcon && (
+            <img
+              src={tierIcon}
+              alt={r.tier}
+              style={{
+                width: 20,
+                height: 20,
+                objectFit: "cover",
+                borderRadius: "4px",
+                flexShrink: 0,
+              }}
+            />
+          )}
+        </div>
+      </td>
+    </tr>
+  );
+})}
               </tbody>
             </table>
           </div>
