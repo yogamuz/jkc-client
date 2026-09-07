@@ -247,7 +247,7 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
                 <DatePicker
                   value={form.date}
                   onChange={(val) => setField("date", val)}
-                  style={{ width: "100%", boxSizing: "border-box" }}
+                  style={{ ...inputS, width: "100%", boxSizing: "border-box" }}
                 />
                 <input
                   type="time"
