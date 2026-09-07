@@ -12,10 +12,11 @@ import {
   textGlow,
   glow,
 } from "./workers.utils";
+import { markWorkerPaid } from "../../services/orderService";
 
 import { useTheme } from "../../context/ThemeContext";
 
-const WorkerDetailPanel = ({ workerName, seasons, onBack }) => {
+const WorkerDetailPanel = ({ workerName, seasons, onBack, onGoToOrder }) => {
   const C = useWorkersColors();
   const { theme } = useTheme();
   const [detail, setDetail] = useState(null);
@@ -39,6 +40,14 @@ const WorkerDetailPanel = ({ workerName, seasons, onBack }) => {
       setLoading(false);
     }
   }, [workerName, seasonId]);
+  const handleTogglePaid = async (h) => {
+    try {
+      await markWorkerPaid(h.orderId, workerName, !h.isPaid);
+      fetchDetail();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   useEffect(() => {
     fetchDetail();
@@ -131,7 +140,7 @@ const WorkerDetailPanel = ({ workerName, seasons, onBack }) => {
               marginBottom: "4px",
             }}
           >
-             WORKER DETAIL
+            WORKER DETAIL
           </div>
           <h1
             style={{
@@ -320,7 +329,7 @@ const WorkerDetailPanel = ({ workerName, seasons, onBack }) => {
               fontFamily: "'Courier New', monospace",
             }}
           >
-             HISTORY ORDER
+            HISTORY ORDER
           </span>
         </div>
         <div style={{ overflowX: "auto" }}>
@@ -362,7 +371,7 @@ const WorkerDetailPanel = ({ workerName, seasons, onBack }) => {
               </tr>
             </thead>
             <tbody>
-              {loading ? (
+              {loading && !detail ? (
                 <tr>
                   <td
                     colSpan={6}
@@ -420,7 +429,32 @@ const WorkerDetailPanel = ({ workerName, seasons, onBack }) => {
                     }}
                   >
                     <td style={cell(true, C)}>{h.seasonName}</td>
-                    <td style={cell(true, C)}>{h.customerName}</td>
+                    <td style={cell(true, C)}>
+                      <span
+                        onClick={() =>
+                          onGoToOrder?.({
+                            seasonId: h.seasonId,
+                            workerName: workerName,
+                            orderId: h.orderId,
+                            date: h.date,
+                          })
+                        }
+                        style={{
+                          cursor: onGoToOrder ? "pointer" : "default",
+                          textDecoration: onGoToOrder
+                            ? "underline dotted"
+                            : "none",
+                        }}
+                        onMouseEnter={(e) =>
+                          onGoToOrder && (e.currentTarget.style.color = C.cyan)
+                        }
+                        onMouseLeave={(e) =>
+                          onGoToOrder && (e.currentTarget.style.color = "")
+                        }
+                      >
+                        {h.customerName}
+                      </span>
+                    </td>
                     <td style={cell(false, C)}>{fmtDate(h.date)}</td>
                     <td style={cell(false, C)}>{h.category}</td>
                     <td
@@ -434,6 +468,7 @@ const WorkerDetailPanel = ({ workerName, seasons, onBack }) => {
                     </td>
                     <td style={{ ...cell(false, C), verticalAlign: "middle" }}>
                       <span
+                        onClick={() => handleTogglePaid(h)}
                         style={{
                           display: "inline-block",
                           padding: "2px 10px",
@@ -444,6 +479,7 @@ const WorkerDetailPanel = ({ workerName, seasons, onBack }) => {
                           color: h.isPaid ? C.green : C.magenta,
                           border: `1px solid ${h.isPaid ? C.green : C.magenta}`,
                           fontFamily: "'Courier New', monospace",
+                          cursor: "pointer",
                           boxShadow: glow(
                             theme,
                             `0 0 6px ${h.isPaid ? C.green : C.magenta}40`,

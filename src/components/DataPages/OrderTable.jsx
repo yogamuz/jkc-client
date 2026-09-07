@@ -15,6 +15,8 @@ const OrderTable = ({
   onUpdateStatus,
   onMarkPaid,
   onUpdate,
+  highlightOrderId,
+  onSelectWorker,
 }) => {
   const C = useDataPageColors();
   const [editOrder, setEditOrder] = useState(null);
@@ -121,8 +123,17 @@ const OrderTable = ({
                   <tr
                     key={order.id}
                     style={{
-                      borderBottom: `1px solid ${C.border}`,
-                      background: i % 2 === 0 ? C.tableBg : C.rowAlt,
+                      borderBottom: `1px solid ${
+                        String(order.id) === String(highlightOrderId)
+                          ? C.yellow
+                          : C.border
+                      }`,
+                      background:
+                        String(order.id) === String(highlightOrderId)
+                          ? C.yellowBg
+                          : i % 2 === 0
+                            ? C.tableBg
+                            : C.rowAlt,
                     }}
                   >
                     <td
@@ -203,7 +214,32 @@ const OrderTable = ({
                     </td>
                     <td style={cell(false, C)}>
                       {order.workers?.length > 0
-                        ? order.workers.map((w) => w.name).join(", ")
+                        ? order.workers.map((w, idx) => (
+                            <span key={w.name}>
+                              <span
+                                onClick={() => onSelectWorker?.(w.name)}
+                                style={{
+                                  cursor: onSelectWorker
+                                    ? "pointer"
+                                    : "default",
+                                  textDecoration: onSelectWorker
+                                    ? "underline dotted"
+                                    : "none",
+                                }}
+                                onMouseEnter={(e) =>
+                                  onSelectWorker &&
+                                  (e.currentTarget.style.color = C.cyan)
+                                }
+                                onMouseLeave={(e) =>
+                                  onSelectWorker &&
+                                  (e.currentTarget.style.color = "")
+                                }
+                              >
+                                {w.name}
+                              </span>
+                              {idx < order.workers.length - 1 ? ", " : ""}
+                            </span>
+                          ))
                         : "—"}
                     </td>
                     <td

@@ -224,7 +224,13 @@ const FilterBar = ({ filters, onChange, onReset }) => {
 };
 
 // ── Main DataPage ─────────────────────────────────────────
-const DataPage = ({ season, user }) => {
+const DataPage = ({
+  season,
+  user,
+  focusOrder,
+  onFocusHandled,
+  onGoToWorker,
+}) => {
   const isOwner = user?.role === "owner";
   const C = useDataPageColors();
   const { theme } = useTheme();
@@ -247,6 +253,7 @@ const DataPage = ({ season, user }) => {
     dateTo: "",
     status: "",
     workerName: "",
+    customerName: "",
   });
 
   useEffect(() => {
@@ -255,10 +262,28 @@ const DataPage = ({ season, user }) => {
       if (isOwner) fetchSummary(season.id);
     }
   }, [season?.id, isOwner]);
+  useEffect(() => {
+    if (focusOrder?.workerName) {
+      const patch = { workerName: focusOrder.workerName };
+      if (focusOrder.date) {
+        const iso = String(focusOrder.date).split("T")[0];
+        patch.dateFrom = iso;
+        patch.dateTo = iso;
+      }
+      setFilters((f) => ({ ...f, ...patch }));
+      onFocusHandled?.();
+    }
+  }, [focusOrder]);
 
   const handleFilterChange = (patch) => setFilters((f) => ({ ...f, ...patch }));
   const handleFilterReset = () =>
-    setFilters({ dateFrom: "", dateTo: "", status: "", workerName: "" });
+    setFilters({
+      dateFrom: "",
+      dateTo: "",
+      status: "",
+      workerName: "",
+      customerName: "",
+    });
 
   // Filter orders di frontend supaya instant tanpa API call
   const filteredOrders = orders.filter((o) => {
@@ -271,6 +296,13 @@ const DataPage = ({ season, user }) => {
       !o.workers?.some((w) => w.name.includes(filters.workerName))
     )
       return false;
+    if (
+      filters.customerName &&
+      !o.customerName
+        ?.toUpperCase()
+        .includes(filters.customerName.toUpperCase())
+    )
+      return false;
     return true;
   });
 
@@ -278,7 +310,8 @@ const DataPage = ({ season, user }) => {
     filters.dateFrom ||
     filters.dateTo ||
     filters.status ||
-    filters.workerName
+    filters.workerName ||
+    filters.customerName
   );
 
   const handleCreate = async (body) => {
@@ -572,6 +605,8 @@ const DataPage = ({ season, user }) => {
         onUpdateStatus={handleUpdateStatus}
         onMarkPaid={handleMarkPaid}
         onUpdate={handleUpdate}
+        highlightOrderId={focusOrder?.orderId}
+        onSelectWorker={onGoToWorker}
       />
 
       {showModal && (

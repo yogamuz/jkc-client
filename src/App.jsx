@@ -22,6 +22,8 @@ function AdminApp() {
   const { seasons, fetchAll } = useSeason();
   const [activePage, setActivePage] = useState("dashboard");
   const [activeSeasonId, setActiveSeasonId] = useState(null);
+  const [focusOrder, setFocusOrder] = useState(null);
+  const [focusWorker, setFocusWorker] = useState(null);
   const [checking, setChecking] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const C = useSidebarColors();
@@ -45,6 +47,17 @@ function AdminApp() {
   const handleSelectSeason = (id) => {
     setActiveSeasonId(id);
     setActivePage("data");
+  };
+
+  const handleGoToOrder = ({ seasonId, workerName, orderId, date }) => {
+    if (seasonId) setActiveSeasonId(String(seasonId));
+    setFocusOrder({ workerName, orderId, date });
+    setActivePage("data");
+  };
+
+  const handleGoToWorker = (workerName) => {
+    setFocusWorker(workerName);
+    setActivePage("workers");
   };
   if (checking)
     return (
@@ -110,12 +123,26 @@ function AdminApp() {
           />
         );
       case "data":
-        return <DataPage season={activeSeason} user={user} />;
+        return (
+          <DataPage
+            season={activeSeason}
+            user={user}
+            focusOrder={focusOrder}
+            onFocusHandled={() => setFocusOrder(null)}
+            onGoToWorker={handleGoToWorker}
+          />
+        );
       case "newSeason":
         return <NewSeasonPage onCreated={(id) => handleSelectSeason(id)} />;
       case "workers":
         return (
-          <WorkersPage seasons={seasons} activeSeasonId={activeSeasonId} />
+          <WorkersPage
+            seasons={seasons}
+            activeSeasonId={activeSeasonId}
+            onGoToOrder={handleGoToOrder}
+            focusWorker={focusWorker}
+            onFocusWorkerHandled={() => setFocusWorker(null)}
+          />
         );
       case "analytics":
         return <AnalyticsPage season={activeSeason} seasons={seasons} />;
