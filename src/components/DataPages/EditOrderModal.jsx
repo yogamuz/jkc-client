@@ -7,6 +7,7 @@ import {
 import DatePicker from "../ui/DatePicker";
 import { getWorkersList } from "../../services/orderService";
 import WorkerNameInput from "./WorkerNameInput";
+import ThemeToggle from "../ui/sidebar/ThemeToggle";
 
 const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
   const C = useDataPageColors();
@@ -197,19 +198,22 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
           >
             EDIT ORDER — {order.customerName}
           </span>
-          <button
-            onClick={onClose}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              color: C.muted,
-              fontSize: "1rem",
-              fontWeight: 900,
-            }}
-          >
-            ✕
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <ThemeToggle iconOnly />
+            <button
+              onClick={onClose}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: C.muted,
+                fontSize: "1rem",
+                fontWeight: 900,
+              }}
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         <div
@@ -473,7 +477,6 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
                     </div>
                   ))}
                 </div>
-
               </div>
             ))}
           </div>

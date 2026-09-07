@@ -8,6 +8,7 @@ import {
 import DatePicker from "../ui/DatePicker";
 import { getWorkersList } from "../../services/orderService";
 import WorkerNameInput from "./WorkerNameInput";
+import ThemeToggle from "../ui/sidebar/ThemeToggle";
 
 const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
   const C = useDataPageColors();
@@ -172,19 +173,22 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
           >
             TAMBAH ORDER — {season.name}
           </span>
-          <button
-            onClick={onClose}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              fontWeight: 900,
-              fontSize: "1rem",
-              color: C.muted,
-            }}
-          >
-            ✕
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <ThemeToggle iconOnly />
+            <button
+              onClick={onClose}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                fontWeight: 900,
+                fontSize: "1rem",
+                color: C.muted,
+              }}
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         <div
@@ -486,7 +490,6 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
           </button>
         </div>
       </div>
-
     </div>
   );
 };

@@ -25,9 +25,15 @@ const WorkerNameInput = ({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const filtered = value
-    ? options.filter((w) => w.name.toUpperCase().includes(value.toUpperCase()))
-    : options;
+  const filtered = (
+    value
+      ? options.filter((w) =>
+          w.name.toUpperCase().includes(value.toUpperCase()),
+        )
+      : options
+  )
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <div ref={wrapRef} style={{ position: "relative", width: "180px" }}>
