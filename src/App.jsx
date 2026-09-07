@@ -46,14 +46,13 @@ function AdminApp() {
     setActiveSeasonId(id);
     setActivePage("data");
   };
-
   if (checking)
     return (
       <div
         style={{
           width: "100vw",
           height: "100vh",
-          background: "#0D0D0D",
+          background: C.bg,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -61,7 +60,7 @@ function AdminApp() {
           letterSpacing: "6px",
           fontSize: "0.75rem",
           fontFamily: "monospace",
-          color: "#FFE600",
+          color: C.yellow,
         }}
       >
         LOADING...
