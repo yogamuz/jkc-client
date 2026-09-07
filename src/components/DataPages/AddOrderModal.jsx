@@ -34,7 +34,7 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
     payment: "QRIS",
     price: "",
     status: "PROCESS",
-    workers: [{ name: "", rankBreakdown: {} }],
+    workers: [{ name: "", rankBreakdown: {}, customSalary: "" }],
     extraFields: {},
   });
 
@@ -57,10 +57,20 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
       return { ...f, workers };
     });
 
+  const setCustomSalary = (i, val) =>
+    setForm((f) => {
+      const workers = [...f.workers];
+      workers[i] = { ...workers[i], customSalary: val };
+      return { ...f, workers };
+    });
+
   const addWorker = () =>
     setForm((f) => ({
       ...f,
-      workers: [...f.workers, { name: "", rankBreakdown: {} }],
+      workers: [
+        ...f.workers,
+        { name: "", rankBreakdown: {}, customSalary: "" },
+      ],
     }));
 
   const removeWorker = (i) =>
@@ -94,7 +104,14 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
       payment: form.payment,
       price: Number(form.price),
       status: form.status,
-      workers: form.workers.filter((w) => w.name.trim()),
+      workers: form.workers
+        .filter((w) => w.name.trim())
+        .map((w) => ({
+          name: w.name,
+          rankBreakdown: w.rankBreakdown,
+          customSalary:
+            w.customSalary === "" ? undefined : Number(w.customSalary),
+        })),
       extraFields: form.extraFields,
     });
   };
@@ -145,7 +162,7 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
               fontFamily: "'Courier New', monospace",
             }}
           >
-            // TAMBAH ORDER — {season.name}
+            TAMBAH ORDER — {season.name}
           </span>
           <button
             onClick={onClose}
@@ -310,19 +327,51 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
                 <div
                   style={{
                     display: "flex",
-                    alignItems: "center",
+                    alignItems: "flex-end",
                     gap: "0.5rem",
                     marginBottom: "0.5rem",
+                    flexWrap: "wrap",
                   }}
                 >
-                  <input
-                    style={{ ...inputS, width: "180px" }}
-                    placeholder="Nama worker (ACIL)"
-                    value={w.name}
-                    onChange={(e) =>
-                      setWorkerName(i, e.target.value.toUpperCase())
-                    }
-                  />
+                  <div>
+                    <label style={{ ...labelS, marginBottom: "3px" }}>
+                      NAMA WORKER
+                    </label>
+                    <input
+                      style={{ ...inputS, width: "180px" }}
+                      placeholder="ACIL"
+                      value={w.name}
+                      onChange={(e) =>
+                        setWorkerName(i, e.target.value.toUpperCase())
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label style={{ ...labelS, marginBottom: "3px" }}>
+                      CUSTOM GAJI (OPSIONAL)
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      style={{ ...inputS, width: "160px" }}
+                      placeholder="150.000"
+                      value={
+                        w.customSalary === "" ||
+                        w.customSalary === undefined ||
+                        w.customSalary === null
+                          ? ""
+                          : Number(
+                              String(w.customSalary).replace(/\./g, ""),
+                            ).toLocaleString("id-ID")
+                      }
+                      onChange={(e) => {
+                        const raw = e.target.value
+                          .replace(/\./g, "")
+                          .replace(/\D/g, "");
+                        setCustomSalary(i, raw);
+                      }}
+                    />
+                  </div>
                   {form.workers.length > 1 && (
                     <button
                       onClick={() => removeWorker(i)}

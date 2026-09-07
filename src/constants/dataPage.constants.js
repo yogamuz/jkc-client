@@ -24,6 +24,12 @@ const darkColors = {
   cyanBg: "rgba(0,229,255,0.08)",
   greenBg: "rgba(57,255,20,0.08)",
   magentaBg: "rgba(255,60,172,0.08)",
+  /* ── tambahan untuk modal (sebelumnya tidak terdefinisi) ── */
+  modalBg: "#101012",
+  subtleBg: "#1A1A1F",
+  modalFooterBg: "#0D0D0F",
+  outlineBorder: "#2A2A2E",
+  outlineBorderHover: "#00E5FF",
 };
 
 const lightColors = {
@@ -48,6 +54,12 @@ const lightColors = {
   cyanBg: "rgba(0,137,160,0.16)",
   greenBg: "rgba(31,157,46,0.16)",
   magentaBg: "rgba(204,46,137,0.16)",
+  /* ── tambahan untuk modal (sebelumnya tidak terdefinisi) ── */
+  modalBg: "#FFFFFF",
+  subtleBg: "#F5F2E9",
+  modalFooterBg: "#F2EFE6",
+  outlineBorder: "#1A1A1A",
+  outlineBorderHover: "#0089A0",
 };
 
 export const getColors = (theme) => (theme === "light" ? lightColors : darkColors);
