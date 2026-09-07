@@ -5,6 +5,8 @@ import {
   getLabelS,
 } from "../../constants/dataPage.constants";
 import DatePicker from "../ui/DatePicker";
+import { getWorkersList } from "../../services/orderService";
+import WorkerNameInput from "./WorkerNameInput";
 
 const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
   const C = useDataPageColors();
@@ -60,6 +62,14 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
             },
           ],
   });
+
+  const [workerOptions, setWorkerOptions] = useState([]);
+
+  useEffect(() => {
+    getWorkersList(season?.id)
+      .then((res) => setWorkerOptions(res.data || []))
+      .catch(() => {});
+  }, [season?.id]);
 
   const setField = (key, val) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -373,13 +383,10 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
                     <label style={{ ...labelS, marginBottom: "3px" }}>
                       NAMA WORKER
                     </label>
-                    <input
-                      style={{ ...inputS, width: "180px" }}
-                      placeholder="ACIL"
+                    <WorkerNameInput
                       value={w.name}
-                      onChange={(e) =>
-                        setWorkerName(i, e.target.value.toUpperCase())
-                      }
+                      onChange={(val) => setWorkerName(i, val)}
+                      options={workerOptions}
                     />
                   </div>
                   <div>
@@ -466,6 +473,7 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
                     </div>
                   ))}
                 </div>
+
               </div>
             ))}
           </div>

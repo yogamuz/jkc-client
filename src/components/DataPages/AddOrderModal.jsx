@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DEFAULT_COLUMNS } from "../../constants/joki.constants";
 import {
   useDataPageColors,
@@ -6,6 +6,8 @@ import {
   getLabelS,
 } from "../../constants/dataPage.constants";
 import DatePicker from "../ui/DatePicker";
+import { getWorkersList } from "../../services/orderService";
+import WorkerNameInput from "./WorkerNameInput";
 
 const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
   const C = useDataPageColors();
@@ -16,7 +18,13 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
   const [priceDisplay, setPriceDisplay] = useState("");
   // tambahkan state baru, setelah state priceDisplay
   const [time, setTime] = useState("");
+  const [workerOptions, setWorkerOptions] = useState([]);
 
+  useEffect(() => {
+    getWorkersList(season.id)
+      .then((res) => setWorkerOptions(res.data || []))
+      .catch(() => {});
+  }, [season.id]);
   const handlePriceChange = (e) => {
     const raw = e.target.value.replace(/\./g, "");
     if (isNaN(raw)) return;
@@ -337,13 +345,10 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
                     <label style={{ ...labelS, marginBottom: "3px" }}>
                       NAMA WORKER
                     </label>
-                    <input
-                      style={{ ...inputS, width: "180px" }}
-                      placeholder="ACIL"
+                    <WorkerNameInput
                       value={w.name}
-                      onChange={(e) =>
-                        setWorkerName(i, e.target.value.toUpperCase())
-                      }
+                      onChange={(val) => setWorkerName(i, val)}
+                      options={workerOptions}
                     />
                   </div>
                   <div>
@@ -481,6 +486,7 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
           </button>
         </div>
       </div>
+
     </div>
   );
 };
