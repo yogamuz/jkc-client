@@ -63,6 +63,7 @@ const TIER_COLORS = {
 };
 
 const TIER_ICONS = {
+  GM: "/assets/gm.png",
   EPIC: "/assets/epig.png",
   LEGEND: "/assets/legend.png",
   MAWI: "/assets/mawi.png",

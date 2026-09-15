@@ -17,6 +17,8 @@ import useSeason from "./hooks/useSeason";
 import { useTheme } from "./context/ThemeContext";
 import { Routes, Route } from "react-router-dom";
 import PublicRatesPage from "./pages/PublicRatesPage";
+import PriceUpdateNotif from "./components/PriceUpdateNotif";
+
 function AdminApp() {
   const { user, setUser, checkSession, logout } = useAuth();
   const { seasons, fetchAll } = useSeason();
@@ -26,8 +28,28 @@ function AdminApp() {
   const [focusWorker, setFocusWorker] = useState(null);
   const [checking, setChecking] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [priceNotif, setPriceNotif] = useState(null);
   const C = useSidebarColors();
   const { theme } = useTheme();
+  const activeSeason = seasons.find((s) => s.id === activeSeasonId) || null;
+
+  const getLatestRateEntry = (season) => {
+    if (!season?.rateHistory || season.rateHistory.length === 0) return null;
+    const sorted = [...season.rateHistory].sort(
+      (a, b) => new Date(b.effectiveDate) - new Date(a.effectiveDate),
+    );
+    return sorted[0];
+  };
+
+  const handleClosePriceNotif = (dontShowAgain) => {
+    if (dontShowAgain && priceNotif && activeSeason) {
+      localStorage.setItem(
+        `jokicalm_price_seen_${activeSeason.id}`,
+        priceNotif.effectiveDate,
+      );
+    }
+    setPriceNotif(null);
+  };
   const handleAvatarUpdate = (avatarUrl) => {
     setUser((prev) => ({ ...prev, avatar: avatarUrl }));
   };
@@ -43,6 +65,17 @@ function AdminApp() {
       setActiveSeasonId(active.id);
     }
   }, [seasons]);
+
+  useEffect(() => {
+    if (!activeSeason) return;
+    const latest = getLatestRateEntry(activeSeason);
+    if (!latest) return;
+    const seenKey = `jokicalm_price_seen_${activeSeason.id}`;
+    const seenTimestamp = localStorage.getItem(seenKey);
+    if (seenTimestamp !== latest.effectiveDate) {
+      setPriceNotif(latest);
+    }
+  }, [activeSeason]);
 
   const handleSelectSeason = (id) => {
     setActiveSeasonId(id);
@@ -110,8 +143,6 @@ function AdminApp() {
       </div>
     );
 
-  const activeSeason = seasons.find((s) => s.id === activeSeasonId) || null;
-
   const renderPage = () => {
     switch (activePage) {
       case "dashboard":
@@ -170,6 +201,9 @@ function AdminApp() {
       }}
     >
       {/* Overlay mobile */}
+      {priceNotif && (
+        <PriceUpdateNotif entry={priceNotif} onClose={handleClosePriceNotif} />
+      )}
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
