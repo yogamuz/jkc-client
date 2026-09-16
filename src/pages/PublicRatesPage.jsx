@@ -24,12 +24,13 @@ import { useTheme } from "../context/ThemeContext";
 const STATIC_RATES = {
   seasonName: "PRICE LIST S41",
   rates: [
-    { tier: "EPIC", rate_store_joki: 6000, rate_store_jokgen: 8000 },
-    { tier: "LEGEND", rate_store_joki: 7000, rate_store_jokgen: 9000 },
-    { tier: "MAWI", rate_store_joki: 11000, rate_store_jokgen: 13500 },
-    { tier: "HONOR", rate_store_joki: 12000, rate_store_jokgen: 14500 },
-    { tier: "GLORY", rate_store_joki: 16000, rate_store_jokgen: 20000 },
-    { tier: "IMO", rate_store_joki: 20000, rate_store_jokgen: 27000 },
+    { tier: "GRANDMASTER", rate_store_joki: 6000, rate_store_jokgen: 0 },
+    { tier: "EPIC", rate_store_joki: 8000, rate_store_jokgen: 0 },
+    { tier: "LEGEND", rate_store_joki: 9000, rate_store_jokgen: 0 },
+    { tier: "MAWI", rate_store_joki: 24000, rate_store_jokgen: 0 },
+    { tier: "HONOR", rate_store_joki: 27000, rate_store_jokgen: 0 },
+    { tier: "GLORY", rate_store_joki: 34000, rate_store_jokgen: 0 },
+    { tier: "IMO", rate_store_joki: 0, rate_store_jokgen: 0 },
   ],
 };
 
@@ -42,6 +43,7 @@ const buildWaLink = (message) =>
   `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`;
 
 const TIER_ICONS = {
+  GRANDMASTER: "/assets/gm.png",
   EPIC: "/assets/epig.png",
   LEGEND: "/assets/legend.png",
   MAWI: "/assets/mawi.png",
@@ -51,12 +53,12 @@ const TIER_ICONS = {
 };
 
 const TIER_BONUS = {
-  EPIC: "Order 10+2 bonus ⭐",
-  LEGEND: "Order 10+2 bonus ⭐",
-  MAWI: "Order 10+2 bonus ⭐",
-  HONOR: "Order 10+2 bonus ⭐",
-  GLORY: "Order 10+2 bonus ⭐",
-  IMO: "Order 10+2 bonus ⭐",
+  // EPIC: "Order 10+2 bonus ⭐",
+  // LEGEND: "Order 10+2 bonus ⭐",
+  // MAWI: "Order 10+2 bonus ⭐",
+  // HONOR: "Order 10+2 bonus ⭐",
+  // GLORY: "Order 10+2 bonus ⭐",
+  // IMO: "Order 10+2 bonus ⭐",
 };
 
 const TIER_BONUS_COLOR = {
@@ -79,12 +81,12 @@ const TIER_BONUS_COLOR = {
 
 // HARGA PROMO 10+2 PER TIER (CUSTOM, MANUAL)
 const TIER_PROMO_PRICE = {
-  EPIC: { joki: 60000, jokgen: 80000 },
-  LEGEND: { joki: 70000, jokgen: 90000 },
-  MAWI: { joki: 110000, jokgen: 135000 },
-  HONOR: { joki: 120000, jokgen: 145000 },
-  GLORY: { joki: 160000, jokgen: 200000 },
-  IMO: { joki: 200000, jokgen: 270000 },
+  // EPIC: { joki: 60000, jokgen: 80000 },
+  // LEGEND: { joki: 70000, jokgen: 90000 },
+  // MAWI: { joki: 110000, jokgen: 135000 },
+  // HONOR: { joki: 120000, jokgen: 145000 },
+  // GLORY: { joki: 160000, jokgen: 200000 },
+  // IMO: { joki: 200000, jokgen: 270000 },
 };
 
 const getTierIcon = (tier) =>
@@ -296,11 +298,10 @@ const PublicRatesPage = () => {
               margin: "1.25rem auto 2rem",
             }}
           >
-            Harga yang tertera di poster toko adalah harga awal season. Harga
-            berubah seiring berjalannya season. Mid season order 10+2 bonus ⭐
+            Harga yang tertera di poster toko adalah harga awal. Awal season belom ada promo ya anak-anak pemai😡
             <br />
             <br />
-            Price terakhir diupdate 25   Agustus.
+            <strong>Harga di update 16 Sept</strong>
           </p>
           <div
             style={{

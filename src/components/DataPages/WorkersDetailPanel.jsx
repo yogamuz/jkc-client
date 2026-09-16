@@ -237,7 +237,7 @@ const WorkerDetailPanel = ({ workerName, seasons, onBack, onGoToOrder }) => {
             ))}
           </select>
           <button
-            onClick={() => exportUnpaidWorkerDetailPDF(detail, workerName, C)}
+            onClick={() => ratWorkerDetailPDF(detail, workerName, C)}
             disabled={!detail}
             style={{
               display: "flex",
