@@ -160,7 +160,6 @@ export const exportUnpaidWorkerDetailPDF = (detail, workerName) => {
   const totalUnpaid = unpaidHistory.reduce((s, h) => s + h.salary, 0);
   const finalY = doc.lastAutoTable.finalY || 32;
   doc.setFontSize(10);
-  doc.setTextColor(...hexToRgb(lightColors.green));
   doc.text(`TOTAL BELUM DIBAYAR: ${fmtRp(totalUnpaid)}`, 14, finalY + 10);
 
   doc.save(`rekap ${workerName} mingguan JKC.pdf`);
