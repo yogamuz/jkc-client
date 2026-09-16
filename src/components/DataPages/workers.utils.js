@@ -1,5 +1,7 @@
 import { useContext } from "react";
-import ThemeContext from "../../context/ThemeContext"; // adjust path if needed
+import ThemeContext from "../../context/ThemeContext";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const darkColors = {
   bg: "#0D0D0F",
@@ -96,3 +98,70 @@ export const cell = (bold, c = darkColors) => ({
   whiteSpace: "nowrap",
   borderRight: `1px solid ${c.border}`,
 });
+
+// hex "#FFE600" -> [255, 230, 0] untuk jsPDF
+const hexToRgb = (hex) => {
+  const clean = hex.replace("#", "");
+  const bigint = parseInt(clean, 16);
+  return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
+};
+
+export const exportUnpaidWorkerDetailPDF = (detail, workerName) => {
+  const unpaidHistory = (detail?.history || []).filter((h) => !h.isPaid);
+
+  const doc = new jsPDF();
+
+  doc.setFontSize(16);
+  doc.setTextColor(...hexToRgb(lightColors.yellow));
+  doc.text(`REKAP UNPAID — ${workerName}`, 14, 18);
+
+  doc.setFontSize(9);
+  doc.setTextColor(...hexToRgb(lightColors.muted));
+  doc.text(
+    `Diambil pada ${new Date().toLocaleString("id-ID", {
+      dateStyle: "long",
+      timeStyle: "short",
+    })}`,
+    14,
+    25,
+  );
+
+  autoTable(doc, {
+    startY: 32,
+    head: [["SEASON", "CUSTOMER", "TANGGAL", "KATEGORI", "GAJI"]],
+    body: unpaidHistory.map((h) => [
+      h.seasonName,
+      h.customerName,
+      fmtDate(h.date),
+      h.category,
+      fmtRp(h.salary),
+    ]),
+    headStyles: {
+      fillColor: hexToRgb(lightColors.yellow),
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+    },
+    bodyStyles: {
+      textColor: hexToRgb(lightColors.muted),
+    },
+    columnStyles: {
+      4: { textColor: hexToRgb(lightColors.magenta), fontStyle: "bold" },
+    },
+    alternateRowStyles: {
+      fillColor: hexToRgb(lightColors.rowAlt),
+    },
+    styles: {
+      font: "courier",
+      fontSize: 9,
+      cellPadding: 3,
+    },
+  });
+
+  const totalUnpaid = unpaidHistory.reduce((s, h) => s + h.salary, 0);
+  const finalY = doc.lastAutoTable.finalY || 32;
+  doc.setFontSize(10);
+  doc.setTextColor(...hexToRgb(lightColors.green));
+  doc.text(`TOTAL BELUM DIBAYAR: ${fmtRp(totalUnpaid)}`, 14, finalY + 10);
+
+  doc.save(`rekap ${workerName} mingguan JKC.pdf`);
+};

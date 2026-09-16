@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, FileDown } from "lucide-react";
 import CircuitBg from "../ui/CircuitBg";
 import CornerGlow from "../ui/CornerGlow";
 import {
@@ -11,6 +11,7 @@ import {
   apiFetch,
   textGlow,
   glow,
+  exportUnpaidWorkerDetailPDF,
 } from "./workers.utils";
 import { markWorkerPaid } from "../../services/orderService";
 
@@ -235,6 +236,35 @@ const WorkerDetailPanel = ({ workerName, seasons, onBack, onGoToOrder }) => {
               </option>
             ))}
           </select>
+          <button
+            onClick={() => exportUnpaidWorkerDetailPDF(detail, workerName, C)}
+            disabled={!detail}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.4rem",
+              background: "transparent",
+              border: `1px solid ${C.magenta}`,
+              color: C.magenta,
+              padding: "0.55rem 0.875rem",
+              cursor: detail ? "pointer" : "not-allowed",
+              opacity: detail ? 1 : 0.5,
+              fontSize: "0.68rem",
+              fontWeight: 900,
+              letterSpacing: "1.5px",
+              fontFamily: "'Courier New', monospace",
+            }}
+            onMouseEnter={(e) =>
+              detail &&
+              (e.currentTarget.style.background = "rgba(255,60,172,0.08)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "transparent")
+            }
+          >
+            <FileDown size={13} strokeWidth={2} />
+            EXPORT UNPAID
+          </button>
         </div>
       </div>
 

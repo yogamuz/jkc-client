@@ -139,6 +139,7 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
+      onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
         style={{
           background: C.modalBg,
           border: `1px solid ${C.border}`,
