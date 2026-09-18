@@ -4,32 +4,15 @@ import CircuitBg from "../components//ui/CircuitBg";
 import ThemeToggle from "../components/ui/sidebar/ThemeToggle";
 import { useTheme } from "../context/ThemeContext";
 
-/*
- * ── SUMBER DATA RATE (CUSTOM, MANUAL) ──
- * Dulu data ini diambil dari getPublicRates() (API) + di-cache ke localStorage.
- * Sekarang cukup edit langsung object di bawah ini sesuai kebutuhan.
- *
- * Struktur HARUS tetap sama seperti response API sebelumnya:
- * {
- *   seasonName: string,
- *   rates: [
- *     { tier: "EPIC", rate_store_joki: number, rate_store_jokgen: number },
- *     ...
- *   ]
- * }
- *
- * Isi rate_store_joki / rate_store_jokgen dengan 0 (atau angka <=0) jika
- * ingin tampil "Belum tersedia" pada kartu.
- */
 const STATIC_RATES = {
   seasonName: "PRICE LIST S41",
   rates: [
     { tier: "GRANDMASTER", rate_store_joki: 6000, rate_store_jokgen: 0 },
-    { tier: "EPIC", rate_store_joki: 8000, rate_store_jokgen: 0 },
+    { tier: "EPIC", rate_store_joki: 7000, rate_store_jokgen: 0 },
     { tier: "LEGEND", rate_store_joki: 9000, rate_store_jokgen: 0 },
     { tier: "MAWI", rate_store_joki: 24000, rate_store_jokgen: 0 },
-    { tier: "HONOR", rate_store_joki: 27000, rate_store_jokgen: 0 },
-    { tier: "GLORY", rate_store_joki: 34000, rate_store_jokgen: 0 },
+    { tier: "HONOR", rate_store_joki: 26000, rate_store_jokgen: 0 },
+    { tier: "GLORY", rate_store_joki: 30000, rate_store_jokgen: 0 },
     { tier: "IMO", rate_store_joki: 0, rate_store_jokgen: 0 },
   ],
 };
@@ -53,6 +36,7 @@ const TIER_ICONS = {
 };
 
 const TIER_BONUS = {
+  // GRANDMASTER: "Order 10+2 bonus ⭐",
   // EPIC: "Order 10+2 bonus ⭐",
   // LEGEND: "Order 10+2 bonus ⭐",
   // MAWI: "Order 10+2 bonus ⭐",
