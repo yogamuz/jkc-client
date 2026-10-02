@@ -8,13 +8,13 @@ import { useTheme } from "../context/ThemeContext";
 const STATIC_RATES = {
   seasonName: "PRICE LIST S41",
   rates: [
-    { tier: "GRANDMASTER", rate_store_joki: 6000, rate_store_jokgen: 7000 },
+    { tier: "GRANDMASTER", rate_store_joki: 5000, rate_store_jokgen: 6000 },
     { tier: "EPIC", rate_store_joki: 7000, rate_store_jokgen: 9000 },
     { tier: "LEGEND", rate_store_joki: 9000, rate_store_jokgen: 11000 },
-    { tier: "MAWI", rate_store_joki: 21000, rate_store_jokgen: 26000 },
-    { tier: "HONOR", rate_store_joki: 23000, rate_store_jokgen: 28000 },
-    { tier: "GLORY", rate_store_joki: 29000, rate_store_jokgen: 0 },
-    { tier: "IMO", rate_store_joki: 33000, rate_store_jokgen: 0 },
+    { tier: "MAWI", rate_store_joki: 19000, rate_store_jokgen: 24000 },
+    { tier: "HONOR", rate_store_joki: 21000, rate_store_jokgen: 26000 },
+    { tier: "GLORY", rate_store_joki: 27000, rate_store_jokgen: 34000 },
+    { tier: "IMO", rate_store_joki: 32000, rate_store_jokgen: 0 },
   ],
 };
 
@@ -286,7 +286,7 @@ const PublicRatesPage = () => {
             Harga yang tertera di poster toko adalah harga awal. Awal season belom ada promo ya anak-anak pemai😡
             <br />
             <br />
-            <strong>Harga di update 28 Sept</strong>
+            <strong>Harga di update 2 Oktober</strong>
           </p>
           <div
             style={{
