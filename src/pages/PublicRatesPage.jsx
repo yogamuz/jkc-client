@@ -11,10 +11,10 @@ const STATIC_RATES = {
     { tier: "GRANDMASTER", rate_store_joki: 5000, rate_store_jokgen: 6000 },
     { tier: "EPIC", rate_store_joki: 7000, rate_store_jokgen: 9000 },
     { tier: "LEGEND", rate_store_joki: 9000, rate_store_jokgen: 11000 },
-    { tier: "MAWI", rate_store_joki: 19000, rate_store_jokgen: 24000 },
-    { tier: "HONOR", rate_store_joki: 21000, rate_store_jokgen: 26000 },
-    { tier: "GLORY", rate_store_joki: 27000, rate_store_jokgen: 34000 },
-    { tier: "IMO", rate_store_joki: 32000, rate_store_jokgen: 0 },
+    { tier: "MAWI", rate_store_joki: 17000, rate_store_jokgen: 19000 },
+    { tier: "HONOR", rate_store_joki: 19000, rate_store_jokgen: 22000 },
+    { tier: "GLORY", rate_store_joki: 25000, rate_store_jokgen: 30000 },
+    { tier: "IMO", rate_store_joki: 31000, rate_store_jokgen: 35000 },
   ],
 };
 
@@ -283,10 +283,10 @@ const PublicRatesPage = () => {
               margin: "1.25rem auto 2rem",
             }}
           >
-            Harga yang tertera di poster toko adalah harga awal. Awal season belom ada promo ya anak-anak pemai😡
+            Harga yang tertera di poster toko adalah harga awal. Promo pre-mid season order 10+1⭐
             <br />
             <br />
-            <strong>Harga di update 2 Oktober</strong>
+            <strong>Harga di update 9 Oktober</strong>
           </p>
           <div
             style={{
