@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { History } from "lucide-react";
 import useSeason from "../hooks/useSeason";
 import CircuitBg from "../components/ui/CircuitBg";
@@ -11,6 +11,33 @@ import {
   glow,
 } from "../components/RateConfig/rateConfig.utils";
 
+// ── Keyboard navigation helpers ───────────────────────────
+const NAV_SKIP_TYPES = ["hidden", "checkbox", "radio", "button", "submit"];
+const TEXT_CARET_TYPES = ["text", "search", "tel", "url", "password", "email"];
+
+const getNavigableInputs = (container) =>
+  Array.from(container.querySelectorAll("input")).filter(
+    (el) =>
+      !el.disabled &&
+      !el.readOnly &&
+      !NAV_SKIP_TYPES.includes(el.type) &&
+      el.offsetParent !== null,
+  );
+
+// Cari tombol SIMPAN terdekat dari input (naik dari parent terdekat),
+// supaya input fee -> SIMPAN FEE, input rate/catatan -> SIMPAN RATE
+const findSaveButtonFor = (el, container) => {
+  let node = el.parentElement;
+  while (node && container.contains(node)) {
+    const btn = Array.from(node.querySelectorAll("button")).find((b) =>
+      /simpan|save/i.test(b.textContent || ""),
+    );
+    if (btn) return btn;
+    node = node.parentElement;
+  }
+  return null;
+};
+
 // ── Main RateConfigPage ───────────────────────────────────
 const RateConfigPage = ({ seasons = [] }) => {
   const C = useRateConfigColors();
@@ -18,6 +45,7 @@ const RateConfigPage = ({ seasons = [] }) => {
   const { loading, updateRates, getSeasonById } = useSeason();
   const [selectedId, setSelectedId] = useState(null);
   const [savedFlag, setSavedFlag] = useState(0);
+  const formWrapRef = useRef(null);
 
   // auto-select season aktif
   useEffect(() => {
@@ -30,6 +58,96 @@ const RateConfigPage = ({ seasons = [] }) => {
   const selectedSeason = seasons.find((s) => s.id === selectedId) || null;
 
   const handleSaved = () => setSavedFlag((f) => f + 1); // trigger re-render
+
+  // Arrow = pindah antar kolom, Enter = simpan
+  const handleFormKeyDown = (e) => {
+    const el = e.target;
+    const container = formWrapRef.current;
+    if (!el || !container || el.tagName !== "INPUT") return;
+    if (NAV_SKIP_TYPES.includes(el.type)) return;
+    if (e.nativeEvent && e.nativeEvent.isComposing) return;
+
+    // ENTER → klik tombol simpan yang sesuai dengan panel input ini
+    if (e.key === "Enter") {
+      const saveBtn = findSaveButtonFor(el, container);
+      if (saveBtn && !saveBtn.disabled) {
+        e.preventDefault();
+        saveBtn.click();
+      }
+      return;
+    }
+
+    // ARROW → pindah fokus input
+    const isArrow = [
+      "ArrowUp",
+      "ArrowDown",
+      "ArrowLeft",
+      "ArrowRight",
+    ].includes(e.key);
+    if (!isArrow) return;
+
+    // Untuk input teks, jangan ganggu pergerakan kursor di dalam teks.
+    // Pindah kolom hanya jika kursor di ujung, atau seluruh isi sedang ter-select.
+    if (TEXT_CARET_TYPES.includes(el.type) && el.selectionStart !== null) {
+      const len = (el.value || "").length;
+      const s = el.selectionStart;
+      const en = el.selectionEnd;
+      const allSelected = s === 0 && en === len;
+      if (e.key === "ArrowLeft" && !allSelected && !(s === 0 && en === 0))
+        return;
+      if (e.key === "ArrowRight" && !allSelected && !(s === len && en === len))
+        return;
+    }
+
+    const inputs = getNavigableInputs(container);
+    const curRect = el.getBoundingClientRect();
+    const cx = curRect.left + curRect.width / 2;
+    const cy = curRect.top + curRect.height / 2;
+
+    let best = null;
+    let bestScore = Infinity;
+
+    inputs.forEach((cand) => {
+      if (cand === el) return;
+      const r = cand.getBoundingClientRect();
+      const dx = r.left + r.width / 2 - cx;
+      const dy = r.top + r.height / 2 - cy;
+
+      let primary;
+      let secondary;
+      if (e.key === "ArrowRight" && dx > 4) {
+        primary = dx;
+        secondary = Math.abs(dy);
+      } else if (e.key === "ArrowLeft" && dx < -4) {
+        primary = -dx;
+        secondary = Math.abs(dy);
+      } else if (e.key === "ArrowDown" && dy > 4) {
+        primary = dy;
+        secondary = Math.abs(dx);
+      } else if (e.key === "ArrowUp" && dy < -4) {
+        primary = -dy;
+        secondary = Math.abs(dx);
+      } else {
+        return;
+      }
+
+      const score = primary + secondary * 3;
+      if (score < bestScore) {
+        bestScore = score;
+        best = cand;
+      }
+    });
+
+    if (best) {
+      e.preventDefault();
+      best.focus();
+      try {
+        best.select();
+      } catch (err) {
+        /* abaikan jika tipe input tidak mendukung select() */
+      }
+    }
+  };
 
   return (
     <div
@@ -160,21 +278,23 @@ const RateConfigPage = ({ seasons = [] }) => {
           }}
         >
           {/* Rate form */}
-          <RateForm
-            key={savedFlag}
-            seasonId={selectedSeason.id}
-            onSaved={handleSaved}
-            updateRates={updateRates}
-            currentRates={
-              selectedSeason.rateHistory?.length > 0
-                ? [...selectedSeason.rateHistory].sort(
-                    (a, b) =>
-                      new Date(b.effectiveDate) - new Date(a.effectiveDate),
-                  )[0].rates
-                : []
-            }
-            loading={loading}
-          />
+          <div ref={formWrapRef} onKeyDown={handleFormKeyDown}>
+            <RateForm
+              key={savedFlag}
+              seasonId={selectedSeason.id}
+              onSaved={handleSaved}
+              updateRates={updateRates}
+              currentRates={
+                selectedSeason.rateHistory?.length > 0
+                  ? [...selectedSeason.rateHistory].sort(
+                      (a, b) =>
+                        new Date(b.effectiveDate) - new Date(a.effectiveDate),
+                    )[0].rates
+                  : []
+              }
+              loading={loading}
+            />
+          </div>
 
           {/* History */}
           <div

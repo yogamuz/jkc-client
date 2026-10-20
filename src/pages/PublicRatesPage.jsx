@@ -9,12 +9,12 @@ const STATIC_RATES = {
   seasonName: "PRICE LIST S41",
   rates: [
     { tier: "GRANDMASTER", rate_store_joki: 5000, rate_store_jokgen: 6000 },
-    { tier: "EPIC", rate_store_joki: 7000, rate_store_jokgen: 9000 },
-    { tier: "LEGEND", rate_store_joki: 9000, rate_store_jokgen: 11000 },
-    { tier: "MAWI", rate_store_joki: 17000, rate_store_jokgen: 19000 },
-    { tier: "HONOR", rate_store_joki: 19000, rate_store_jokgen: 22000 },
-    { tier: "GLORY", rate_store_joki: 25000, rate_store_jokgen: 30000 },
-    { tier: "IMO", rate_store_joki: 31000, rate_store_jokgen: 35000 },
+    { tier: "EPIC", rate_store_joki: 7000, rate_store_jokgen: 8000 },
+    { tier: "LEGEND", rate_store_joki: 9000, rate_store_jokgen: 10000 },
+    { tier: "MAWI", rate_store_joki: 16000, rate_store_jokgen: 18000 },
+    { tier: "HONOR", rate_store_joki: 18000, rate_store_jokgen: 20000 },
+    { tier: "GLORY", rate_store_joki: 23000, rate_store_jokgen: 25000 },
+    { tier: "IMO", rate_store_joki: 27000, rate_store_jokgen: 32000 },
   ],
 };
 
@@ -37,13 +37,13 @@ const TIER_ICONS = {
 };
 
 const TIER_BONUS = {
-  // GRANDMASTER: "Order 10+2 bonus ⭐",
-  // EPIC: "Order 10+2 bonus ⭐",
-  // LEGEND: "Order 10+2 bonus ⭐",
-  // MAWI: "Order 10+2 bonus ⭐",
-  // HONOR: "Order 10+2 bonus ⭐",
-  // GLORY: "Order 10+2 bonus ⭐",
-  // IMO: "Order 10+2 bonus ⭐",
+  GRANDMASTER: "Order 10+1 bonus ⭐",
+  EPIC: "Order 10+1 bonus ⭐",
+  LEGEND: "Order 10+1 bonus ⭐",
+  MAWI: "Order 10+1 bonus ⭐",
+  HONOR: "Order 10+1 bonus ⭐",
+  GLORY: "Order 10+1 bonus ⭐",
+  IMO: "Order 10+1 bonus ⭐",
 };
 
 const TIER_BONUS_COLOR = {
@@ -66,12 +66,13 @@ const TIER_BONUS_COLOR = {
 
 // HARGA PROMO 10+2 PER TIER (CUSTOM, MANUAL)
 const TIER_PROMO_PRICE = {
-  // EPIC: { joki: 60000, jokgen: 80000 },
-  // LEGEND: { joki: 70000, jokgen: 90000 },
-  // MAWI: { joki: 110000, jokgen: 135000 },
-  // HONOR: { joki: 120000, jokgen: 145000 },
-  // GLORY: { joki: 160000, jokgen: 200000 },
-  // IMO: { joki: 200000, jokgen: 270000 },
+  GRANDMASTER: { joki: 50000, jokgen: 60000 },
+  EPIC: { joki: 70000, jokgen: 80000 },
+  LEGEND: { joki: 90000, jokgen: 100000 },
+  MAWI: { joki: 160000, jokgen: 180000 },
+  HONOR: { joki: 180000, jokgen: 200000 },
+  GLORY: { joki: 230000, jokgen: 250000 },
+  IMO: { joki: 270000, jokgen: 320000 },
 };
 
 const getTierIcon = (tier) =>
@@ -193,7 +194,7 @@ const PromoOrderButton = ({ message, price, accentColor, cardBg }) => (
         textOverflow: "ellipsis",
       }}
     >
-     10+2 {formatRupiah(price)}
+      10+1 {formatRupiah(price)}
     </span>
   </a>
 );
@@ -237,8 +238,7 @@ const PublicRatesPage = () => {
           right: "1.25rem",
           zIndex: 10,
         }}
-      >
-      </div>
+      ></div>
 
       <div
         style={{
@@ -258,8 +258,7 @@ const PublicRatesPage = () => {
               color: textMuted,
               marginBottom: "6px",
             }}
-          >
-          </div>
+          ></div>
           <h1
             style={{
               fontSize: "clamp(1.5rem, 7vw, 2.25rem)",
@@ -283,10 +282,11 @@ const PublicRatesPage = () => {
               margin: "1.25rem auto 2rem",
             }}
           >
-            Harga yang tertera di poster toko adalah harga awal. Promo pre-mid season order 10+1⭐
+            Harga yang tertera di poster toko adalah harga awal. Promo pre-mid
+            season order 10+1⭐
             <br />
             <br />
-            <strong>Harga di update 9 Oktober</strong>
+            <strong>Harga di update 20 Oktober</strong>
           </p>
           <div
             style={{
@@ -348,7 +348,10 @@ const PublicRatesPage = () => {
             {data.rates.map((r) => {
               const tierUpper = r.tier.toUpperCase();
               const tierLower = r.tier.toLowerCase();
-              const promo = TIER_PROMO_PRICE[tierUpper] || { joki: 0, jokgen: 0 };
+              const promo = TIER_PROMO_PRICE[tierUpper] || {
+                joki: 0,
+                jokgen: 0,
+              };
               const btnColor = TIER_BONUS_COLOR[tierUpper] || accent;
 
               return (
@@ -454,7 +457,7 @@ const PublicRatesPage = () => {
                       {/* segmen Joki Rank, sejajar dengan kolom Joki Rank */}
                       {promo.joki > 0 ? (
                         <PromoOrderButton
-                          message={`mau joko ${tierLower} 10+2 dong`}
+                          message={`mau joko ${tierLower} 10+1 dong`}
                           price={promo.joki}
                           accentColor={btnColor}
                           cardBg={cardBg}
@@ -466,7 +469,7 @@ const PublicRatesPage = () => {
                       {/* segmen Joki Gendong, sejajar dengan kolom Joki Gendong */}
                       {promo.jokgen > 0 ? (
                         <PromoOrderButton
-                          message={`mau jokgen ${tierLower} 10+2`}
+                          message={`mau jokgen ${tierLower} 10+1`}
                           price={promo.jokgen}
                           accentColor={btnColor}
                           cardBg={cardBg}
