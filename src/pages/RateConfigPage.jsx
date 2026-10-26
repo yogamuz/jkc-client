@@ -6,6 +6,7 @@ import CornerGlow from "../components/ui/CornerGlow";
 import { useTheme } from "../context/ThemeContext"; // sesuaikan path
 import RateForm from "../components/RateConfig/RateForm";
 import RateHistoryPanel from "../components/RateConfig/RateHistoryPanel";
+import SeasonDurationForm from "../components/RateConfig/SeasonDurationForm"; // ← baru
 import {
   useRateConfigColors,
   glow,
@@ -39,10 +40,10 @@ const findSaveButtonFor = (el, container) => {
 };
 
 // ── Main RateConfigPage ───────────────────────────────────
-const RateConfigPage = ({ seasons = [] }) => {
+const RateConfigPage = ({ seasons = [], onRefresh }) => { // ← onRefresh baru
   const C = useRateConfigColors();
   const { theme } = useTheme();
-  const { loading, updateRates, getSeasonById } = useSeason();
+  const { loading, updateRates, getSeasonById, update } = useSeason(); // ← update baru
   const [selectedId, setSelectedId] = useState(null);
   const [savedFlag, setSavedFlag] = useState(0);
   const [saveNotif, setSaveNotif] = useState(false);
@@ -66,6 +67,12 @@ const RateConfigPage = ({ seasons = [] }) => {
   const handleSaved = (type) => {
     setSavedFlag((f) => f + 1); // trigger re-render
     if (type === "rate") setSaveNotif(true);
+  };
+
+  // ← baru: simpan durasi season (PATCH /seasons/:id)
+  const handleSaveDuration = async (body) => {
+    await update(selectedSeason.id, body);
+    onRefresh?.();
   };
 
   // Arrow = pindah antar kolom, Enter = simpan
@@ -307,6 +314,14 @@ const RateConfigPage = ({ seasons = [] }) => {
             zIndex: 1,
           }}
         >
+          {/* ← baru: durasi season */}
+          <SeasonDurationForm
+            key={`${selectedSeason.id}-${selectedSeason.endDate}`}
+            season={selectedSeason}
+            onSave={handleSaveDuration}
+            loading={loading}
+          />
+
           {/* Rate form */}
           <div ref={formWrapRef} onKeyDown={handleFormKeyDown}>
             <RateForm

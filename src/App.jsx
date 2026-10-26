@@ -181,7 +181,7 @@ function AdminApp() {
         return <AnalyticsPage season={activeSeason} seasons={seasons} />;
       case "rates":
         return user.role === "owner" ? (
-          <RateConfigPage seasons={seasons} />
+          <RateConfigPage seasons={seasons} onRefresh={fetchAll} /> // ← onRefresh baru
         ) : (
           <AccessDenied />
         );

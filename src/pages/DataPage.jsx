@@ -10,6 +10,7 @@ import OrderTable from "../components/DataPages/OrderTable";
 import AddOrderModal from "../components/DataPages/AddOrderModal";
 import ImportExcelModal from "../components/DataPages/ImportExcelModal";
 import DatePicker from "../components/ui/DatePicker";
+import SeasonCountdown from "../components/SeasonCountdown";
 
 const STATUS_CYCLE = { PENDING: "PROCESS", PROCESS: "DONE", DONE: "PENDING" };
 
@@ -469,6 +470,12 @@ const DataPage = ({
               boxShadow: `0 0 10px ${C.yellow}`,
             }}
           />
+          <div style={{ marginTop: "14px" }}>
+            <SeasonCountdown
+              startDate={season.startDate}
+              endDate={season.endDate}
+            />
+          </div>
         </div>
 
         <div

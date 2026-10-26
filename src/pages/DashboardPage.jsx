@@ -13,6 +13,7 @@ import {
 import useOrder from "../hooks/useOrder";
 import CircuitBg from "../components/ui/CircuitBg";
 import CornerGlow from "../components/ui/CornerGlow";
+import SeasonCountdown from "../components/SeasonCountdown";
 import ThemeContext from "../context/ThemeContext"; // sesuaikan path
 
 /* ── Design tokens ─────────────────────────────────────── */
@@ -435,6 +436,12 @@ const DashboardPage = ({ onNavigate, seasons = [], user }) => {
             boxShadow: glow(theme, `0 0 10px ${C.yellow}`),
           }}
         />
+        <div style={{ marginTop: "14px" }}>
+          <SeasonCountdown
+            startDate={activeSeason?.startDate}
+            endDate={activeSeason?.endDate}
+          />
+        </div>
       </div>
 
       {/* Stat Cards */}

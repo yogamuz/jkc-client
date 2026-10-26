@@ -13,6 +13,9 @@ import {
   fromDisplay,
 } from "./rateConfig.utils";
 
+
+
+
 const RateForm = ({
   seasonId,
   onSaved,

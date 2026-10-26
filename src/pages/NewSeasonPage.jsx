@@ -4,6 +4,7 @@ import CircuitBg from "../components/ui/CircuitBg";
 import CornerGlow from "../components/ui/CornerGlow";
 import { useDataPageColors, glow } from "../constants/dataPage.constants";
 import { useTheme } from "../context/ThemeContext";
+import DatePicker from "../components/ui/DatePicker"; // ← baru
 
 const toDisplay = (n) => (n ? Number(n).toLocaleString("id-ID") : "");
 const fromDisplay = (s) => Number(s.replace(/\./g, "")) || 0;
@@ -48,6 +49,10 @@ const NewSeasonPage = ({ onCreated }) => {
 
   const [name, setName]   = useState("");
   const [label, setLabel] = useState("");
+  const [startDate, setStartDate] = useState(() =>
+    new Date().toLocaleDateString("sv-SE"),
+  ); // ← baru
+  const [duration, setDuration] = useState("90"); // ← baru
   const [withRates, setWithRates] = useState(true);
   const [rates, setRates] = useState(TIER_PRESETS.map((t) => emptyRate(t)));
 
@@ -66,10 +71,16 @@ const NewSeasonPage = ({ onCreated }) => {
 
   const handleSubmit = async () => {
     if (!name.trim()) return;
+    const start = startDate ? new Date(`${startDate}T00:00:00`) : null; // ← baru
+    const end = start
+      ? new Date(start.getTime() + (Number(duration) || 90) * 86400000)
+      : null; // ← baru
     const body = {
       name: name.trim(),
       label: label.trim() || `Season ${name.trim().toUpperCase()}`,
       rates: withRates ? rates.filter((r) => r.tier.trim()) : [],
+      startDate: start ? start.toISOString() : null, // ← baru
+      endDate: end ? end.toISOString() : null, // ← baru
     };
     const res = await create(body);
     if (res?.data?.id) onCreated(res.data.id);
@@ -120,6 +131,21 @@ const NewSeasonPage = ({ onCreated }) => {
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              />
+            </div>
+            {/* ← baru: tanggal mulai + durasi */}
+            <div style={{ flex: "0 0 auto" }}>
+              <label style={labelS}>TANGGAL MULAI</label>
+              <DatePicker value={startDate} onChange={setStartDate} />
+            </div>
+            <div style={{ flex: "0 0 120px" }}>
+              <label style={labelS}>DURASI (HARI)</label>
+              <input
+                style={inputS}
+                type="text"
+                inputMode="numeric"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value.replace(/\D/g, ""))}
               />
             </div>
           </div>
