@@ -27,7 +27,7 @@ const RateForm = ({
   const inputS = getInputS(C);
   const labelS = getLabelS(C);
 
-const [rates, setRates] = useState(() => {
+  const [rates, setRates] = useState(() => {
     if (currentRates.length > 0) {
       const existingTiers = new Set(currentRates.map((r) => r.tier));
       const mapped = currentRates.map((r) => ({
@@ -36,6 +36,12 @@ const [rates, setRates] = useState(() => {
         rate_store_jokgen: r.rate_store_jokgen || 0,
         rate_worker_joki: r.rate_worker_joki || 0,
         rate_worker_jokgen: r.rate_worker_jokgen || 0,
+        promos: (r.promos || []).map((p) => ({
+          service: p.service || "joki",
+          buyQty: p.buyQty || 0,
+          bonusQty: p.bonusQty || 0,
+          price: p.price || 0,
+        })),
       }));
       const extra = TIER_PRESETS.filter((t) => !existingTiers.has(t)).map(
         (tier) => ({ ...emptyRate(), tier }),
@@ -67,11 +73,49 @@ const [rates, setRates] = useState(() => {
   const removeRow = (i) =>
     setRates((prev) => prev.filter((_, idx) => idx !== i));
 
+  // service: "joki" (Joki Rank) atau "jokgen" (Joki Gendong)
+  const addPromo = (i, service = "joki") =>
+    setRates((prev) => {
+      const next = [...prev];
+      next[i] = {
+        ...next[i],
+        promos: [
+          ...(next[i].promos || []),
+          { service, buyQty: 10, bonusQty: 1, price: 0 },
+        ],
+      };
+      return next;
+    });
+
+  const setPromo = (i, j, field, val) =>
+    setRates((prev) => {
+      const next = [...prev];
+      const promos = [...(next[i].promos || [])];
+      promos[j] = { ...promos[j], [field]: Number(val) || 0 };
+      next[i] = { ...next[i], promos };
+      return next;
+    });
+
+  const removePromo = (i, j) =>
+    setRates((prev) => {
+      const next = [...prev];
+      next[i] = {
+        ...next[i],
+        promos: (next[i].promos || []).filter((_, idx) => idx !== j),
+      };
+      return next;
+    });
+
   const handleSave = async () => {
-    const valid = rates.filter((r) => r.tier.trim());
+    const valid = rates
+      .filter((r) => r.tier.trim())
+      .map((r) => ({
+        ...r,
+        promos: (r.promos || []).filter((p) => p.buyQty > 0 && p.bonusQty > 0),
+      }));
     if (!valid.length) return;
     await updateRates(seasonId, { rates: valid, note });
-    onSaved();
+    onSaved("rate");
   };
 
   const handleSaveAdminFee = async () => {
@@ -111,7 +155,7 @@ const [rates, setRates] = useState(() => {
               fontFamily: "'Courier New', monospace",
             }}
           >
-             FEE ADMIN / ID
+            FEE ADMIN / ID
           </span>
         </div>
         <div
@@ -171,7 +215,7 @@ const [rates, setRates] = useState(() => {
         </div>
       </div>
 
-      {/* ── Rate per tier — form asli, tidak berubah ── */}
+      {/* ── Rate per tier — form asli ── */}
       <div
         style={{
           background: C.panel,
@@ -336,6 +380,164 @@ const [rates, setRates] = useState(() => {
               >
                 <Trash2 size={13} strokeWidth={1.5} />
               </button>
+
+              {/* promo per tier: Joki Rank di bawah kolom Rank, Joki Gendong di bawah kolom Gendong */}
+              <div
+                style={{
+                  gridColumn: "1 / -1",
+                  display: "grid",
+                  gridTemplateColumns: "100px 1fr 1fr 1fr 1fr 36px",
+                  gap: "0.5rem",
+                  alignItems: "start",
+                  paddingBottom: "0.6rem",
+                  borderBottom: `1px dashed ${C.border}`,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "0.55rem",
+                    color: C.muted,
+                    fontWeight: 900,
+                    letterSpacing: "1.5px",
+                    fontFamily: "'Courier New', monospace",
+                    paddingTop: "6px",
+                  }}
+                >
+                  PROMO
+                </span>
+
+                {[
+                  { key: "joki", rateKey: "rate_store_joki" },
+                  { key: "jokgen", rateKey: "rate_store_jokgen" },
+                ].map((svc) => (
+                  <div
+                    key={svc.key}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {(r.promos || []).map((p, j) =>
+                      (p.service || "joki") !== svc.key ? null : (
+                        <div
+                          key={j}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "4px",
+                          }}
+                        >
+                          <input
+                            style={{
+                              ...inputS,
+                              width: "44px",
+                              textAlign: "center",
+                            }}
+                            type="text"
+                            inputMode="numeric"
+                            value={p.buyQty}
+                            onChange={(e) =>
+                              setPromo(
+                                i,
+                                j,
+                                "buyQty",
+                                e.target.value.replace(/\D/g, ""),
+                              )
+                            }
+                          />
+                          <span
+                            style={{ color: C.muted, fontFamily: "monospace" }}
+                          >
+                            +
+                          </span>
+                          <input
+                            style={{
+                              ...inputS,
+                              width: "44px",
+                              textAlign: "center",
+                            }}
+                            type="text"
+                            inputMode="numeric"
+                            value={p.bonusQty}
+                            onChange={(e) =>
+                              setPromo(
+                                i,
+                                j,
+                                "bonusQty",
+                                e.target.value.replace(/\D/g, ""),
+                              )
+                            }
+                          />
+                          <span
+                            style={{ color: C.muted, fontFamily: "monospace" }}
+                          >
+                            =
+                          </span>
+                          <input
+                            style={{ ...inputS, width: "80px", color: C.cyan }}
+                            type="text"
+                            inputMode="numeric"
+                            title="Kosong = otomatis (rate × jumlah beli)"
+                            value={p.price > 0 ? toDisplay(p.price) : ""}
+                            placeholder={toDisplay(
+                              (r[svc.rateKey] || 0) * (p.buyQty || 0),
+                            )}
+                            onChange={(e) =>
+                              setPromo(
+                                i,
+                                j,
+                                "price",
+                                e.target.value.replace(/\D/g, ""),
+                              )
+                            }
+                          />
+                          <button
+                            onClick={() => removePromo(i, j)}
+                            style={{
+                              background: "transparent",
+                              border: "none",
+                              color: C.muted,
+                              cursor: "pointer",
+                              padding: "2px",
+                              display: "flex",
+                            }}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.color = C.magenta)
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.color = C.muted)
+                            }
+                          >
+                            <Trash2 size={11} strokeWidth={1.5} />
+                          </button>
+                        </div>
+                      ),
+                    )}
+
+                    <button
+                      onClick={() => addPromo(i, svc.key)}
+                      style={{
+                        background: "transparent",
+                        border: `1px solid ${C.cyan}`,
+                        color: C.cyan,
+                        padding: "2px 8px",
+                        fontSize: "0.55rem",
+                        fontWeight: 900,
+                        letterSpacing: "1.5px",
+                        cursor: "pointer",
+                        fontFamily: "'Courier New', monospace",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "3px",
+                      }}
+                    >
+                      <Plus size={10} strokeWidth={2.5} /> PROMO
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
 

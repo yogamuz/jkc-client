@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CornerGlow from "../components/ui/CornerGlow";
 import CircuitBg from "../components//ui/CircuitBg";
 import ThemeToggle from "../components/ui/sidebar/ThemeToggle";
 import { useTheme } from "../context/ThemeContext";
+import { getPublicRates } from "../services/seasonService";
 
 // Harga Joki Statis
 const STATIC_RATES = {
@@ -27,7 +28,7 @@ const buildWaLink = (message) =>
   `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`;
 
 const TIER_ICONS = {
-  GRANDMASTER: "/assets/gm.png",
+  GRANDMASTER: "/assets/grandmaster.png",
   EPIC: "/assets/epig.png",
   LEGEND: "/assets/legend.png",
   MAWI: "/assets/mawi.png",
@@ -56,15 +57,10 @@ const TIER_BONUS_COLOR = {
 };
 
 /*
- * ── HARGA PROMO 10+2 PER TIER (CUSTOM, MANUAL) ──
- * Edit angka di bawah ini sesuai harga promo order 10+2 masing-masing tier.
- * "joki" untuk promo Joki Rank, "jokgen" untuk promo Joki Gendong — boleh
- * beda harga. Isi dengan 0 pada salah satu (atau keduanya) jika tier
- * tersebut belum punya promo 10+2 untuk layanan itu (tombol otomatis
- * tidak akan ditampilkan).
+ * (Tidak dipakai lagi) Harga promo kini diatur dari halaman Rate Config
+ * dan dikirim lewat API (r.promos). Tabel ini dibiarkan agar tidak
+ * mengubah struktur file.
  */
-
-// HARGA PROMO 10+2 PER TIER (CUSTOM, MANUAL)
 const TIER_PROMO_PRICE = {
   GRANDMASTER: { joki: 50000, jokgen: 60000 },
   EPIC: { joki: 70000, jokgen: 80000 },
@@ -75,8 +71,18 @@ const TIER_PROMO_PRICE = {
   IMO: { joki: 270000, jokgen: 320000 },
 };
 
+// Alias nama tier dari DB -> nama tier yang dipakai di tabel & tampilan.
+const TIER_ALIAS = {
+  GM: "GRANDMASTER",
+};
+
+const normalizeTier = (tier) => {
+  const up = tier.toUpperCase();
+  return TIER_ALIAS[up] || up;
+};
+
 const getTierIcon = (tier) =>
-  TIER_ICONS[tier.toUpperCase()] ||
+  TIER_ICONS[normalizeTier(tier)] ||
   `https://placehold.co/32x32/1a1a1a/FFE600?text=${tier.charAt(0)}`;
 
 const WaIcon = ({ color = "#fff", size = 14 }) => (
@@ -143,12 +149,11 @@ const WaOrderCard = ({ href, label, accentColor, cardBg, textMuted }) => (
 );
 
 /*
- * ── Tombol order promo 10+2, dipecah jadi 2 segmen ──
- * Segmen kiri disejajarkan dengan kolom "Joki Rank", segmen kanan
- * disejajarkan dengan kolom "Joki Gendong" (lihat grid 1fr 1fr 1fr
- * di bawah, kolom pertama dikosongkan agar sejajar dengan kolom Tier).
+ * ── Tombol order promo, satu tombol per promo ──
+ * Ditempatkan di kolom "Joki Rank" atau "Joki Gendong" sesuai layanan
+ * promonya (lihat grid 1fr 1fr 1fr di bawah, kolom pertama dikosongkan).
  */
-const PromoOrderButton = ({ message, price, accentColor, cardBg }) => (
+const PromoOrderButton = ({ message, price, label, accentColor, cardBg }) => (
   <a
     href={buildWaLink(message)}
     target="_blank"
@@ -194,7 +199,7 @@ const PromoOrderButton = ({ message, price, accentColor, cardBg }) => (
         textOverflow: "ellipsis",
       }}
     >
-      10+1 {formatRupiah(price)}
+      {label} {formatRupiah(price)}
     </span>
   </a>
 );
@@ -203,10 +208,35 @@ const PublicRatesPage = () => {
   const { theme } = useTheme();
   const isLight = theme === "light";
 
-  // Data langsung dari STATIC_RATES (tanpa fetch API / cache / loading).
-  const [data] = useState(STATIC_RATES);
-  const loading = false;
-  const error = null;
+  // STATIC_RATES dipakai sebagai fallback; diganti data API jika berhasil.
+  const [data, setData] = useState(STATIC_RATES);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    getPublicRates()
+      .then((res) => {
+        const payload = res?.data;
+        if (
+          active &&
+          payload &&
+          Array.isArray(payload.rates) &&
+          payload.rates.length > 0
+        ) {
+          setData(payload);
+        }
+      })
+      .catch((err) => {
+        if (active) setError(err.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const bg = isLight ? "#FFF7F0" : "#0D0D0D";
   const textPrimary = isLight ? "#1a1a1a" : "#E8E8E8";
@@ -286,7 +316,15 @@ const PublicRatesPage = () => {
             season order 10+1⭐
             <br />
             <br />
-            <strong>Harga di update 20 Oktober</strong>
+            <strong>
+              Harga di update{" "}
+              {data.updatedAt
+                ? new Date(data.updatedAt).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "long",
+                  })
+                : "20 Oktober"}
+            </strong>
           </p>
           <div
             style={{
@@ -346,12 +384,16 @@ const PublicRatesPage = () => {
             </div>
 
             {data.rates.map((r) => {
-              const tierUpper = r.tier.toUpperCase();
-              const tierLower = r.tier.toLowerCase();
-              const promo = TIER_PROMO_PRICE[tierUpper] || {
-                joki: 0,
-                jokgen: 0,
-              };
+              const tierUpper = normalizeTier(r.tier);
+              const tierLower = tierUpper.toLowerCase();
+              const promos = (r.promos || []).filter(
+                (p) => p.buyQty > 0 && p.bonusQty > 0,
+              );
+              // promo dipisah per layanan; promo lama tanpa "service" = joki rank
+              const promosJoki = promos.filter(
+                (p) => (p.service || "joki") === "joki",
+              );
+              const promosJokgen = promos.filter((p) => p.service === "jokgen");
               const btnColor = TIER_BONUS_COLOR[tierUpper] || accent;
 
               return (
@@ -392,7 +434,7 @@ const PublicRatesPage = () => {
                       >
                         <img
                           src={getTierIcon(r.tier)}
-                          alt={r.tier}
+                          alt={tierUpper}
                           style={{
                             width: 32,
                             height: 32,
@@ -401,9 +443,9 @@ const PublicRatesPage = () => {
                             objectFit: "cover",
                           }}
                         />
-                        {r.tier}
+                        {tierUpper}
                       </span>
-                      {TIER_BONUS[tierUpper] && (
+                      {promos.length > 0 && (
                         <span
                           style={{
                             fontSize: "clamp(0.55rem, 2.4vw, 0.65rem)",
@@ -413,7 +455,13 @@ const PublicRatesPage = () => {
                             marginLeft: "2.6rem",
                           }}
                         >
-                          {TIER_BONUS[tierUpper]}
+                          Order{" "}
+                          {[
+                            ...new Set(
+                              promos.map((p) => `${p.buyQty}+${p.bonusQty}`),
+                            ),
+                          ].join(" / ")}{" "}
+                          bonus ⭐
                         </span>
                       )}
                     </div>
@@ -442,7 +490,7 @@ const PublicRatesPage = () => {
                     </span>
                   </div>
 
-                  {(promo.joki > 0 || promo.jokgen > 0) && (
+                  {promos.length > 0 && (
                     <div
                       style={{
                         display: "grid",
@@ -454,29 +502,59 @@ const PublicRatesPage = () => {
                       {/* spacer, sejajar dengan kolom Tier */}
                       <div />
 
-                      {/* segmen Joki Rank, sejajar dengan kolom Joki Rank */}
-                      {promo.joki > 0 ? (
-                        <PromoOrderButton
-                          message={`mau joko ${tierLower} 10+1 dong`}
-                          price={promo.joki}
-                          accentColor={btnColor}
-                          cardBg={cardBg}
-                        />
-                      ) : (
-                        <div />
-                      )}
+                      {/* promo Joki Rank, sejajar dengan kolom Joki Rank */}
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "flex-end",
+                          gap: "0.4rem",
+                        }}
+                      >
+                        {promosJoki.map((p, idx) => {
+                          const price =
+                            p.price > 0
+                              ? p.price
+                              : r.rate_store_joki * p.buyQty;
+                          return price > 0 ? (
+                            <PromoOrderButton
+                              key={`joki-${idx}-${p.buyQty}-${p.bonusQty}`}
+                              message={`mau joko ${tierLower} ${p.buyQty}+${p.bonusQty} dong`}
+                              label={`${p.buyQty}+${p.bonusQty}`}
+                              price={price}
+                              accentColor={btnColor}
+                              cardBg={cardBg}
+                            />
+                          ) : null;
+                        })}
+                      </div>
 
-                      {/* segmen Joki Gendong, sejajar dengan kolom Joki Gendong */}
-                      {promo.jokgen > 0 ? (
-                        <PromoOrderButton
-                          message={`mau jokgen ${tierLower} 10+1`}
-                          price={promo.jokgen}
-                          accentColor={btnColor}
-                          cardBg={cardBg}
-                        />
-                      ) : (
-                        <div />
-                      )}
+                      {/* promo Joki Gendong, sejajar dengan kolom Joki Gendong */}
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "flex-end",
+                          gap: "0.4rem",
+                        }}
+                      >
+                        {promosJokgen.map((p, idx) => {
+                          const price =
+                            p.price > 0
+                              ? p.price
+                              : r.rate_store_jokgen * p.buyQty;
+                          return price > 0 ? (
+                            <PromoOrderButton
+                              key={`jokgen-${idx}-${p.buyQty}-${p.bonusQty}`}
+                              message={`mau jokgen ${tierLower} ${p.buyQty}+${p.bonusQty}`}
+                              label={`${p.buyQty}+${p.bonusQty}`}
+                              price={price}
+                              accentColor={btnColor}
+                              cardBg={cardBg}
+                            />
+                          ) : null;
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>

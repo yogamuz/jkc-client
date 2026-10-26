@@ -45,7 +45,7 @@ function AdminApp() {
     if (dontShowAgain && priceNotif && activeSeason) {
       localStorage.setItem(
         `jokicalm_price_seen_${activeSeason.id}`,
-        priceNotif.effectiveDate,
+        String(priceNotif.effectiveDate),
       );
     }
     setPriceNotif(null);
@@ -66,17 +66,19 @@ function AdminApp() {
     }
   }, [seasons]);
 
+  const latestStamp = getLatestRateEntry(activeSeason)?.effectiveDate
+    ? String(getLatestRateEntry(activeSeason).effectiveDate)
+    : null;
+
   useEffect(() => {
-    if (!activeSeason) return;
+    if (!activeSeason?.id || !latestStamp) return;
     const latest = getLatestRateEntry(activeSeason);
-    if (!latest) return;
     const seenKey = `jokicalm_price_seen_${activeSeason.id}`;
     const seenTimestamp = localStorage.getItem(seenKey);
-    if (seenTimestamp !== latest.effectiveDate) {
+    if (seenTimestamp !== latestStamp) {
       setPriceNotif(latest);
     }
-  }, [activeSeason]);
-
+  }, [activeSeason?.id, latestStamp]);
   const handleSelectSeason = (id) => {
     setActiveSeasonId(id);
     setActivePage("data");

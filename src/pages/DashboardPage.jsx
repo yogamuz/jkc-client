@@ -63,7 +63,7 @@ const TIER_COLORS = {
 };
 
 const TIER_ICONS = {
-  GM: "/assets/gm.png",
+  GM: "/assets/grandmaster.png",
   EPIC: "/assets/epig.png",
   LEGEND: "/assets/legend.png",
   MAWI: "/assets/mawi.png",
@@ -94,6 +94,10 @@ const fmtK = (n) =>
       ? `${(n / 1_000).toFixed(0)}rb`
       : String(n);
 
+const getPromos = (r, service) =>
+  (r.promos || []).filter((p) => (p.service || "joki") === service);
+
+const PROMO_COLOR = { dark: "#FF6A00", light: "#D94F00" };
 // ── Analytics Preview Sub-components ────────────────────
 
 /** Mini vertical bar chart untuk preview */
@@ -631,120 +635,163 @@ const DashboardPage = ({ onNavigate, seasons = [], user }) => {
                 </tr>
               </thead>
               <tbody>
-{activeRates.rates.map((r, i) => {
-  const tierColor = TIER_COLORS[r.tier?.toUpperCase()] || C.yellow;
-  const tierIcon = TIER_ICONS[r.tier?.toUpperCase()];
-  return (
-    <tr
-      key={r.tier}
-      style={{
-        borderBottom:
-          i < activeRates.rates.length - 1
-            ? `1px solid ${C.border}`
-            : "none",
-        borderLeft: `3px solid ${tierColor}`,
-        background: `${tierColor}${theme === "light" ? "10" : "28"}`,
-      }}
-    >
-      <td
-        style={{
-          padding: "0.6rem 1.25rem",
-          fontFamily: "'Courier New', monospace",
-          fontWeight: 900,
-          fontSize: "0.82rem",
-          color: tierColor,
-          whiteSpace: "nowrap",
-        }}
-      >
-        {r.tier}
-      </td>
-      <td
-        style={{
-          padding: "0.6rem 1.25rem",
-          fontFamily: "monospace",
-          fontSize: "0.8rem",
-          color: C.text,
-          whiteSpace: "nowrap",
-        }}
-      >
-        {fmtRp(r.rate_store_joki)}
-        <span style={{ color: C.muted, fontSize: "0.65rem" }}>
-          {" "}
-          / ⭐
-        </span>
-      </td>
-      <td
-        style={{
-          padding: "0.6rem 1.25rem",
-          fontFamily: "monospace",
-          fontSize: "0.8rem",
-          color: C.text,
-          whiteSpace: "nowrap",
-        }}
-      >
-        {fmtRp(r.rate_store_jokgen)}
-        <span style={{ color: C.muted, fontSize: "0.65rem" }}>
-          {" "}
-          / ⭐
-        </span>
-      </td>
-      <td
-        style={{
-          padding: "0.6rem 1.25rem",
-          fontFamily: "monospace",
-          fontSize: "0.8rem",
-          color: C.cyan,
-          whiteSpace: "nowrap",
-        }}
-      >
-        {fmtRp(r.rate_worker_joki)}
-        <span style={{ color: C.muted, fontSize: "0.65rem" }}>
-          {" "}
-          / ⭐
-        </span>
-      </td>
-      <td
-        style={{
-          padding: "0.6rem 1.25rem",
-          fontFamily: "monospace",
-          fontSize: "0.8rem",
-          color: C.cyan,
-          whiteSpace: "nowrap",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "0.5rem",
-          }}
-        >
-          <span>
-            {fmtRp(r.rate_worker_jokgen)}
-            <span style={{ color: C.muted, fontSize: "0.65rem" }}>
-              {" "}
-              / ⭐
-            </span>
-          </span>
-          {tierIcon && (
-            <img
-              src={tierIcon}
-              alt={r.tier}
-              style={{
-                width: 20,
-                height: 20,
-                objectFit: "cover",
-                borderRadius: "4px",
-                flexShrink: 0,
-              }}
-            />
-          )}
-        </div>
-      </td>
-    </tr>
-  );
-})}
+                {activeRates.rates.map((r, i) => {
+                  const tierColor =
+                    TIER_COLORS[r.tier?.toUpperCase()] || C.yellow;
+                  const tierIcon = TIER_ICONS[r.tier?.toUpperCase()];
+                  return (
+                    <tr
+                      key={r.tier}
+                      style={{
+                        borderBottom:
+                          i < activeRates.rates.length - 1
+                            ? `1px solid ${C.border}`
+                            : "none",
+                        borderLeft: `3px solid ${tierColor}`,
+                        background: `${tierColor}${theme === "light" ? "10" : "28"}`,
+                      }}
+                    >
+                      <td
+                        style={{
+                          padding: "0.6rem 1.25rem",
+                          fontFamily: "'Courier New', monospace",
+                          fontWeight: 900,
+                          fontSize: "0.82rem",
+                          color: tierColor,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {r.tier}
+                      </td>
+                      <td
+                        style={{
+                          padding: "0.6rem 1.25rem",
+                          fontFamily: "monospace",
+                          fontSize: "0.8rem",
+                          color: C.text,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {fmtRp(r.rate_store_joki)}
+                        <span style={{ color: C.muted, fontSize: "0.65rem" }}>
+                          {" "}
+                          / ⭐
+                        </span>
+                        {getPromos(r, "joki").map((p, k) => (
+                          <span
+                            key={k}
+                            style={{
+                              marginLeft: "8px",
+                              padding: "1px 6px",
+                              border: "1px solid currentColor",
+                              fontSize: "0.6rem",
+                              fontWeight: 900,
+                              letterSpacing: "0.5px",
+                              color:
+                                theme === "light"
+                                  ? PROMO_COLOR.light
+                                  : PROMO_COLOR.dark,
+                            }}
+                          >
+                            PROMO {p.buyQty}+{p.bonusQty}
+                            {p.price > 0 ? ` = ${fmtRp(p.price)}` : ""}
+                          </span>
+                        ))}
+                      </td>
+                      <td
+                        style={{
+                          padding: "0.6rem 1.25rem",
+                          fontFamily: "monospace",
+                          fontSize: "0.8rem",
+                          color: C.text,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {fmtRp(r.rate_store_jokgen)}
+                        <span style={{ color: C.muted, fontSize: "0.65rem" }}>
+                          {" "}
+                          / ⭐
+                        </span>
+                        {getPromos(r, "jokgen").map((p, k) => (
+                          <span
+                            key={k}
+                            style={{
+                              marginLeft: "8px",
+                              padding: "1px 6px",
+                              border: "1px solid currentColor",
+                              fontSize: "0.6rem",
+                              fontWeight: 900,
+                              letterSpacing: "0.5px",
+                              color:
+                                theme === "light"
+                                  ? PROMO_COLOR.light
+                                  : PROMO_COLOR.dark,
+                            }}
+                          >
+                            PROMO {p.buyQty}+{p.bonusQty}
+                            {p.price > 0 ? ` = ${fmtRp(p.price)}` : ""}
+                          </span>
+                        ))}
+                      </td>
+                      <td
+                        style={{
+                          padding: "0.6rem 1.25rem",
+                          fontFamily: "monospace",
+                          fontSize: "0.8rem",
+                          color: C.cyan,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {fmtRp(r.rate_worker_joki)}
+                        <span style={{ color: C.muted, fontSize: "0.65rem" }}>
+                          {" "}
+                          / ⭐
+                        </span>
+                      </td>
+                      <td
+                        style={{
+                          padding: "0.6rem 1.25rem",
+                          fontFamily: "monospace",
+                          fontSize: "0.8rem",
+                          color: C.cyan,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: "0.5rem",
+                          }}
+                        >
+                          <span>
+                            {fmtRp(r.rate_worker_jokgen)}
+                            <span
+                              style={{ color: C.muted, fontSize: "0.65rem" }}
+                            >
+                              {" "}
+                              / ⭐
+                            </span>
+                          </span>
+                          {tierIcon && (
+                            <img
+                              src={tierIcon}
+                              alt={r.tier}
+                              style={{
+                                width: 20,
+                                height: 20,
+                                objectFit: "cover",
+                                borderRadius: "4px",
+                                flexShrink: 0,
+                              }}
+                            />
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

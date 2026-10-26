@@ -45,6 +45,7 @@ const RateConfigPage = ({ seasons = [] }) => {
   const { loading, updateRates, getSeasonById } = useSeason();
   const [selectedId, setSelectedId] = useState(null);
   const [savedFlag, setSavedFlag] = useState(0);
+  const [saveNotif, setSaveNotif] = useState(false);
   const formWrapRef = useRef(null);
 
   // auto-select season aktif
@@ -54,10 +55,18 @@ const RateConfigPage = ({ seasons = [] }) => {
       setSelectedId(active.id);
     }
   }, [seasons]);
+  useEffect(() => {
+    if (!saveNotif) return;
+    const t = setTimeout(() => setSaveNotif(false), 3000);
+    return () => clearTimeout(t);
+  }, [saveNotif]);
 
   const selectedSeason = seasons.find((s) => s.id === selectedId) || null;
 
-  const handleSaved = () => setSavedFlag((f) => f + 1); // trigger re-render
+  const handleSaved = (type) => {
+    setSavedFlag((f) => f + 1); // trigger re-render
+    if (type === "rate") setSaveNotif(true);
+  };
 
   // Arrow = pindah antar kolom, Enter = simpan
   const handleFormKeyDown = (e) => {
@@ -159,6 +168,27 @@ const RateConfigPage = ({ seasons = [] }) => {
         overflow: "hidden",
       }}
     >
+      {saveNotif && (
+        <div
+          style={{
+            position: "fixed",
+            top: "1.25rem",
+            right: "1.25rem",
+            zIndex: 999,
+            background: C.panel,
+            border: `1px solid ${C.cyan}`,
+            color: C.cyan,
+            padding: "0.65rem 1.25rem",
+            fontSize: "0.72rem",
+            fontWeight: 900,
+            letterSpacing: "1.5px",
+            fontFamily: "'Courier New', monospace",
+            boxShadow: glow(theme, `0 0 16px ${C.cyan}40`),
+          }}
+        >
+          ✓ HARGA BERHASIL DIUPDATE
+        </div>
+      )}
       <CircuitBg />
       <CornerGlow />
 
@@ -174,7 +204,7 @@ const RateConfigPage = ({ seasons = [] }) => {
             marginBottom: "4px",
           }}
         >
-           KONFIGURASI
+          KONFIGURASI
         </div>
         <div
           style={{
