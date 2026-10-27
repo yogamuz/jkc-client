@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Trash2, Pencil } from "lucide-react";
+import { Trash2, Pencil, AlertCircle } from "lucide-react";
 import { useDataPageColors, cell } from "../../constants/dataPage.constants";
 import StatusBadge from "../ui/StatusBadge";
 import PaidBadge from "../ui/PaidBadge";
@@ -178,6 +178,20 @@ const OrderTable = ({
                       }}
                     >
                       {order.customerName}
+                      {order.keterangan && (
+                        <span
+                          title={order.keterangan}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            color: C.yellow,
+                            cursor: "default",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <AlertCircle size={13} strokeWidth={2} />
+                        </span>
+                      )}
                       {order.updatedBy?.avatar ? (
                         <img
                           src={order.updatedBy.avatar}

@@ -38,6 +38,7 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
     payment: order.payment || "QRIS",
     price: order.price || "",
     status: order.status || "PROCESS",
+    keterangan: order.keterangan || "",
     workers:
       order.workers?.length > 0
         ? order.workers.map((w) => ({
@@ -176,6 +177,7 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
       payment: form.payment,
       price: Number(rawPrice),
       status: form.status,
+      keterangan: form.keterangan.trim(),
       workers: form.workers
         .filter((w) => w.name.trim())
         .map((w) => ({
@@ -411,6 +413,19 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
                 ⚠ {errors.price}
               </div>
             )}
+          </div>
+
+          {/* Keterangan */}
+          <div>
+            <label style={labelS}>KETERANGAN (OPSIONAL)</label>
+            <input
+              style={inputS}
+              type="text"
+              maxLength={200}
+              value={form.keterangan}
+              onChange={(e) => setField("keterangan", e.target.value)}
+              placeholder="Catatan untuk order ini"
+            />
           </div>
 
           {/* Workers */}

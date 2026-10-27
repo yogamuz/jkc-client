@@ -43,6 +43,7 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
     payment: "QRIS",
     price: "",
     status: "PROCESS",
+    keterangan: "",
     workers: [{ name: "", rankBreakdown: {}, customSalary: "" }],
     extraFields: {},
   });
@@ -145,6 +146,7 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
       payment: form.payment,
       price: Number(form.price),
       status: form.status,
+      keterangan: form.keterangan.trim(),
       workers: form.workers
         .filter((w) => w.name.trim())
         .map((w) => ({
@@ -366,6 +368,18 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
                 ⚠ {errors.price}
               </div>
             )}
+          </div>
+
+          <div>
+            <label style={labelS}>KETERANGAN (OPSIONAL)</label>
+            <input
+              style={inputS}
+              type="text"
+              maxLength={200}
+              value={form.keterangan}
+              onChange={(e) => setField("keterangan", e.target.value)}
+              placeholder="Catatan untuk order ini"
+            />
           </div>
 
           <div>
