@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import CircuitBg from "../ui/CircuitBg";
 import CornerGlow from "../ui/CornerGlow";
+import ConfirmModal from "../ui/ConfirmModal";
 import { resetUserPassword, deleteUser } from "../../services/authService";
 import { useWorkersColors, textGlow } from "./workers.utils";
 import { useTheme } from "../../context/ThemeContext";
@@ -27,6 +28,7 @@ const AdminDetailPanel = ({ admin, onBack, onDeleted }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleResetPw = async () => {
     setError("");
@@ -45,8 +47,12 @@ const AdminDetailPanel = ({ admin, onBack, onDeleted }) => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm(`Hapus akun admin "${admin.username}"?`)) return;
+  const handleDelete = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    setShowDeleteConfirm(false);
     setError("");
     setLoading(true);
     try {
@@ -344,6 +350,16 @@ const AdminDetailPanel = ({ admin, onBack, onDeleted }) => {
           </button>
         </div>
       </div>
+
+      <ConfirmModal
+        open={showDeleteConfirm}
+        variant="danger"
+        title="HAPUS AKUN ADMIN"
+        message={`Yakin ingin menghapus akun admin "${admin.username}"?`}
+        confirmText="HAPUS"
+        onConfirm={confirmDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 };

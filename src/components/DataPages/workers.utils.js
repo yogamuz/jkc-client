@@ -109,11 +109,36 @@ const hexToRgb = (hex) => {
 export const exportUnpaidWorkerDetailPDF = (detail, workerName) => {
   const unpaidHistory = (detail?.history || []).filter((h) => !h.isPaid);
 
-  const doc = new jsPDF();
+  // Kolom dinamis: satu kolom per tier yang dikerjakan worker ini
+  const TIER_ORDER = [
+    "GM",
+    "GRANDMASTER",
+    "EPIC",
+    "LEGEND",
+    "MAWI",
+    "HONOR",
+    "GLORY",
+    "IMO",
+  ];
+  const tierSet = new Set();
+  unpaidHistory.forEach((h) => {
+    (h.rankDetails || []).forEach((r) =>
+      tierSet.add(String(r.tier).toUpperCase()),
+    );
+  });
+  const tierCols = [...tierSet].sort((a, b) => {
+    const ia = TIER_ORDER.indexOf(a);
+    const ib = TIER_ORDER.indexOf(b);
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+  });
+
+  const doc = new jsPDF({
+    orientation: tierCols.length > 3 ? "landscape" : "portrait",
+  });
 
   doc.setFontSize(16);
   doc.setTextColor(...hexToRgb(lightColors.yellow));
-  doc.text(`REKAP UNPAID — ${workerName}`, 14, 18);
+  doc.text(`REKAP UNPAID: ${workerName}`, 14, 18);
 
   doc.setFontSize(9);
   doc.setTextColor(...hexToRgb(lightColors.muted));
@@ -126,14 +151,41 @@ export const exportUnpaidWorkerDetailPDF = (detail, workerName) => {
     25,
   );
 
+  // Format rate: 8000 -> "8k", 8500 -> "8.5k", di bawah 1000 -> angka biasa
+  const fmtRate = (n) => {
+    if (!n) return "";
+    if (n >= 1000) return `${Number((n / 1000).toFixed(2))}k`;
+    return String(n);
+  };
+
+  // Isi sel: "10 star x 8k +1 bonus" (bonus tidak dihitung ke gaji)
+  const fmtTierCell = (h, tier) => {
+    const r = (h.rankDetails || []).find(
+      (x) => String(x.tier).toUpperCase() === tier,
+    );
+    if (!r) return "—";
+
+    const parts = [];
+    if (r.stars > 0) {
+      parts.push(
+        r.ratePerStar
+          ? `${r.stars} star x ${fmtRate(r.ratePerStar)}`
+          : `${r.stars} star`,
+      );
+    }
+    if (r.bonus > 0) parts.push(`+${r.bonus} bonus`);
+    return parts.join(" ");
+  };
+
   autoTable(doc, {
     startY: 32,
-    head: [["SEASON", "CUSTOMER", "TANGGAL", "KATEGORI", "GAJI"]],
+    head: [["SEASON", "CUSTOMER", "TANGGAL", "KATEGORI", ...tierCols, "GAJI"]],
     body: unpaidHistory.map((h) => [
       h.seasonName,
       h.customerName,
       fmtDate(h.date),
       h.category,
+      ...tierCols.map((t) => fmtTierCell(h, t)),
       fmtRp(h.salary),
     ]),
     headStyles: {
@@ -145,14 +197,17 @@ export const exportUnpaidWorkerDetailPDF = (detail, workerName) => {
       textColor: hexToRgb(lightColors.muted),
     },
     columnStyles: {
-      4: { textColor: hexToRgb(lightColors.magenta), fontStyle: "bold" },
+      [4 + tierCols.length]: {
+        textColor: hexToRgb(lightColors.magenta),
+        fontStyle: "bold",
+      },
     },
     alternateRowStyles: {
       fillColor: hexToRgb(lightColors.rowAlt),
     },
     styles: {
       font: "courier",
-      fontSize: 9,
+      fontSize: 8,
       cellPadding: 3,
     },
   });

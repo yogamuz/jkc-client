@@ -7,6 +7,77 @@ const ACTION_COLOR_KEY = {
   DELETE: "magenta",
 };
 
+const FIELD_LABEL = {
+  status: "Status",
+  workerSalaryPaid: "Gaji pekerja",
+  rateHistory: "Rate",
+  startDate: "Tanggal mulai",
+  endDate: "Tanggal selesai",
+};
+
+const SERVICE_LABEL = {
+  joki: "Joki Rank",
+  jokgen: "Joki Gendong",
+};
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}T/;
+
+const fmtRupiah = (n) =>
+  n && n > 0 ? `Rp${Number(n).toLocaleString("id-ID")}` : "belum diatur";
+
+const fmtValue = (val) => {
+  if (val === null || val === undefined || val === "") return "kosong";
+  if (typeof val === "boolean") return val ? "Ya" : "Tidak";
+  if (typeof val === "string" && ISO_DATE.test(val)) {
+    return new Date(val).toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  }
+  if (Array.isArray(val)) return val.map(fmtValue).join(", ");
+  if (typeof val === "object") {
+    return Object.entries(val)
+      .map(([k, v]) => `${FIELD_LABEL[k] || k}: ${fmtValue(v)}`)
+      .join(", ");
+  }
+  return String(val);
+};
+
+const renderRateHistory = (val, mutedColor) => {
+  const added = Array.isArray(val?.added) ? val.added : [];
+  return (
+    <details>
+      <summary style={{ cursor: "pointer" }}>
+        Rate diperbarui ({added.length} tier)
+        {val?.note ? ` — catatan: ${val.note}` : ""}
+      </summary>
+      <div style={{ marginTop: "0.4rem", display: "grid", gap: "0.4rem" }}>
+        {added.map((t, idx) => (
+          <div key={`${t.tier}-${idx}`}>
+            <strong>{t.tier}</strong>
+            <div style={{ color: mutedColor }}>
+              Harga toko: Joki Rank {fmtRupiah(t.rate_store_joki)}, Joki
+              Gendong {fmtRupiah(t.rate_store_jokgen)}
+            </div>
+            <div style={{ color: mutedColor }}>
+              Gaji pekerja: Joki Rank {fmtRupiah(t.rate_worker_joki)}, Joki
+              Gendong {fmtRupiah(t.rate_worker_jokgen)}
+            </div>
+            {Array.isArray(t.promos) &&
+              t.promos.map((p, pIdx) => (
+                <div key={pIdx} style={{ color: mutedColor }}>
+                  Promo {SERVICE_LABEL[p.service] || p.service}: {p.buyQty}+
+                  {p.bonusQty} = {fmtRupiah(p.price)}
+                </div>
+              ))}
+          </div>
+        ))}
+      </div>
+    </details>
+  );
+};
+
 const AuditLogTable = ({ logs, loading }) => {
   const C = useDataPageColors();
   const { theme } = useTheme();
@@ -25,14 +96,40 @@ const AuditLogTable = ({ logs, loading }) => {
   const fmtChanges = (changes) => {
     if (!changes) return "—";
     try {
-      return Object.entries(changes)
-        .map(([key, val]) => {
-          if (val && typeof val === "object" && ("from" in val || "to" in val)) {
-            return `${key}: ${JSON.stringify(val.from)} → ${JSON.stringify(val.to)}`;
-          }
-          return `${key}: ${JSON.stringify(val)}`;
-        })
-        .join(", ");
+      return Object.entries(changes).map(([key, val]) => {
+        const label = FIELD_LABEL[key] || key;
+
+        if (key === "rateHistory" && val && typeof val === "object") {
+          return (
+            <div key={key}>
+              {renderRateHistory(val, C.muted)}
+            </div>
+          );
+        }
+
+        if (key === "workerSalaryPaid" && val && typeof val === "object") {
+          return (
+            <div key={key}>
+              {label}: {val.workerName} —{" "}
+              {val.isPaid ? "sudah dibayar" : "belum dibayar"}
+            </div>
+          );
+        }
+
+        if (val && typeof val === "object" && ("from" in val || "to" in val)) {
+          return (
+            <div key={key}>
+              {label}: {fmtValue(val.from)} → {fmtValue(val.to)}
+            </div>
+          );
+        }
+
+        return (
+          <div key={key}>
+            {label}: {fmtValue(val)}
+          </div>
+        );
+      });
     } catch {
       return "—";
     }

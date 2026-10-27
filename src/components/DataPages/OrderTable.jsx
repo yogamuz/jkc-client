@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Trash2, Pencil } from "lucide-react";
 import { useDataPageColors, cell } from "../../constants/dataPage.constants";
 import StatusBadge from "../ui/StatusBadge";
 import PaidBadge from "../ui/PaidBadge";
 import EditOrderModal from "./EditOrderModal";
+import ConfirmModal from "../ui/ConfirmModal";
 
 const OrderTable = ({
   orders,
@@ -20,6 +21,16 @@ const OrderTable = ({
 }) => {
   const C = useDataPageColors();
   const [editOrder, setEditOrder] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
+
+  // Modal sukses hilang otomatis setelah 1.8 detik
+  useEffect(() => {
+    if (!successMsg) return;
+    const t = setTimeout(() => setSuccessMsg(""), 1000);
+    return () => clearTimeout(t);
+  }, [successMsg]);
 
   const fmtRp = (n) => `Rp ${(n || 0).toLocaleString("id-ID")}`;
   const fmtDate = (d) =>
@@ -39,6 +50,19 @@ const OrderTable = ({
   const handleUpdate = async (id, body) => {
     await onUpdate(id, body);
     setEditOrder(null);
+    setSuccessMsg(`Order "${body.customerName}" berhasil diupdate.`);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await onDelete(deleteTarget.id);
+      setSuccessMsg(`Order "${deleteTarget.customerName}" berhasil dihapus.`);
+    } finally {
+      setDeleting(false);
+      setDeleteTarget(null);
+    }
   };
 
   return (
@@ -327,7 +351,7 @@ const OrderTable = ({
                           <Pencil size={13} strokeWidth={1.5} />
                         </button>
                         <button
-                          onClick={() => onDelete(order.id)}
+                          onClick={() => setDeleteTarget(order)}
                           style={{
                             background: "transparent",
                             border: "none",
@@ -366,6 +390,27 @@ const OrderTable = ({
           loading={loading}
         />
       )}
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        variant="danger"
+        title="HAPUS ORDER"
+        message={`Yakin ingin menghapus order "${deleteTarget?.customerName}"?`}
+        confirmText="HAPUS"
+        loading={deleting}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
+      <ConfirmModal
+        open={!!successMsg}
+        variant="success"
+        title="BERHASIL"
+        message={successMsg}
+        confirmText="OK"
+        hideCancel
+        onConfirm={() => setSuccessMsg("")}
+        onCancel={() => setSuccessMsg("")}
+      />
     </>
   );
 };

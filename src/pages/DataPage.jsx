@@ -11,6 +11,7 @@ import AddOrderModal from "../components/DataPages/AddOrderModal";
 import ImportExcelModal from "../components/DataPages/ImportExcelModal";
 import DatePicker from "../components/ui/DatePicker";
 import SeasonCountdown from "../components/SeasonCountdown";
+import ConfirmModal from "../components/ui/ConfirmModal";
 
 const STATUS_CYCLE = { PENDING: "PROCESS", PROCESS: "DONE", DONE: "PENDING" };
 
@@ -249,6 +250,7 @@ const DataPage = ({
   } = useOrder();
   const [showModal, setShowModal] = useState(false);
   const [showImport, setShowImport] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
   const [filters, setFilters] = useState({
     dateFrom: "",
     dateTo: "",
@@ -322,7 +324,22 @@ const DataPage = ({
       fetchOrders(season.id);
       if (isOwner) fetchSummary(season.id);
     }
+    return res;
   };
+
+  // Khusus AddOrderModal: panggil handleCreate lalu tampilkan modal sukses.
+  // ImportExcelModal tetap pakai handleCreate langsung (tanpa modal per baris).
+  const handleAddOrder = async (body) => {
+    const res = await handleCreate(body);
+    if (res) setSuccessMsg(`Order "${body.customerName}" berhasil ditambahkan.`);
+  };
+
+  // Modal sukses hilang otomatis setelah 1.8 detik
+  useEffect(() => {
+    if (!successMsg) return;
+    const t = setTimeout(() => setSuccessMsg(""), 1000);
+    return () => clearTimeout(t);
+  }, [successMsg]);
 
   const handleUpdate = async (id, body) => {
     await update(id, body);
@@ -330,8 +347,8 @@ const DataPage = ({
     fetchSummary(season.id);
   };
 
+  // Konfirmasi hapus sekarang ditangani ConfirmModal di OrderTable
   const handleDelete = async (id) => {
-    if (!window.confirm("Hapus order ini?")) return;
     await remove(id);
     fetchOrders(season.id);
     fetchSummary(season.id);
@@ -620,7 +637,7 @@ const DataPage = ({
         <AddOrderModal
           season={season}
           onClose={() => setShowModal(false)}
-          onCreate={handleCreate}
+          onCreate={handleAddOrder}
           loading={loading}
         />
       )}
@@ -632,6 +649,17 @@ const DataPage = ({
           loading={loading}
         />
       )}
+
+      <ConfirmModal
+        open={!!successMsg}
+        variant="success"
+        title="BERHASIL"
+        message={successMsg}
+        confirmText="OK"
+        hideCancel
+        onConfirm={() => setSuccessMsg("")}
+        onCancel={() => setSuccessMsg("")}
+      />
     </div>
   );
 };

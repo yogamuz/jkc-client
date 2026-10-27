@@ -49,6 +49,13 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
                     : Object.entries(w.rankBreakdown),
                 )
               : {},
+            bonusBreakdown: w.bonusBreakdown
+              ? Object.fromEntries(
+                  w.bonusBreakdown instanceof Map
+                    ? w.bonusBreakdown
+                    : Object.entries(w.bonusBreakdown),
+                )
+              : {},
             customSalary: w.customSalary ?? "",
             isPaid: w.isPaid || false,
             paidAt: w.paidAt || null,
@@ -57,12 +64,16 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
             {
               name: "",
               rankBreakdown: {},
+              bonusBreakdown: {},
               customSalary: "",
               isPaid: false,
               paidAt: null,
             },
           ],
   });
+
+  const [openBonus, setOpenBonus] = useState({});
+  const [errors, setErrors] = useState({});
 
   const [workerOptions, setWorkerOptions] = useState([]);
 
@@ -72,7 +83,10 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
       .catch(() => {});
   }, [season?.id]);
 
-  const setField = (key, val) => setForm((f) => ({ ...f, [key]: val }));
+  const setField = (key, val) => {
+    setForm((f) => ({ ...f, [key]: val }));
+    setErrors((e) => (e[key] ? { ...e, [key]: undefined } : e));
+  };
 
   const setWorkerName = (i, val) =>
     setForm((f) => {
@@ -85,9 +99,23 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
     setForm((f) => {
       const workers = [...f.workers];
       const rb = { ...workers[i].rankBreakdown };
-      if (val === "" || Number(val) === 0) delete rb[tier];
-      else rb[tier] = Number(val);
-      workers[i] = { ...workers[i], rankBreakdown: rb };
+      const bb = { ...(workers[i].bonusBreakdown || {}) };
+      if (val === "" || Number(val) === 0) {
+        delete rb[tier];
+        delete bb[tier];
+      } else {
+        rb[tier] = Number(val);
+      }
+      workers[i] = { ...workers[i], rankBreakdown: rb, bonusBreakdown: bb };
+      return { ...f, workers };
+    });
+  const setBonusBreakdown = (i, tier, val) =>
+    setForm((f) => {
+      const workers = [...f.workers];
+      const bb = { ...(workers[i].bonusBreakdown || {}) };
+      if (val === "" || Number(val) === 0) delete bb[tier];
+      else bb[tier] = Number(val);
+      workers[i] = { ...workers[i], bonusBreakdown: bb };
       return { ...f, workers };
     });
 
@@ -113,14 +141,25 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
       ],
     }));
 
-  const removeWorker = (i) =>
+  const removeWorker = (i) => {
+    setOpenBonus({});
     setForm((f) => ({
       ...f,
       workers: f.workers.filter((_, idx) => idx !== i),
     }));
+  };
 
   const handleSubmit = () => {
-    if (!form.customerName || !form.price) return;
+    const newErrors = {};
+    if (!form.customerName.trim())
+      newErrors.customerName = "Nama customer wajib diisi.";
+    if (!form.price) newErrors.price = "Harga wajib diisi.";
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
+
     const rawPrice = String(form.price).replace(/\./g, "");
     const finalTime =
       form.time ||
@@ -142,6 +181,7 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
         .map((w) => ({
           name: w.name.toUpperCase(),
           rankBreakdown: w.rankBreakdown,
+          bonusBreakdown: w.bonusBreakdown || {},
           customSalary:
             w.customSalary === "" ? undefined : Number(w.customSalary),
           isPaid: w.isPaid,
@@ -164,7 +204,7 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-      onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+        onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
         style={{
           background: C.modalBg,
           border: `1px solid ${C.border}`,
@@ -237,10 +277,29 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
             <div>
               <label style={labelS}>NAMA CUSTOMER *</label>
               <input
-                style={inputS}
+                style={{
+                  ...inputS,
+                  ...(errors.customerName && {
+                    border: `1px solid ${C.magenta}`,
+                  }),
+                }}
                 value={form.customerName}
                 onChange={(e) => setField("customerName", e.target.value)}
               />
+              {errors.customerName && (
+                <div
+                  style={{
+                    marginTop: "4px",
+                    fontSize: "0.62rem",
+                    fontWeight: 700,
+                    color: C.magenta,
+                    fontFamily: "'Courier New', monospace",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  ⚠ {errors.customerName}
+                </div>
+              )}
             </div>
             <div>
               <label style={labelS}>TANGGAL *</label>
@@ -317,7 +376,10 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
           <div style={{ maxWidth: "200px" }}>
             <label style={labelS}>HARGA (Rp) *</label>
             <input
-              style={inputS}
+              style={{
+                ...inputS,
+                ...(errors.price && { border: `1px solid ${C.magenta}` }),
+              }}
               type="text"
               inputMode="numeric"
               value={
@@ -335,6 +397,20 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
               }}
               placeholder="150.000"
             />
+            {errors.price && (
+              <div
+                style={{
+                  marginTop: "4px",
+                  fontSize: "0.62rem",
+                  fontWeight: 700,
+                  color: C.magenta,
+                  fontFamily: "'Courier New', monospace",
+                  letterSpacing: "0.5px",
+                }}
+              >
+                ⚠ {errors.price}
+              </div>
+            )}
           </div>
 
           {/* Workers */}
@@ -420,63 +496,177 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
                       }}
                     />
                   </div>
-                  {form.workers.length > 1 && (
-                    <button
-                      onClick={() => removeWorker(i)}
+                  <div
+                    style={{
+                      alignSelf: "stretch",
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <label
                       style={{
-                        background: "transparent",
-                        border: `1px solid ${C.magenta}`,
-                        color: C.magenta,
-                        fontWeight: 900,
+                        ...labelS,
+                        marginBottom: "3px",
+                        visibility: "hidden",
+                      }}
+                    >
+                      X
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => removeWorker(i)}
+                      title="Hapus worker"
+                      style={{
+                        ...inputS,
+                        width: "44px",
+                        flex: 1,
+                        padding: 0,
+                        textAlign: "center",
                         cursor: "pointer",
-                        padding: "4px 8px",
-                        fontSize: "0.8rem",
+                        fontWeight: 900,
+                        color: C.magenta,
+                        border: `1px solid ${C.magenta}`,
+                        background: "transparent",
                       }}
                     >
                       ✕
                     </button>
-                  )}
+                  </div>
                 </div>
                 <div
                   style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}
                 >
-                  {TIERS.map((tier) => (
-                    <div
-                      key={tier}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "4px",
-                      }}
-                    >
-                      <span
+                  {TIERS.map((tier) => {
+                    const stars = w.rankBreakdown[tier] || 0;
+                    const bonus = w.bonusBreakdown?.[tier] || 0;
+                    const bonusKey = `${i}-${tier}`;
+                    const showBonus =
+                      stars > 0 && (bonus > 0 || openBonus[bonusKey]);
+
+                    return (
+                      <div
+                        key={tier}
                         style={{
-                          fontSize: "0.6rem",
-                          fontWeight: 900,
-                          fontFamily: "monospace",
-                          color: C.muted,
-                          letterSpacing: "1px",
+                          display: "grid",
+                          gridTemplateColumns: showBonus
+                            ? "auto 55px auto"
+                            : "auto 55px",
+                          alignItems: "center",
+                          columnGap: "4px",
+                          rowGap: "4px",
                         }}
                       >
-                        {tier}
-                      </span>
-                      <input
-                        type="number"
-                        min="0"
-                        style={{
-                          ...inputS,
-                          width: "55px",
-                          padding: "4px 6px",
-                          fontSize: "0.8rem",
-                        }}
-                        placeholder="0"
-                        value={w.rankBreakdown[tier] || ""}
-                        onChange={(e) =>
-                          setRankBreakdown(i, tier, e.target.value)
-                        }
-                      />
-                    </div>
-                  ))}
+                        <span
+                          style={{
+                            fontSize: "0.6rem",
+                            fontWeight: 900,
+                            fontFamily: "monospace",
+                            color: C.muted,
+                            letterSpacing: "1px",
+                          }}
+                        >
+                          {tier}
+                        </span>
+                        <input
+                          type="number"
+                          min="0"
+                          style={{
+                            ...inputS,
+                            width: "55px",
+                            padding: "4px 6px",
+                            fontSize: "0.8rem",
+                          }}
+                          placeholder="0"
+                          value={w.rankBreakdown[tier] || ""}
+                          onChange={(e) =>
+                            setRankBreakdown(i, tier, e.target.value)
+                          }
+                        />
+                        {showBonus && <span />}
+
+                        {stars > 0 && (
+                          <>
+                            <span />
+                            {showBonus ? (
+                              <input
+                                type="number"
+                                min="0"
+                                autoFocus={!bonus}
+                                title="Bonus (tidak dihitung ke gaji)"
+                                style={{
+                                  ...inputS,
+                                  width: "55px",
+                                  padding: "4px 6px",
+                                  fontSize: "0.8rem",
+                                  border: `1px dashed ${C.cyan}`,
+                                }}
+                                placeholder="0"
+                                value={w.bonusBreakdown?.[tier] || ""}
+                                onChange={(e) =>
+                                  setBonusBreakdown(i, tier, e.target.value)
+                                }
+                              />
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setOpenBonus((o) => ({
+                                    ...o,
+                                    [bonusKey]: true,
+                                  }))
+                                }
+                                style={{
+                                  ...inputS,
+                                  width: "55px",
+                                  padding: "4px 0",
+                                  fontSize: "0.8rem",
+                                  textAlign: "center",
+                                  cursor: "pointer",
+                                  color: C.cyan,
+                                  border: `1px dashed ${C.cyan}`,
+                                  background: "transparent",
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontSize: "0.6rem",
+                                    fontWeight: 900,
+                                    letterSpacing: "1px",
+                                  }}
+                                >
+                                  + BONUS
+                                </span>
+                              </button>
+                            )}
+                            {showBonus && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setBonusBreakdown(i, tier, "");
+                                  setOpenBonus((o) => ({
+                                    ...o,
+                                    [bonusKey]: false,
+                                  }));
+                                }}
+                                title="Hapus bonus"
+                                style={{
+                                  background: "transparent",
+                                  border: "none",
+                                  color: C.muted,
+                                  cursor: "pointer",
+                                  fontWeight: 900,
+                                  fontSize: "0.7rem",
+                                  padding: 0,
+                                }}
+                              >
+                                ✕
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}
