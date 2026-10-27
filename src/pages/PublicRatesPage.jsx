@@ -5,19 +5,19 @@ import ThemeToggle from "../components/ui/sidebar/ThemeToggle";
 import { useTheme } from "../context/ThemeContext";
 import { getPublicRates } from "../services/seasonService";
 
-// Harga Joki Statis
-const STATIC_RATES = {
-  seasonName: "PRICE LIST S41",
-  rates: [
-    { tier: "GRANDMASTER", rate_store_joki: 5000, rate_store_jokgen: 6000 },
-    { tier: "EPIC", rate_store_joki: 7000, rate_store_jokgen: 8000 },
-    { tier: "LEGEND", rate_store_joki: 9000, rate_store_jokgen: 10000 },
-    { tier: "MAWI", rate_store_joki: 16000, rate_store_jokgen: 18000 },
-    { tier: "HONOR", rate_store_joki: 18000, rate_store_jokgen: 20000 },
-    { tier: "GLORY", rate_store_joki: 23000, rate_store_jokgen: 25000 },
-    { tier: "IMO", rate_store_joki: 27000, rate_store_jokgen: 32000 },
-  ],
-};
+// // Harga Joki Statis
+// const STATIC_RATES = {
+//   seasonName: "PRICE LIST S41",
+//   rates: [
+//     { tier: "GRANDMASTER", rate_store_joki: 5000, rate_store_jokgen: 6000 },
+//     { tier: "EPIC", rate_store_joki: 7000, rate_store_jokgen: 8000 },
+//     { tier: "LEGEND", rate_store_joki: 9000, rate_store_jokgen: 10000 },
+//     { tier: "MAWI", rate_store_joki: 16000, rate_store_jokgen: 18000 },
+//     { tier: "HONOR", rate_store_joki: 18000, rate_store_jokgen: 20000 },
+//     { tier: "GLORY", rate_store_joki: 23000, rate_store_jokgen: 25000 },
+//     { tier: "IMO", rate_store_joki: 27000, rate_store_jokgen: 32000 },
+//   ],
+// };
 
 const formatRupiah = (n) =>
   n && n > 0 ? `Rp${n.toLocaleString("id-ID")}` : "Belum tersedia";
@@ -208,8 +208,8 @@ const PublicRatesPage = () => {
   const { theme } = useTheme();
   const isLight = theme === "light";
 
-  // STATIC_RATES dipakai sebagai fallback; diganti data API jika berhasil.
-  const [data, setData] = useState(STATIC_RATES);
+  // Data harga murni dari API.
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -245,7 +245,7 @@ const PublicRatesPage = () => {
   const cardBg = isLight ? "#ffffff" : "#141414";
   const border = isLight ? "#e5d9c8" : "#2a2a2a";
   const cyan = isLight ? "#0089A0" : "#00E5FF";
-  const magenta = isLight ? "#CC2E89" : "#FF3CAC";
+  const magenta = isLight ? "#287A74" : "#CCFBFA";
 
   return (
     <div
@@ -312,13 +312,13 @@ const PublicRatesPage = () => {
               margin: "1.25rem auto 2rem",
             }}
           >
-            Harga yang tertera di poster toko adalah harga awal. Promo pre-mid
-            season order 10+1⭐
+            Harga yang tertera di poster toko adalah harga awal. Promo mid
+            season order 10+2. Joki 10+2 Jokgen 10+1
             <br />
             <br />
             <strong>
               Harga di update{" "}
-              {data.updatedAt
+              {data?.updatedAt
                 ? new Date(data.updatedAt).toLocaleDateString("id-ID", {
                     day: "numeric",
                     month: "long",
@@ -341,7 +341,7 @@ const PublicRatesPage = () => {
           <p
             style={{
               textAlign: "center",
-              color: textMuted,
+              color: isLight ? "#0891b2" : "#00E5FF",
               fontSize: "0.85rem",
             }}
           >
@@ -374,13 +374,15 @@ const PublicRatesPage = () => {
                 fontSize: "0.65rem",
                 fontWeight: 700,
                 letterSpacing: "1px",
-                color: textMuted,
+                color: textPrimary,
                 textTransform: "uppercase",
               }}
             >
-              <span>Tier</span>
-              <span style={{ textAlign: "right" }}>Joki Rank</span>
-              <span style={{ textAlign: "right" }}>Joki Gendong</span>
+              <span style={{ color: textPrimary }}>Tier</span>
+              <span style={{ textAlign: "right", color: cyan }}>Joki Rank</span>
+              <span style={{ textAlign: "right", color: magenta }}>
+                Joki Gendong
+              </span>
             </div>
 
             {data.rates.map((r) => {
@@ -445,25 +447,6 @@ const PublicRatesPage = () => {
                         />
                         {tierUpper}
                       </span>
-                      {promos.length > 0 && (
-                        <span
-                          style={{
-                            fontSize: "clamp(0.55rem, 2.4vw, 0.65rem)",
-                            fontWeight: 600,
-                            color: TIER_BONUS_COLOR[tierUpper] || textMuted,
-                            textTransform: "none",
-                            marginLeft: "2.6rem",
-                          }}
-                        >
-                          Order{" "}
-                          {[
-                            ...new Set(
-                              promos.map((p) => `${p.buyQty}+${p.bonusQty}`),
-                            ),
-                          ].join(" / ")}{" "}
-                          bonus ⭐
-                        </span>
-                      )}
                     </div>
                     <span
                       style={{
