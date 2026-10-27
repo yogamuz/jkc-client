@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
-import { Trash2, Pencil, AlertCircle } from "lucide-react";
+import { Trash2, Pencil, Eye } from "lucide-react";
 import { useDataPageColors, cell } from "../../constants/dataPage.constants";
 import StatusBadge from "../ui/StatusBadge";
 import PaidBadge from "../ui/PaidBadge";
 import EditOrderModal from "./EditOrderModal";
 import ConfirmModal from "../ui/ConfirmModal";
+
+// Tombol mata hanya muncul kalau keterangan lebih panjang dari ini
+const NOTE_LIMIT = 16;
 
 const OrderTable = ({
   orders,
@@ -24,6 +27,7 @@ const OrderTable = ({
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+  const [noteTarget, setNoteTarget] = useState(null);
 
   // Modal sukses hilang otomatis setelah 1.8 detik
   useEffect(() => {
@@ -178,20 +182,6 @@ const OrderTable = ({
                       }}
                     >
                       {order.customerName}
-                      {order.keterangan && (
-                        <span
-                          title={order.keterangan}
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            color: C.yellow,
-                            cursor: "default",
-                            flexShrink: 0,
-                          }}
-                        >
-                          <AlertCircle size={13} strokeWidth={2} />
-                        </span>
-                      )}
                       {order.updatedBy?.avatar ? (
                         <img
                           src={order.updatedBy.avatar}
@@ -296,6 +286,51 @@ const OrderTable = ({
                       }}
                     >
                       {fmtRp(order.profit)}
+                    </td>
+                    <td style={cell(false, C)}>
+                      {order.keterangan ? (
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                          }}
+                        >
+                          <span
+                            title={order.keterangan}
+                            style={{
+                              display: "block",
+                              maxWidth: "130px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                              color: C.text,
+                            }}
+                          >
+                            {order.keterangan}
+                          </span>
+                          {order.keterangan.length > NOTE_LIMIT && (
+                            <button
+                              onClick={() => setNoteTarget(order)}
+                              title="Lihat keterangan lengkap"
+                              style={{
+                                background: "transparent",
+                                border: "none",
+                                color: C.cyan,
+                                cursor: "pointer",
+                                padding: "2px",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                flexShrink: 0,
+                              }}
+                            >
+                              <Eye size={12} strokeWidth={2} />
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        "—"
+                      )}
                     </td>
                     <td style={{ ...cell(false, C), verticalAlign: "middle" }}>
                       <StatusBadge
@@ -405,6 +440,16 @@ const OrderTable = ({
         />
       )}
 
+      <ConfirmModal
+        open={!!noteTarget}
+        variant="info"
+        title={`NOTE — ${noteTarget?.customerName || ""}`}
+        message={noteTarget?.keterangan}
+        confirmText="TUTUP"
+        hideCancel
+        onConfirm={() => setNoteTarget(null)}
+        onCancel={() => setNoteTarget(null)}
+      />
       <ConfirmModal
         open={!!deleteTarget}
         variant="danger"

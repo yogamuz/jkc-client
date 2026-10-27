@@ -72,6 +72,8 @@ const ConfirmModal = ({
             fontSize: "0.74rem",
             fontFamily: "'Courier New', monospace",
             lineHeight: 1.5,
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
           }}
         >
           {message}

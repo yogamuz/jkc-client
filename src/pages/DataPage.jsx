@@ -381,6 +381,7 @@ const DataPage = ({
     { key: "workers", label: "WORKER", width: "120px" },
     { key: "totalWorkerSalary", label: "GAJI", width: "110px" },
     { key: "profit", label: "PROFIT", width: "110px" },
+    { key: "keterangan", label: "NOTE", width: "160px" },
     { key: "status", label: "STATUS", width: "90px" },
     ...extraCols.map((c) => ({
       key: c.key,
