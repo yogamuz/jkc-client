@@ -11,7 +11,7 @@ const darkColors = {
   magenta: "#FF3CAC",
   green: "#39FF14",
   text: "#E8E8E8",
-  muted: "#666670",
+  muted: "#A8A8B2",
   dim: "#2A2A2E",
 };
 

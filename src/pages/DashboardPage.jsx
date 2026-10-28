@@ -26,7 +26,7 @@ const darkColors = {
   magenta: "#FF3CAC",
   green: "#39FF14",
   text: "#E8E8E8",
-  muted: "#666670",
+  muted: "#A8A8B2",
   dim: "#2A2A2E",
   mutedAlt: "#9A9A9A",
   trackBg: "#0A0A0C",
@@ -43,7 +43,7 @@ const lightColors = {
   text: "#1A1A1A",
   muted: "#8A8A8F",
   dim: "#D8D4C8",
-  mutedAlt: "#6B6B70",
+  muted: "#FFFFFF",
   trackBg: "#EAE6DA",
 };
 

@@ -13,7 +13,7 @@ const darkColors = {
   cyan: "#00E5FF",
   magenta: "#FF3CAC",
   text: "#E8E8E8",
-  muted: "#555555",
+  muted: "#A8A8B2",
   dimmed: "#333333",
 };
 

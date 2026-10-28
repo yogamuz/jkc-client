@@ -11,12 +11,12 @@ const darkColors = {
   magenta: "#FF3CAC",
   green: "#39FF14",
   text: "#E8E8E8",
-  muted: "#666670",
+  muted: "##A8A8B2",
   dim: "#2A2A2E",
   /* ── tambahan untuk AnalyticsPage (eks-hardcoded hex) ── */
   panel2: "#0F0F14",
   trackBg: "#0A0A0C",
-  mutedAlt: "#9A9A9A",
+  muted: "#A8A8B2",
   hoverBg: "#1A1A1F",
   /* ── tambahan disamakan dengan workers.utils (badge bg + row alt) ── */
   rowAlt: "#0D0D0F",
