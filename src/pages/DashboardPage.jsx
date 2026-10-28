@@ -41,9 +41,8 @@ const lightColors = {
   magenta: "#CC2E89",
   green: "#1F9D2E",
   text: "#1A1A1A",
-  muted: "#8A8A8F",
   dim: "#D8D4C8",
-  muted: "#FFFFFF",
+  muted: "#5C5C62",
   trackBg: "#EAE6DA",
 };
 
