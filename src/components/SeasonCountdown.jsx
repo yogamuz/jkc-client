@@ -81,7 +81,8 @@ const SeasonCountdown = ({ startDate, endDate }) => {
   const pct = start
     ? Math.min(
         Math.max(
-          ((now - atRollover(start)) / (atRollover(end) - atRollover(start))) *
+          ((now - atRollover(start)) /
+            (atRollover(end) - atRollover(start))) *
             100,
           0,
         ),
@@ -111,6 +112,7 @@ const SeasonCountdown = ({ startDate, endDate }) => {
 
   return (
     <div style={{ maxWidth: "340px" }}>
+
       {pct !== null && (
         // ← diubah: ukuran dinamis, mengecil mengikuti lebar layar (maks 120px)
         <div
@@ -185,7 +187,7 @@ const SeasonCountdown = ({ startDate, endDate }) => {
               strokeWidth={2}
             />
           </svg>
-          {/* ← diubah: angka & label di tengah, diberi bayangan supaya terbaca di atas air */}
+          {/* ← diubah: warna teks gelap saat light, putih + bayangan saat dark */}
           <div
             style={{
               ...mono,
@@ -195,8 +197,10 @@ const SeasonCountdown = ({ startDate, endDate }) => {
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              color: "#fff",
-              textShadow: "0 0 3px rgba(0,0,0,0.6), 0 1px 2px rgba(0,0,0,0.5)",
+              color: isDark ? "#fff" : "#1f1a14",
+              textShadow: isDark
+                ? "0 0 3px rgba(0,0,0,0.6), 0 1px 2px rgba(0,0,0,0.5)"
+                : "none",
             }}
           >
             <span
