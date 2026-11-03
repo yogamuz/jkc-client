@@ -36,6 +36,12 @@ const DEFAULT_KEYS = new Set([
   "type",
   "PAID",
 ]);
+const toLocalISODate = (d) => {
+  if (!d) return "";
+  const dt = new Date(d);
+  if (isNaN(dt)) return "";
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
+};
 const _t = new Date();
 const TODAY = `${_t.getFullYear()}-${String(_t.getMonth() + 1).padStart(2, "0")}-${String(_t.getDate()).padStart(2, "0")}`;
 
@@ -269,7 +275,7 @@ const DataPage = ({
     if (focusOrder?.workerName) {
       const patch = { workerName: focusOrder.workerName };
       if (focusOrder.date) {
-        const iso = String(focusOrder.date).split("T")[0];
+        const iso = toLocalISODate(focusOrder.date);
         patch.dateFrom = iso;
         patch.dateTo = iso;
       }
@@ -290,7 +296,7 @@ const DataPage = ({
 
   // Filter orders di frontend supaya instant tanpa API call
   const filteredOrders = orders.filter((o) => {
-    const orderDate = o.date ? o.date.split("T")[0] : "";
+    const orderDate = toLocalISODate(o.date);
     if (filters.dateFrom && orderDate < filters.dateFrom) return false;
     if (filters.dateTo && orderDate > filters.dateTo) return false;
     if (filters.status && o.status !== filters.status) return false;
@@ -331,7 +337,8 @@ const DataPage = ({
   // ImportExcelModal tetap pakai handleCreate langsung (tanpa modal per baris).
   const handleAddOrder = async (body) => {
     const res = await handleCreate(body);
-    if (res) setSuccessMsg(`Order "${body.customerName}" berhasil ditambahkan.`);
+    if (res)
+      setSuccessMsg(`Order "${body.customerName}" berhasil ditambahkan.`);
   };
 
   // Modal sukses hilang otomatis setelah 1.8 detik
