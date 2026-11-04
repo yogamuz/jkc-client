@@ -11,6 +11,13 @@ import {
 import { useState } from "react";
 import { useSidebarColors, getSubNavBtnStyle } from "./SidebarTokens";
 
+// Klik biasa tetap SPA; Ctrl/Cmd/Shift/klik tengah dibiarkan ke browser (tab baru)
+const linkClick = (e, fn) => {
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+  e.preventDefault();
+  fn();
+};
+
 const SidebarNav = ({
   activePage,
   activeSeasonId,
@@ -44,6 +51,7 @@ const SidebarNav = ({
     fontFamily: "'Courier New', monospace",
     textTransform: "uppercase",
     transition: "color 0.15s, background 0.15s, border-left-color 0.15s",
+    textDecoration: "none",
   });
 
   const hoverOn = (e, isActive) => {
@@ -62,15 +70,16 @@ const SidebarNav = ({
   return (
     <nav style={{ flex: 1, padding: "0.5rem 0" }}>
       {/* Dashboard */}
-      <button
-        onClick={() => onNavigate("dashboard")}
+      <a
+        href="/admin/dashboard"
+        onClick={(e) => linkClick(e, () => onNavigate("dashboard"))}
         style={navItemStyle(activePage === "dashboard")}
         onMouseEnter={(e) => hoverOn(e, activePage === "dashboard")}
         onMouseLeave={(e) => hoverOff(e, activePage === "dashboard")}
       >
         <LayoutDashboard size={14} strokeWidth={2} />
         Dashboard
-      </button>
+      </a>
 
       {/* Data — collapsible */}
       <div>
@@ -125,9 +134,10 @@ const SidebarNav = ({
                 const isActive =
                   activePage === "data" && activeSeasonId === s.id;
                 return (
-                  <button
+                  <a
                     key={s.id}
-                    onClick={() => onSelectSeason(s.id)}
+                    href={`/admin/data/${s.id}`}
+                    onClick={(e) => linkClick(e, () => onSelectSeason(s.id))}
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -149,6 +159,7 @@ const SidebarNav = ({
                       textTransform: "uppercase",
                       transition:
                         "color 0.15s, background 0.15s, border-left-color 0.15s",
+                      textDecoration: "none",
                     }}
                     onMouseEnter={(e) => {
                       if (!isActive) {
@@ -175,13 +186,14 @@ const SidebarNav = ({
                       }}
                     />
                     {s.name}
-                  </button>
+                  </a>
                 );
               })
             )}
             {user?.role === "owner" && (
-              <button
-                onClick={() => onNavigate("newSeason")}
+              <a
+                href="/admin/new-season"
+                onClick={(e) => linkClick(e, () => onNavigate("newSeason"))}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -199,6 +211,7 @@ const SidebarNav = ({
                   textAlign: "left",
                   fontFamily: "'Courier New', monospace",
                   textTransform: "uppercase",
+                  textDecoration: "none",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = C.cyan;
@@ -211,59 +224,63 @@ const SidebarNav = ({
               >
                 <span style={{ fontSize: "0.9rem" }}>＋</span>
                 Season Baru
-              </button>
+              </a>
             )}
           </div>
         )}
       </div>
 
       {/* Workers */}
-      <button
-        onClick={() => onNavigate("workers")}
+      <a
+        href="/admin/workers"
+        onClick={(e) => linkClick(e, () => onNavigate("workers"))}
         style={navItemStyle(activePage === "workers")}
         onMouseEnter={(e) => hoverOn(e, activePage === "workers")}
         onMouseLeave={(e) => hoverOff(e, activePage === "workers")}
       >
         <Users size={14} strokeWidth={2} />
         Workers
-      </button>
+      </a>
       {/* Analytics — owner only */}
       {user?.role === "owner" && (
-        <button
-          onClick={() => onNavigate("analytics")}
+        <a
+          href="/admin/analytics"
+          onClick={(e) => linkClick(e, () => onNavigate("analytics"))}
           style={navItemStyle(activePage === "analytics")}
           onMouseEnter={(e) => hoverOn(e, activePage === "analytics")}
           onMouseLeave={(e) => hoverOff(e, activePage === "analytics")}
         >
           <BarChart2 size={14} strokeWidth={2} />
           Analytics
-        </button>
+        </a>
       )}
 
       {/* Rate Config — owner only */}
       {user?.role === "owner" && (
-        <button
-          onClick={() => onNavigate("rates")}
+        <a
+          href="/admin/rates"
+          onClick={(e) => linkClick(e, () => onNavigate("rates"))}
           style={navItemStyle(activePage === "rates")}
           onMouseEnter={(e) => hoverOn(e, activePage === "rates")}
           onMouseLeave={(e) => hoverOff(e, activePage === "rates")}
         >
           <SlidersHorizontal size={14} strokeWidth={2} />
           Rate Config
-        </button>
+        </a>
       )}
 
       {/* Audit Log — owner only */}
       {user?.role === "owner" && (
-        <button
-          onClick={() => onNavigate("auditLog")}
+        <a
+          href="/admin/audit-log"
+          onClick={(e) => linkClick(e, () => onNavigate("auditLog"))}
           style={navItemStyle(activePage === "auditLog")}
           onMouseEnter={(e) => hoverOn(e, activePage === "auditLog")}
           onMouseLeave={(e) => hoverOff(e, activePage === "auditLog")}
         >
           <History size={14} strokeWidth={2} />
           Audit Log
-        </button>
+        </a>
       )}
 
       {/* Account — owner only */}
@@ -300,24 +317,40 @@ const SidebarNav = ({
             >
               {[
                 { label: "Ganti Password", onClick: onOpenChangePw },
-                { label: "Kelola Admin", onClick: onOpenManageAdmin },
-              ].map(({ label, onClick }) => (
-                <button
-                  key={label}
-                  onClick={onClick}
-                  style={subNavBtnStyle}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = C.text;
-                    e.currentTarget.style.background = C.bgHover;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = C.muted;
-                    e.currentTarget.style.background = "transparent";
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
+                {
+                  label: "Kelola Admin",
+                  onClick: onOpenManageAdmin,
+                  href: "/admin/admins",
+                },
+              ].map(({ label, onClick, href }) => {
+                const Tag = href ? "a" : "button";
+                return (
+                  <Tag
+                    key={label}
+                    href={href}
+                    onClick={href ? (e) => linkClick(e, onClick) : onClick}
+                    style={
+                      href
+                        ? {
+                            ...subNavBtnStyle,
+                            textDecoration: "none",
+                            display: subNavBtnStyle.display || "block",
+                          }
+                        : subNavBtnStyle
+                    }
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = C.text;
+                      e.currentTarget.style.background = C.bgHover;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = C.muted;
+                      e.currentTarget.style.background = "transparent";
+                    }}
+                  >
+                    {label}
+                  </Tag>
+                );
+              })}
             </div>
           )}
         </div>

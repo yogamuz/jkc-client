@@ -43,7 +43,7 @@ const findSaveButtonFor = (el, container) => {
 const RateConfigPage = ({ seasons = [], onRefresh }) => { // ← onRefresh baru
   const C = useRateConfigColors();
   const { theme } = useTheme();
-  const { loading, updateRates, getSeasonById, update } = useSeason(); // ← update baru
+  const { loading, updateRates, update } = useSeason(); // ← update baru
   const [selectedId, setSelectedId] = useState(null);
   const [savedFlag, setSavedFlag] = useState(0);
   const [saveNotif, setSaveNotif] = useState(false);
@@ -329,6 +329,8 @@ const RateConfigPage = ({ seasons = [], onRefresh }) => { // ← onRefresh baru
               seasonId={selectedSeason.id}
               onSaved={handleSaved}
               updateRates={updateRates}
+              updateSeason={update}
+              currentAdminFee={selectedSeason.adminFee}
               currentRates={
                 selectedSeason.rateHistory?.length > 0
                   ? [...selectedSeason.rateHistory].sort(

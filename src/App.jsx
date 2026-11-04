@@ -15,15 +15,152 @@ import { useSidebarColors } from "./components/ui/sidebar/SidebarTokens";
 import useAuth from "./hooks/useAuth";
 import useSeason from "./hooks/useSeason";
 import { useTheme } from "./context/ThemeContext";
-import { Routes, Route } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  Navigate,
+  Link,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import PublicRatesPage from "./pages/PublicRatesPage";
 import PriceUpdateNotif from "./components/PriceUpdateNotif";
+
+// ── Pemetaan nama halaman (state lama) <-> segmen URL ─────
+const PAGE_PATH = {
+  dashboard: "dashboard",
+  data: "data",
+  newSeason: "new-season",
+  workers: "workers",
+  analytics: "analytics",
+  rates: "rates",
+  admins: "admins",
+  auditLog: "audit-log",
+};
+const PATH_PAGE = Object.fromEntries(
+  Object.entries(PAGE_PATH).map(([page, seg]) => [seg, page]),
+);
+
+// Bersihkan cache data keuangan di localStorage saat logout
+const clearAppCaches = () => {
+  try {
+    Object.keys(localStorage)
+      .filter(
+        (k) =>
+          k === "jokicalm_seasons_cache" ||
+          k === "jokicalm_dashboard_cache" ||
+          k.startsWith("jokicalm_orders_"),
+      )
+      .forEach((k) => localStorage.removeItem(k));
+  } catch {
+    // abaikan
+  }
+};
+
+const MessagePage = ({ label, title }) => (
+  <div
+    style={{
+      padding: "2rem 2.5rem",
+      background: "#0D0D0D",
+      minHeight: "100vh",
+    }}
+  >
+    <div
+      style={{
+        fontSize: "0.6rem",
+        fontWeight: 700,
+        letterSpacing: "3px",
+        color: "#555",
+        fontFamily: "monospace",
+        marginBottom: "4px",
+      }}
+    >
+      {label}
+    </div>
+    <h1
+      style={{
+        fontSize: "clamp(2rem, 8vw, 3rem)",
+        fontWeight: 900,
+        color: "#E8E8E8",
+        margin: 0,
+        letterSpacing: "-3px",
+        textTransform: "uppercase",
+        fontFamily: "monospace",
+        lineHeight: 0.9,
+      }}
+    >
+      {title}
+    </h1>
+    <div
+      style={{
+        width: "48px",
+        height: "2px",
+        background: "#FFE600",
+        marginTop: "10px",
+        boxShadow: "0 0 8px #FFE600",
+      }}
+    />
+  </div>
+);
+
+const AccessDenied = () => (
+  <MessagePage label="// 403" title="Akses Ditolak" />
+);
+
+const NotFoundInApp = () => <MessagePage label="// 404" title="Not Found" />;
+
+const NotFoundPage = () => (
+  <div
+    style={{
+      minHeight: "100vh",
+      background: "#0D0D0D",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "1rem",
+      fontFamily: "'Courier New', monospace",
+      color: "#E8E8E8",
+    }}
+  >
+    <div style={{ fontSize: "3rem", fontWeight: 900, letterSpacing: "-2px" }}>
+      404
+    </div>
+    <div style={{ color: "#A8A8B2", fontSize: "0.8rem", letterSpacing: "2px" }}>
+      HALAMAN TIDAK DITEMUKAN
+    </div>
+    <Link
+      to="/"
+      style={{
+        color: "#FFE600",
+        border: "1px solid #FFE600",
+        padding: "0.5rem 1.25rem",
+        fontSize: "0.7rem",
+        fontWeight: 900,
+        letterSpacing: "2px",
+        textDecoration: "none",
+      }}
+    >
+      KE LIST HARGA
+    </Link>
+  </div>
+);
 
 function AdminApp() {
   const { user, setUser, checkSession, logout } = useAuth();
   const { seasons, fetchAll } = useSeason();
-  const [activePage, setActivePage] = useState("dashboard");
-  const [activeSeasonId, setActiveSeasonId] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Halaman aktif sekarang diturunkan dari URL (/admin/<halaman>/<seasonId?>)
+  const segs = location.pathname
+    .replace(/^\/(admin|login)\/?/, "")
+    .split("/")
+    .filter(Boolean);
+  const activePage = segs[0] ? PATH_PAGE[segs[0]] || "__notfound" : "dashboard";
+  const urlSeasonId = segs[0] === "data" && segs[1] ? segs[1] : null;
+
+  const [activeSeasonId, setActiveSeasonId] = useState(urlSeasonId);
   const [focusOrder, setFocusOrder] = useState(null);
   const [focusWorker, setFocusWorker] = useState(null);
   const [checking, setChecking] = useState(true);
@@ -32,6 +169,16 @@ function AdminApp() {
   const C = useSidebarColors();
   const { theme } = useTheme();
   const activeSeason = seasons.find((s) => s.id === activeSeasonId) || null;
+
+  // Nama & signature sama dengan versi state lama, tapi sekarang mengubah URL
+  const setActivePage = (page, seasonId = activeSeasonId) => {
+    const seg = PAGE_PATH[page] || "dashboard";
+    navigate(
+      page === "data" && seasonId
+        ? `/admin/${seg}/${seasonId}`
+        : `/admin/${seg}`,
+    );
+  };
 
   const getLatestRateEntry = (season) => {
     if (!season?.rateHistory || season.rateHistory.length === 0) return null;
@@ -53,12 +200,22 @@ function AdminApp() {
   const handleAvatarUpdate = (avatarUrl) => {
     setUser((prev) => ({ ...prev, avatar: avatarUrl }));
   };
+  const handleLogout = async () => {
+    clearAppCaches();
+    await logout();
+  };
   useEffect(() => {
     checkSession().finally(() => setChecking(false));
   }, []);
   useEffect(() => {
     if (user) fetchAll();
   }, [user]);
+  // Sinkronkan season dari URL (link langsung / back-forward)
+  useEffect(() => {
+    if (urlSeasonId && urlSeasonId !== activeSeasonId) {
+      setActiveSeasonId(urlSeasonId);
+    }
+  }, [urlSeasonId]);
   useEffect(() => {
     if (seasons.length > 0 && !activeSeasonId) {
       const active = seasons.find((s) => s.isActive) || seasons[0];
@@ -81,13 +238,13 @@ function AdminApp() {
   }, [activeSeason?.id, latestStamp]);
   const handleSelectSeason = (id) => {
     setActiveSeasonId(id);
-    setActivePage("data");
+    setActivePage("data", id);
   };
 
   const handleGoToOrder = ({ seasonId, workerName, orderId, date }) => {
     if (seasonId) setActiveSeasonId(String(seasonId));
     setFocusOrder({ workerName, orderId, date });
-    setActivePage("data");
+    setActivePage("data", seasonId ? String(seasonId) : activeSeasonId);
   };
 
   const handleGoToWorker = (workerName) => {
@@ -145,6 +302,10 @@ function AdminApp() {
       </div>
     );
 
+  // Sudah login tapi masih di /login atau /admin kosong -> masuk dashboard
+  if (/^\/(login|admin)\/?$/.test(location.pathname))
+    return <Navigate to="/admin/dashboard" replace />;
+
   const renderPage = () => {
     switch (activePage) {
       case "dashboard":
@@ -166,7 +327,11 @@ function AdminApp() {
           />
         );
       case "newSeason":
-        return <NewSeasonPage onCreated={(id) => handleSelectSeason(id)} />;
+        return user.role === "owner" ? (
+          <NewSeasonPage onCreated={(id) => handleSelectSeason(id)} />
+        ) : (
+          <AccessDenied />
+        );
       case "workers":
         return (
           <WorkersPage
@@ -181,15 +346,16 @@ function AdminApp() {
         return <AnalyticsPage season={activeSeason} seasons={seasons} />;
       case "rates":
         return user.role === "owner" ? (
-          <RateConfigPage seasons={seasons} onRefresh={fetchAll} /> // ← onRefresh baru
+          <RateConfigPage seasons={seasons} onRefresh={fetchAll} />
         ) : (
           <AccessDenied />
         );
       case "admins":
-        return <AdminsPage />;
+        return user.role === "owner" ? <AdminsPage /> : <AccessDenied />;
       case "auditLog":
         return user.role === "owner" ? <AuditLogPage /> : <AccessDenied />;
       default:
+        return <NotFoundInApp />;
     }
   };
 
@@ -271,66 +437,22 @@ function AdminApp() {
         }}
         seasons={seasons}
         user={user}
-        onLogout={logout}
+        onLogout={handleLogout}
         isOpen={sidebarOpen}
-        onAvatarUpdate={handleAvatarUpdate} // ← tambah ini
+        onAvatarUpdate={handleAvatarUpdate}
       />
       <main style={{ flex: 1, overflowY: "auto" }}>{renderPage()}</main>
     </div>
   );
 }
 
-const PlaceholderPage = ({ title }) => (
-  <div
-    style={{
-      padding: "2rem 2.5rem",
-      background: "#0D0D0D",
-      minHeight: "100vh",
-    }}
-  >
-    <div
-      style={{
-        fontSize: "0.6rem",
-        fontWeight: 700,
-        letterSpacing: "3px",
-        color: "#555",
-        fontFamily: "monospace",
-        marginBottom: "4px",
-      }}
-    >
-      // COMING SOON
-    </div>
-    <h1
-      style={{
-        fontSize: "3rem",
-        fontWeight: 900,
-        color: "#E8E8E8",
-        margin: 0,
-        letterSpacing: "-3px",
-        textTransform: "uppercase",
-        fontFamily: "monospace",
-        lineHeight: 0.9,
-      }}
-    >
-      {title}
-    </h1>
-    <div
-      style={{
-        width: "48px",
-        height: "2px",
-        background: "#FFE600",
-        marginTop: "10px",
-        boxShadow: "0 0 8px #FFE600",
-      }}
-    />
-  </div>
-);
-
 function App() {
   return (
     <Routes>
       <Route path="/" element={<PublicRatesPage />} />
       <Route path="/login" element={<AdminApp />} />
+      <Route path="/admin/*" element={<AdminApp />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

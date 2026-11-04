@@ -351,14 +351,14 @@ const DataPage = ({
   const handleUpdate = async (id, body) => {
     await update(id, body);
     fetchOrders(season.id);
-    fetchSummary(season.id);
+    if (isOwner) fetchSummary(season.id);
   };
 
   // Konfirmasi hapus sekarang ditangani ConfirmModal di OrderTable
   const handleDelete = async (id) => {
     await remove(id);
     fetchOrders(season.id);
-    fetchSummary(season.id);
+    if (isOwner) fetchSummary(season.id);
   };
 
   const handleMarkPaid = async (orderId, workerName, isPaid) => {
@@ -370,7 +370,7 @@ const DataPage = ({
     const nextStatus = STATUS_CYCLE[currentStatus] || "PENDING";
     await update(orderId, { status: nextStatus });
     fetchOrders(season.id);
-    fetchSummary(season.id);
+    if (isOwner) fetchSummary(season.id);
   };
 
   const extraCols = (season?.extraColumns || []).filter(
@@ -514,7 +514,7 @@ const DataPage = ({
           <button
             onClick={() => {
               fetchOrders(season.id);
-              fetchSummary(season.id);
+              if (isOwner) fetchSummary(season.id);
             }}
             style={{
               background: "transparent",
