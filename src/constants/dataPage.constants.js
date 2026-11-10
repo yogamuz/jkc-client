@@ -17,6 +17,7 @@ const darkColors = {
   panel2: "#0F0F14",
   trackBg: "#0A0A0C",
   muted: "#A8A8B2",
+  mutedAlt: "#8A8A94",
   hoverBg: "#1A1A1F",
   /* ── tambahan disamakan dengan workers.utils (badge bg + row alt) ── */
   rowAlt: "#0D0D0F",

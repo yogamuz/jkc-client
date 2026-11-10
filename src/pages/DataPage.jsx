@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Plus, RefreshCw, X } from "lucide-react";
+import { FaTelegramPlane } from "react-icons/fa";
 import useOrder from "../hooks/useOrder";
 import { useDataPageColors, glow } from "../constants/dataPage.constants";
 import { useTheme } from "../context/ThemeContext";
@@ -12,6 +13,7 @@ import ImportExcelModal from "../components/DataPages/ImportExcelModal";
 import DatePicker from "../components/ui/DatePicker";
 import SeasonCountdown from "../components/SeasonCountdown";
 import ConfirmModal from "../components/ui/ConfirmModal";
+import * as orderService from "../services/orderService";
 
 const STATUS_CYCLE = { PENDING: "PROCESS", PROCESS: "DONE", DONE: "PENDING" };
 
@@ -366,6 +368,19 @@ const DataPage = ({
     fetchOrders(season.id);
   };
 
+  const handleNotifyTelegram = async (orderId, customerName) => {
+    try {
+      await orderService.notifyTelegram(orderId);
+      setSuccessMsg(`Job "${customerName}" terkirim ke Telegram.`);
+    } catch (err) {
+      alert(
+        err.response?.data?.message ||
+          err.message ||
+          "Gagal kirim ke Telegram.",
+      );
+    }
+  };
+
   const handleUpdateStatus = async (orderId, currentStatus) => {
     const nextStatus = STATUS_CYCLE[currentStatus] || "PENDING";
     await update(orderId, { status: nextStatus });
@@ -637,6 +652,7 @@ const DataPage = ({
         onUpdateStatus={handleUpdateStatus}
         onMarkPaid={handleMarkPaid}
         onUpdate={handleUpdate}
+        onNotifyTelegram={handleNotifyTelegram}
         highlightOrderId={focusOrder?.orderId}
         onSelectWorker={onGoToWorker}
       />

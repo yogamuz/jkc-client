@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Trash2, Pencil, Eye } from "lucide-react";
+import { FaTelegramPlane } from "react-icons/fa";
 import { useDataPageColors, cell } from "../../constants/dataPage.constants";
 import StatusBadge from "../ui/StatusBadge";
 import PaidBadge from "../ui/PaidBadge";
@@ -19,6 +20,7 @@ const OrderTable = ({
   onUpdateStatus,
   onMarkPaid,
   onUpdate,
+  onNotifyTelegram,
   highlightOrderId,
   onSelectWorker,
 }) => {
@@ -378,6 +380,40 @@ const OrderTable = ({
                           justifyContent: "center",
                         }}
                       >
+                        <button
+                          type="button"
+                          disabled={order.workers?.length > 0}
+                          onClick={() =>
+                            onNotifyTelegram?.(order.id, order.customerName)
+                          }
+                          style={{
+                            background: "transparent",
+                            border: "none",
+                            color: C.muted,
+                            cursor:
+                              order.workers?.length > 0
+                                ? "not-allowed"
+                                : "pointer",
+                            opacity: order.workers?.length > 0 ? 0.35 : 1,
+                            padding: "4px",
+                            display: "inline-flex",
+                            alignItems: "center",
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!(order.workers?.length > 0))
+                              e.currentTarget.style.color = C.cyan;
+                          }}
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.color = C.muted)
+                          }
+                          title={
+                            order.workers?.length > 0
+                              ? "Job sudah diambil worker"
+                              : "Kirim ke Telegram"
+                          }
+                        >
+                          <FaTelegramPlane size={13} />
+                        </button>
                         <button
                           onClick={() => setEditOrder(order)}
                           style={{

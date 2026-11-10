@@ -64,9 +64,9 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
         : [
             {
               name: "",
-              rankBreakdown: {},
-              bonusBreakdown: {},
-              customSalary: "",
+              rankBreakdown: { ...(order.pendingJob?.rankBreakdown || {}) },
+              bonusBreakdown: { ...(order.pendingJob?.bonusBreakdown || {}) },
+              customSalary: order.pendingJob?.customSalary ?? "",
               isPaid: false,
               paidAt: null,
             },
@@ -170,6 +170,10 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
           t.getMinutes(),
         ).padStart(2, "0")}`;
       })();
+
+    const namedWorkers = form.workers.filter((w) => w.name.trim());
+    const draft = form.workers[0]; // dipakai kalau belum ada nama worker
+
     onUpdate(order.id, {
       customerName: form.customerName,
       date: `${form.date}T${finalTime}:00+07:00`,
@@ -178,17 +182,26 @@ const EditOrderModal = ({ order, season, onClose, onUpdate, loading }) => {
       price: Number(rawPrice),
       status: form.status,
       keterangan: form.keterangan.trim(),
-      workers: form.workers
-        .filter((w) => w.name.trim())
-        .map((w) => ({
-          name: w.name.toUpperCase(),
-          rankBreakdown: w.rankBreakdown,
-          bonusBreakdown: w.bonusBreakdown || {},
-          customSalary:
-            w.customSalary === "" ? undefined : Number(w.customSalary),
-          isPaid: w.isPaid,
-          paidAt: w.paidAt,
-        })),
+      workers: namedWorkers.map((w) => ({
+        name: w.name.toUpperCase(),
+        rankBreakdown: w.rankBreakdown,
+        bonusBreakdown: w.bonusBreakdown || {},
+        customSalary:
+          w.customSalary === "" ? undefined : Number(w.customSalary),
+        isPaid: w.isPaid,
+        paidAt: w.paidAt,
+      })),
+      pendingJob:
+        namedWorkers.length === 0
+          ? {
+              rankBreakdown: draft?.rankBreakdown || {},
+              bonusBreakdown: draft?.bonusBreakdown || {},
+              customSalary:
+                !draft || draft.customSalary === ""
+                  ? undefined
+                  : Number(draft.customSalary),
+            }
+          : undefined,
     });
   };
 

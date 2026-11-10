@@ -30,6 +30,8 @@ export const markWorkerPaid = (id, workerName, isPaid) =>
     method: "PATCH",
     body: JSON.stringify({ isPaid }),
   });
+export const notifyTelegram = (id) =>
+  apiFetch(`/api/orders/${id}/notify-telegram`, { method: "POST" });
 export const getSeasonSummary = (seasonId) =>
   apiFetch(`/api/orders/summary?seasonId=${seasonId}`);
 export const getWorkerSummary = (seasonId) =>
@@ -39,4 +41,3 @@ export const getWorkersList = (seasonId) => {
   const params = seasonId ? `?seasonId=${seasonId}` : "";
   return apiFetch(`/api/workers${params}`);
 };
-

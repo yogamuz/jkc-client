@@ -42,7 +42,7 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
     category: "JOKI RANK",
     payment: "QRIS",
     price: "",
-    status: "PROCESS",
+    status: "PENDING",
     keterangan: "",
     workers: [{ name: "", rankBreakdown: {}, customSalary: "" }],
     extraFields: {},
@@ -138,6 +138,10 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
           t.getMinutes(),
         ).padStart(2, "0")}`;
       })();
+
+    const namedWorkers = form.workers.filter((w) => w.name.trim());
+    const draft = form.workers[0]; // dipakai kalau belum ada nama worker
+
     onCreate({
       seasonId: season.id,
       customerName: form.customerName,
@@ -147,15 +151,24 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
       price: Number(form.price),
       status: form.status,
       keterangan: form.keterangan.trim(),
-      workers: form.workers
-        .filter((w) => w.name.trim())
-        .map((w) => ({
-          name: w.name,
-          rankBreakdown: w.rankBreakdown,
-          bonusBreakdown: w.bonusBreakdown || {},
-          customSalary:
-            w.customSalary === "" ? undefined : Number(w.customSalary),
-        })),
+      workers: namedWorkers.map((w) => ({
+        name: w.name,
+        rankBreakdown: w.rankBreakdown,
+        bonusBreakdown: w.bonusBreakdown || {},
+        customSalary:
+          w.customSalary === "" ? undefined : Number(w.customSalary),
+      })),
+      pendingJob:
+        namedWorkers.length === 0
+          ? {
+              rankBreakdown: draft?.rankBreakdown || {},
+              bonusBreakdown: draft?.bonusBreakdown || {},
+              customSalary:
+                !draft || draft.customSalary === ""
+                  ? undefined
+                  : Number(draft.customSalary),
+            }
+          : undefined,
       extraFields: form.extraFields,
     });
   };
@@ -334,7 +347,7 @@ const AddOrderModal = ({ season, onClose, onCreate, loading }) => {
                 value={form.status}
                 onChange={(e) => setField("status", e.target.value)}
               >
-                {["PROCESS", "DONE", "PENDING"].map((s) => (
+                {["PENDING", "PROCESS", "DONE"].map((s) => (
                   <option key={s}>{s}</option>
                 ))}
               </select>
