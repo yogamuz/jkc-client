@@ -230,6 +230,35 @@ function AdminApp() {
   const [checking, setChecking] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [priceNotif, setPriceNotif] = useState(null);
+
+  // Hide/show sidebar di desktop (tersimpan di localStorage)
+  const [sidebarHidden, setSidebarHidden] = useState(() => {
+    try {
+      return localStorage.getItem("joki_sidebar_hidden") === "1";
+    } catch {
+      return false;
+    }
+  });
+  const [isMobile, setIsMobile] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 768px)").matches,
+  );
+  useEffect(() => {
+    try {
+      localStorage.setItem("joki_sidebar_hidden", sidebarHidden ? "1" : "0");
+    } catch {
+      // abaikan
+    }
+  }, [sidebarHidden]);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const onChange = (e) => setIsMobile(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+  const sidebarHiddenDesktop = sidebarHidden && !isMobile;
+
   const C = useSidebarColors();
   const { theme } = useTheme();
   const activeSeason = seasons.find((s) => s.id === activeSeasonId) || null;
@@ -500,6 +529,36 @@ function AdminApp() {
         </button>
         <ThemeToggle iconOnly />
       </div>
+      {/* Tombol hide/show sidebar (desktop only) */}
+      {!isMobile && (
+        <button
+          onClick={() => setSidebarHidden((v) => !v)}
+          title={sidebarHidden ? "Tampilkan sidebar" : "Sembunyikan sidebar"}
+          style={{
+            position: "fixed",
+            top: "21px",
+            left: sidebarHidden ? "8px" : "184px",
+            zIndex: 60,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "28px",
+            height: "28px",
+            background: C.bgPanel,
+            border: `1px solid ${C.border}`,
+            color: C.yellow,
+            cursor: "pointer",
+            padding: 0,
+            fontFamily: "monospace",
+            fontSize: "0.95rem",
+            lineHeight: 1,
+            transition: "left 0.2s ease",
+          }}
+        >
+          ☰
+        </button>
+      )}
+      <div style={{ display: sidebarHiddenDesktop ? "none" : "contents" }}>
       <Sidebar
         activePage={activePage}
         activeSeasonId={activeSeasonId}
@@ -517,6 +576,7 @@ function AdminApp() {
         isOpen={sidebarOpen}
         onAvatarUpdate={handleAvatarUpdate}
       />
+      </div>
       <main style={{ flex: 1, overflowY: "auto" }}>{renderPage()}</main>
     </div>
   );
