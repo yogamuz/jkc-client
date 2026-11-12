@@ -13,11 +13,11 @@ import AuditLogPage from "./pages/AuditLogPage";
 import WorkerRegistryPage from "./pages/WorkerRegistryPage";
 import Sidebar from "./components/ui/Sidebar";
 import ThemeToggle from "./components/ui/sidebar/ThemeToggle";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { useSidebarColors } from "./components/ui/sidebar/SidebarTokens";
 import { useDataPageColors } from "./constants/dataPage.constants";
 import useAuth from "./hooks/useAuth";
 import useSeason from "./hooks/useSeason";
-import { useTheme } from "./context/ThemeContext";
 import {
   Routes,
   Route,
@@ -167,7 +167,7 @@ const AnalyticsHub = ({ season, seasons, isOwner }) => {
       <div
         style={{
           position: "sticky",
-          top: 0,
+          top: "58px",
           zIndex: 20,
           display: "flex",
           gap: "0.5rem",
@@ -260,7 +260,6 @@ function AdminApp() {
   const sidebarHiddenDesktop = sidebarHidden && !isMobile;
 
   const C = useSidebarColors();
-  const { theme } = useTheme();
   const activeSeason = seasons.find((s) => s.id === activeSeasonId) || null;
 
   // Nama & signature sama dengan versi state lama, tapi sekarang mengubah URL
@@ -488,96 +487,90 @@ function AdminApp() {
           }}
         />
       )}
-      {/* Hamburger + Theme toggle (mobile only) */}
+
+      <div style={{ display: sidebarHiddenDesktop ? "none" : "contents" }}>
+        <Sidebar
+          activePage={activePage}
+          activeSeasonId={activeSeasonId}
+          onNavigate={(page) => {
+            setActivePage(page);
+            setSidebarOpen(false);
+          }}
+          onSelectSeason={(id) => {
+            handleSelectSeason(id);
+            setSidebarOpen(false);
+          }}
+          seasons={seasons}
+          user={user}
+          onLogout={handleLogout}
+          isOpen={sidebarOpen}
+          onAvatarUpdate={handleAvatarUpdate}
+        />
+      </div>
+
       <div
         style={{
-          display: "none",
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 60,
-          gap: "0.5rem",
-          alignItems: "center",
-          padding: "0.75rem 1rem",
-          background:
-            theme === "light" ? "rgba(255,247,240,0.6)" : "rgba(13,13,13,0.5)",
-          backdropFilter: "blur(8px)",
-          WebkitBackdropFilter: "blur(8px)",
+          flex: 1,
+          minWidth: 0,
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
         }}
-        className="mobile-hamburger"
       >
-        <button
-          onClick={() => setSidebarOpen((v) => !v)}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "34px",
-            height: "34px",
-            background: C.bgPanel,
-            border: `1px solid ${C.border}`,
-            color: C.yellow,
-            cursor: "pointer",
-            padding: 0,
-            fontFamily: "monospace",
-            fontSize: "1rem",
-            lineHeight: 1,
-          }}
-        >
-          ☰
-        </button>
-        <ThemeToggle iconOnly />
+        <main style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
+          {/* Bar atas: hamburger + theme toggle (mobile & desktop).
+              Mobile: buka/tutup sidebar overlay. Desktop: tampil/sembunyikan sidebar.
+              Ada di dalam <main> (sticky) supaya scrollbar penuh dari atas layar. */}
+          <div
+            className="mobile-hamburger"
+            style={{
+              display: "flex",
+              position: "sticky",
+              top: 0,
+              zIndex: 60,
+              height: "58px",
+              boxSizing: "border-box",
+              flexShrink: 0,
+              gap: "0.5rem",
+              alignItems: "center",
+              padding: "0.75rem 1rem",
+              background: C.bg,
+            }}
+          >
+            <button
+              onClick={() =>
+                isMobile ? setSidebarOpen((v) => !v) : setSidebarHidden((v) => !v)
+              }
+              title={
+                isMobile
+                  ? "Menu"
+                  : sidebarHidden
+                    ? "Tampilkan sidebar"
+                    : "Sembunyikan sidebar"
+              }
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "34px",
+                height: "34px",
+                background: C.bgPanel,
+                border: `1px solid ${C.border}`,
+                color: C.yellow,
+                cursor: "pointer",
+                padding: 0,
+                fontFamily: "monospace",
+                fontSize: "1rem",
+                lineHeight: 1,
+              }}
+            >
+              ☰
+            </button>
+            <ThemeToggle iconOnly />
+          </div>
+          <ErrorBoundary key={activePage}>{renderPage()}</ErrorBoundary>
+        </main>
       </div>
-      {/* Tombol hide/show sidebar (desktop only) */}
-      {!isMobile && (
-        <button
-          onClick={() => setSidebarHidden((v) => !v)}
-          title={sidebarHidden ? "Tampilkan sidebar" : "Sembunyikan sidebar"}
-          style={{
-            position: "fixed",
-            top: "21px",
-            left: sidebarHidden ? "8px" : "184px",
-            zIndex: 60,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "28px",
-            height: "28px",
-            background: C.bgPanel,
-            border: `1px solid ${C.border}`,
-            color: C.yellow,
-            cursor: "pointer",
-            padding: 0,
-            fontFamily: "monospace",
-            fontSize: "0.95rem",
-            lineHeight: 1,
-            transition: "left 0.2s ease",
-          }}
-        >
-          ☰
-        </button>
-      )}
-      <div style={{ display: sidebarHiddenDesktop ? "none" : "contents" }}>
-      <Sidebar
-        activePage={activePage}
-        activeSeasonId={activeSeasonId}
-        onNavigate={(page) => {
-          setActivePage(page);
-          setSidebarOpen(false);
-        }}
-        onSelectSeason={(id) => {
-          handleSelectSeason(id);
-          setSidebarOpen(false);
-        }}
-        seasons={seasons}
-        user={user}
-        onLogout={handleLogout}
-        isOpen={sidebarOpen}
-        onAvatarUpdate={handleAvatarUpdate}
-      />
-      </div>
-      <main style={{ flex: 1, overflowY: "auto" }}>{renderPage()}</main>
     </div>
   );
 }

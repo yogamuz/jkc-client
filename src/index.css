@@ -50,10 +50,6 @@ body {
   .app-sidebar.sidebar-open {
     left: 0;
   }
-
-  main {
-    padding-top: 3rem; /* ruang untuk hamburger */
-  }
 }
 .app-sidebar {
   height: 100vh;
