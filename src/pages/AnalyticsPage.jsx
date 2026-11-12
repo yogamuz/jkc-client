@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import useOrder from "../hooks/useOrder";
 import { useDataPageColors, glow } from "../constants/dataPage.constants";
-import { useTheme } from "../context/ThemeContext"; // sesuaikan path
+import { useTheme } from "../context/ThemeContext";
 import CircuitBg from "../components/ui/CircuitBg";
 import CornerGlow from "../components/ui/CornerGlow";
 
@@ -19,15 +19,21 @@ import DonutChart from "../components/Analytics/DonutChart";
 import Empty from "../components/Analytics/Empty";
 import Section from "../components/Analytics/Section";
 import SeasonSelector from "../components/Analytics/SeasonSelector";
-import { fmtRp, getPalette, getColorAt } from "../components/Analytics/analytics.utils";
+import {
+  fmtRp,
+  getPalette,
+  getColorAt,
+  calcSeasonTrend,
+} from "../components/Analytics/analytics.utils";
+import * as orderService from "../services/orderService";
 
-// ── Main ──────────────────────────────────────────────────
+const FULL = { gridColumn: "1 / -1" };
+
+// ── Main ─────────────────────────────────────────────────────
 const AnalyticsPage = ({ season, seasons = [] }) => {
   const C = useDataPageColors();
   const { theme } = useTheme();
 
-  // Palette — dulu module-level const yang baca C statis, sekarang
-  // dihitung per-render karena C reaktif terhadap theme.
   const PALETTE = getPalette(C);
   const colorAt = getColorAt(PALETTE);
 
@@ -42,18 +48,14 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
   } = useOrder();
 
   const [tab, setTab] = useState("overview");
-
-  // selectedSeasonId: default ke season yang dipassing dari sidebar
   const [selectedSeasonId, setSelectedSeasonId] = useState(season?.id || null);
 
-  // Sync jika season prop berubah (user klik season lain di sidebar)
   useEffect(() => {
     if (season?.id && season.id !== selectedSeasonId) {
       setSelectedSeasonId(season.id);
     }
   }, [season?.id]);
 
-  // Derived: season object dari selectedSeasonId
   const selectedSeason = useMemo(
     () => seasons.find((s) => s.id === selectedSeasonId) || season || null,
     [selectedSeasonId, seasons, season],
@@ -75,9 +77,59 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
   };
 
   const refresh = () => loadData(selectedSeasonId);
+  // ── Season sebelumnya (urut berdasarkan tanggal dibuat) ──
+  const prevSeason = useMemo(() => {
+    const sorted = [...seasons].sort(
+      (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+    );
+    const idx = sorted.findIndex((s) => s.id === selectedSeasonId);
+    return idx > 0 ? sorted[idx - 1] : null;
+  }, [seasons, selectedSeasonId]);
 
-  // ── Derived data ─────────────────────────────────────────
+  const [prevSummary, setPrevSummary] = useState(null);
 
+  useEffect(() => {
+    setPrevSummary(null);
+    if (!prevSeason?.id) return;
+    let active = true;
+    orderService
+      .getSeasonSummary(prevSeason.id)
+      .then((res) => active && setPrevSummary(res.data))
+      .catch(() => active && setPrevSummary(null));
+    return () => {
+      active = false;
+    };
+  }, [prevSeason?.id]);
+
+  // ── Summary semua season (untuk grafik perbandingan) ──
+  const [allSummaries, setAllSummaries] = useState([]);
+  const seasonKey = seasons.map((s) => s.id).join(",");
+
+  useEffect(() => {
+    if (!seasons.length) return;
+    let active = true;
+    const sorted = [...seasons].sort(
+      (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+    );
+    Promise.all(
+      sorted.map((s) =>
+        orderService
+          .getSeasonSummary(s.id)
+          .then((res) => ({
+            name: s.name,
+            omset: res.data.totalOmset,
+            profit: res.data.profitBersih,
+            order: res.data.totalOrder,
+          }))
+          .catch(() => null),
+      ),
+    ).then((rows) => active && setAllSummaries(rows.filter(Boolean)));
+    return () => {
+      active = false;
+    };
+  }, [seasonKey]);
+
+  // ── Derived data ───────────────────────────────────────────
   const trendDaily = useMemo(() => {
     const map = {};
     orders.forEach((o) => {
@@ -175,6 +227,19 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
     [workerSummary],
   );
 
+  const trends = useMemo(
+    () => ({
+      order: calcSeasonTrend(summary?.totalOrder, prevSummary?.totalOrder),
+      omset: calcSeasonTrend(summary?.totalOmset, prevSummary?.totalOmset),
+      gaji: calcSeasonTrend(
+        summary?.totalGajiWorker,
+        prevSummary?.totalGajiWorker,
+      ),
+      profit: calcSeasonTrend(summary?.profitBersih, prevSummary?.profitBersih),
+    }),
+    [summary, prevSummary],
+  );
+
   if (!selectedSeason && seasons.length === 0)
     return (
       <div
@@ -194,6 +259,14 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
         BELUM ADA SEASON
       </div>
     );
+
+  const gridStyle = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
+    gap: "1rem",
+    position: "relative",
+    zIndex: 1,
+  };
 
   return (
     <div
@@ -218,7 +291,7 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
           flexWrap: "wrap",
           gap: "1rem",
           position: "relative",
-          zIndex: 1,
+          zIndex: 2,
           overflow: "visible",
         }}
       >
@@ -282,7 +355,6 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
             flexWrap: "wrap",
           }}
         >
-          {/* Season selector */}
           {seasons.length > 1 && (
             <SeasonSelector
               seasons={seasons}
@@ -291,7 +363,6 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
             />
           )}
 
-          {/* Tab toggle */}
           {["overview", "workers"].map((t) => (
             <button
               key={t}
@@ -306,7 +377,8 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
                 letterSpacing: "1.5px",
                 cursor: "pointer",
                 fontFamily: "'Courier New', monospace",
-                boxShadow: tab === t ? glow(theme, `0 0 10px ${C.cyan}40`) : "none",
+                boxShadow:
+                  tab === t ? glow(theme, `0 0 10px ${C.cyan}40`) : "none",
               }}
             >
               {t.toUpperCase()}
@@ -330,7 +402,7 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
               fontFamily: "'Courier New', monospace",
             }}
           >
-            <RefreshCw size={12} strokeWidth={2} /> REFRESH
+            <RefreshCw size={13} strokeWidth={2} /> REFRESH
           </button>
         </div>
       </div>
@@ -338,11 +410,13 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
       {/* Summary cards */}
       <div
         style={{
-          display: "flex",
-          gap: "0.75rem",
-          flexWrap: "wrap",
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(auto-fit, minmax(min(100%, 150px), 1fr))",
+          gap: "1rem",
           marginBottom: "1.5rem",
           position: "relative",
+          zIndex: 1,
         }}
       >
         <StatCard
@@ -350,47 +424,49 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
           value={summary?.totalOrder ?? "—"}
           accent={C.yellow}
           Icon={ShoppingBag}
+          trend={trends.order}
         />
         <StatCard
           label="OMSET"
           value={summary ? fmtRp(summary.totalOmset) : "—"}
           accent={C.cyan}
           Icon={TrendingUp}
+          trend={trends.omset}
         />
         <StatCard
           label="GAJI WORKER"
           value={summary ? fmtRp(summary.totalGajiWorker) : "—"}
           accent={C.magenta}
           Icon={User}
+          trend={trends.gaji}
         />
         <StatCard
           label="PROFIT"
           value={summary ? fmtRp(summary.profitBersih) : "—"}
           accent={C.green}
           Icon={DollarSign}
+          trend={trends.profit}
         />
       </div>
 
       {/* ── TAB: OVERVIEW ── */}
       {tab === "overview" && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-            gap: "1rem",
-            position: "relative",
-            zIndex: 1,
-          }}
-        >
-          <Section title=" TREND OMSET — 30 HARI TERAKHIR" accent={C.yellow}>
-            <VBarChart data={trendDaily} />
+        <div style={gridStyle}>
+          <Section
+            title="TREND OMSET — 30 HARI TERAKHIR"
+            accent={C.yellow}
+            style={FULL}
+          >
+            <VBarChart data={trendDaily} height={190} />
           </Section>
 
-          <Section title=" TREND OMSET — PER BULAN" accent={C.yellow}>
-            <VBarChart data={trendMonthly} />
+          
+
+          <Section title="TREND OMSET — PER BULAN" accent={C.yellow}>
+            <VBarChart data={trendMonthly} height={170} rotateLabels={false} />
           </Section>
 
-          <Section title=" OMSET PER KATEGORI" accent={C.cyan}>
+          <Section title="OMSET PER KATEGORI" accent={C.cyan}>
             <HBarChart
               data={byCategory}
               valueKey="value"
@@ -407,7 +483,7 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
             />
           </Section>
 
-          <Section title=" ORDER PER METODE BAYAR" accent={C.cyan}>
+          <Section title="ORDER PER METODE BAYAR" accent={C.cyan}>
             <HBarChart
               data={byPayment}
               valueKey="value"
@@ -424,7 +500,7 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
             />
           </Section>
 
-          <Section title=" STATUS ORDER" accent={C.magenta}>
+          <Section title="STATUS ORDER" accent={C.magenta}>
             <DonutChart slices={byStatus} />
             <HBarChart
               data={byStatus}
@@ -435,13 +511,13 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
             />
           </Section>
 
-          <Section title="MARGIN RATE" accent={C.green}>
+          <Section title="MARGIN RATE" accent={C.green} style={FULL}>
             {summary && summary.totalOmset > 0 ? (
               <div
                 style={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: "0.75rem",
+                  gap: "1.25rem",
                 }}
               >
                 {[
@@ -462,12 +538,12 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
                       style={{
                         display: "flex",
                         justifyContent: "space-between",
-                        marginBottom: "3px",
+                        marginBottom: "6px",
                       }}
                     >
                       <span
                         style={{
-                          fontSize: "0.6rem",
+                          fontSize: "0.85rem",
                           fontFamily: "monospace",
                           color: C.muted,
                           letterSpacing: "1px",
@@ -477,15 +553,16 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
                       </span>
                       <span
                         style={{
-                          fontSize: "0.6rem",
+                          fontSize: "0.85rem",
                           fontFamily: "monospace",
+                          fontWeight: 700,
                           color: row.color,
                         }}
                       >
                         {((row.value / summary.totalOmset) * 100).toFixed(1)}%
                       </span>
                     </div>
-                    <div style={{ background: C.trackBg, height: "10px" }}>
+                    <div style={{ background: C.trackBg, height: "20px" }}>
                       <div
                         style={{
                           height: "100%",
@@ -498,10 +575,11 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
                     </div>
                     <div
                       style={{
-                        fontSize: "0.65rem",
+                        fontSize: "0.9rem",
                         fontFamily: "monospace",
+                        fontWeight: 700,
                         color: row.color,
-                        marginTop: "2px",
+                        marginTop: "6px",
                       }}
                     >
                       {fmtRp(row.value)}
@@ -518,16 +596,8 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
 
       {/* ── TAB: WORKERS ── */}
       {tab === "workers" && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-            gap: "1rem",
-            position: "relative",
-            zIndex: 1,
-          }}
-        >
-          <Section title=" LEADERBOARD GAJI WORKER" accent={C.yellow}>
+        <div style={gridStyle}>
+          <Section title="LEADERBOARD GAJI WORKER" accent={C.yellow}>
             <HBarChart
               data={topWorkers.map((w) => ({
                 label: w.name,
@@ -548,7 +618,7 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
             />
           </Section>
 
-          <Section title=" ORDER COUNT PER WORKER" accent={C.cyan}>
+          <Section title="ORDER COUNT PER WORKER" accent={C.cyan}>
             <HBarChart
               data={[...(workerSummary || [])]
                 .sort((a, b) => b.orderCount - a.orderCount)
@@ -561,7 +631,7 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
             />
           </Section>
 
-          <Section title=" WORKER BELUM DIBAYAR" accent={C.magenta}>
+          <Section title="WORKER BELUM DIBAYAR" accent={C.magenta} style={FULL}>
             {unpaidWorkers.length === 0 ? (
               <div
                 style={{
@@ -587,96 +657,94 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
             )}
           </Section>
 
-          <div style={{ gridColumn: "1 / -1" }}>
-            <Section title=" DETAIL SEMUA WORKER" accent={C.cyan}>
-              <div style={{ overflowX: "auto" }}>
-                <table
-                  style={{
-                    borderCollapse: "collapse",
-                    width: "100%",
-                    fontSize: "0.72rem",
-                    fontFamily: "monospace",
-                  }}
-                >
-                  <thead>
-                    <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-                      {[
-                        "#",
-                        "WORKER",
-                        "ORDER",
-                        "TOTAL EARNED",
-                        "TOTAL PAID",
-                        "UNPAID",
-                      ].map((h) => (
-                        <th
-                          key={h}
-                          style={{
-                            padding: "6px 10px",
-                            color: C.yellow,
-                            fontWeight: 900,
-                            letterSpacing: "1.5px",
-                            textAlign: h === "#" ? "center" : "left",
-                            whiteSpace: "nowrap",
-                            background: C.bg,
-                          }}
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(workerSummary || []).map((w, i) => (
-                      <tr
-                        key={w.name}
+          <Section title="DETAIL SEMUA WORKER" accent={C.cyan} style={FULL}>
+            <div style={{ overflowX: "auto" }}>
+              <table
+                style={{
+                  borderCollapse: "collapse",
+                  width: "100%",
+                  fontSize: "0.9rem",
+                  fontFamily: "monospace",
+                }}
+              >
+                <thead>
+                  <tr style={{ borderBottom: `1px solid ${C.border}` }}>
+                    {[
+                      "#",
+                      "WORKER",
+                      "ORDER",
+                      "TOTAL EARNED",
+                      "TOTAL PAID",
+                      "UNPAID",
+                    ].map((h) => (
+                      <th
+                        key={h}
                         style={{
-                          borderBottom: `1px solid ${C.border}`,
-                          background: i % 2 === 0 ? C.panel2 : C.bg,
+                          padding: "10px 14px",
+                          color: C.yellow,
+                          fontWeight: 900,
+                          letterSpacing: "1.5px",
+                          textAlign: h === "#" ? "center" : "left",
+                          whiteSpace: "nowrap",
+                          background: C.bg,
                         }}
                       >
-                        <td
-                          style={{
-                            padding: "5px 10px",
-                            color: C.dim,
-                            textAlign: "center",
-                          }}
-                        >
-                          {i + 1}
-                        </td>
-                        <td
-                          style={{
-                            padding: "5px 10px",
-                            color: C.text,
-                            fontWeight: 700,
-                          }}
-                        >
-                          {w.name}
-                        </td>
-                        <td style={{ padding: "5px 10px", color: C.muted }}>
-                          {w.orderCount}
-                        </td>
-                        <td style={{ padding: "5px 10px", color: C.cyan }}>
-                          {fmtRp(w.totalEarned)}
-                        </td>
-                        <td style={{ padding: "5px 10px", color: C.green }}>
-                          {fmtRp(w.totalPaid)}
-                        </td>
-                        <td
-                          style={{
-                            padding: "5px 10px",
-                            color: w.totalUnpaid > 0 ? C.magenta : C.dim,
-                            fontWeight: w.totalUnpaid > 0 ? 900 : 400,
-                          }}
-                        >
-                          {w.totalUnpaid > 0 ? fmtRp(w.totalUnpaid) : "—"}
-                        </td>
-                      </tr>
+                        {h}
+                      </th>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            </Section>
-          </div>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(workerSummary || []).map((w, i) => (
+                    <tr
+                      key={w.name}
+                      style={{
+                        borderBottom: `1px solid ${C.border}`,
+                        background: i % 2 === 0 ? C.panel2 : C.bg,
+                      }}
+                    >
+                      <td
+                        style={{
+                          padding: "10px 14px",
+                          color: C.dim,
+                          textAlign: "center",
+                        }}
+                      >
+                        {i + 1}
+                      </td>
+                      <td
+                        style={{
+                          padding: "10px 14px",
+                          color: C.text,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {w.name}
+                      </td>
+                      <td style={{ padding: "10px 14px", color: C.muted }}>
+                        {w.orderCount}
+                      </td>
+                      <td style={{ padding: "10px 14px", color: C.cyan }}>
+                        {fmtRp(w.totalEarned)}
+                      </td>
+                      <td style={{ padding: "10px 14px", color: C.green }}>
+                        {fmtRp(w.totalPaid)}
+                      </td>
+                      <td
+                        style={{
+                          padding: "10px 14px",
+                          color: w.totalUnpaid > 0 ? C.magenta : C.dim,
+                          fontWeight: w.totalUnpaid > 0 ? 900 : 400,
+                        }}
+                      >
+                        {w.totalUnpaid > 0 ? fmtRp(w.totalUnpaid) : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Section>
         </div>
       )}
 
@@ -689,7 +757,7 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
             background: C.panel2,
             border: `1px solid ${C.border}`,
             padding: "8px 16px",
-            fontSize: "0.65rem",
+            fontSize: "0.7rem",
             fontFamily: "monospace",
             color: C.cyan,
             letterSpacing: "2px",

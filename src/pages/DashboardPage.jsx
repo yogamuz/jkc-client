@@ -447,7 +447,8 @@ const DashboardPage = ({ onNavigate, seasons = [], user }) => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+          gridTemplateColumns:
+            "repeat(auto-fit, minmax(min(100%, 210px), 1fr))",
           gap: "1rem",
           marginBottom: "2rem",
           position: "relative",
@@ -494,12 +495,13 @@ const DashboardPage = ({ onNavigate, seasons = [], user }) => {
               style={{
                 fontSize:
                   typeof s.value === "string" && s.value.startsWith("Rp")
-                    ? "clamp(0.9rem, 3vw, 1.3rem)"
+                    ? "clamp(1rem, 3.2vw, 1.5rem)"
                     : "clamp(1.4rem, 5vw, 2.2rem)",
                 fontWeight: 900,
                 color: s.accent,
                 fontFamily: "'Courier New', monospace",
                 lineHeight: 1,
+                whiteSpace: "nowrap",
                 letterSpacing:
                   typeof s.value === "string" && s.value.startsWith("Rp")
                     ? "-0.5px"

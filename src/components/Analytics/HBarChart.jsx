@@ -13,7 +13,7 @@ const HBarChart = ({
   if (!data?.length) return <Empty />;
   const max = Math.max(...data.map((d) => d[valueKey]), 1);
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
       {data.map((d, i) => (
         <div
           key={i}
@@ -21,10 +21,10 @@ const HBarChart = ({
         >
           <div
             style={{
-              fontSize: "0.62rem",
+              fontSize: "0.68rem",
               fontFamily: "monospace",
               color: C.muted,
-              width: "90px",
+              width: "96px",
               flexShrink: 0,
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -37,7 +37,7 @@ const HBarChart = ({
             style={{
               flex: 1,
               background: C.trackBg,
-              height: "16px",
+              height: "18px",
               position: "relative",
             }}
           >
@@ -56,10 +56,11 @@ const HBarChart = ({
           </div>
           <div
             style={{
-              fontSize: "0.62rem",
+              fontSize: "0.68rem",
               fontFamily: "monospace",
               color: C.text,
-              width: "70px",
+              fontWeight: 600,
+              width: "88px",
               flexShrink: 0,
               textAlign: "right",
             }}

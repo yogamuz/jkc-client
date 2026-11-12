@@ -1,7 +1,7 @@
 import { useDataPageColors } from "../../constants/dataPage.constants";
 import Empty from "./Empty";
 
-const DonutChart = ({ slices }) => {
+const DonutChart = ({ slices, size = 110 }) => {
   const C = useDataPageColors();
 
   if (!slices?.length) return <Empty />;
@@ -23,37 +23,45 @@ const DonutChart = ({ slices }) => {
       style={{
         display: "flex",
         alignItems: "center",
-        gap: "1.5rem",
+        gap: "1.25rem",
         flexWrap: "wrap",
       }}
     >
       <div
         style={{
-          width: "100px",
-          height: "100px",
+          width: `${size}px`,
+          height: `${size}px`,
           borderRadius: "50%",
           background: `conic-gradient(${gradient})`,
           flexShrink: 0,
           boxShadow: "0 0 20px rgba(0,0,0,0.5)",
         }}
       />
-      <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "6px",
+          flex: 1,
+          minWidth: "140px",
+        }}
+      >
         {slices.map((s, i) => (
           <div
             key={i}
-            style={{ display: "flex", alignItems: "center", gap: "6px" }}
+            style={{ display: "flex", alignItems: "center", gap: "7px" }}
           >
             <div
               style={{
-                width: "8px",
-                height: "8px",
+                width: "9px",
+                height: "9px",
                 background: s.color,
                 flexShrink: 0,
               }}
             />
             <span
               style={{
-                fontSize: "0.62rem",
+                fontSize: "0.68rem",
                 fontFamily: "monospace",
                 color: C.muted,
               }}
@@ -62,9 +70,10 @@ const DonutChart = ({ slices }) => {
             </span>
             <span
               style={{
-                fontSize: "0.62rem",
+                fontSize: "0.68rem",
                 fontFamily: "monospace",
                 color: C.text,
+                fontWeight: 600,
                 marginLeft: "auto",
                 paddingLeft: "8px",
               }}

@@ -7,12 +7,14 @@ import WorkersPage from "./pages/WorkersPage";
 import RateConfigPage from "./pages/RateConfigPage";
 import NewSeasonPage from "./pages/NewSeasonPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import TrendPage from "./pages/TrendPage";
 import AdminsPage from "./pages/AdminsPage";
 import AuditLogPage from "./pages/AuditLogPage";
 import WorkerRegistryPage from "./pages/WorkerRegistryPage";
 import Sidebar from "./components/ui/Sidebar";
 import ThemeToggle from "./components/ui/sidebar/ThemeToggle";
 import { useSidebarColors } from "./components/ui/sidebar/SidebarTokens";
+import { useDataPageColors } from "./constants/dataPage.constants";
 import useAuth from "./hooks/useAuth";
 import useSeason from "./hooks/useSeason";
 import { useTheme } from "./context/ThemeContext";
@@ -34,6 +36,7 @@ const PAGE_PATH = {
   newSeason: "new-season",
   workers: "workers",
   analytics: "analytics",
+  trends: "trends",
   rates: "rates",
   admins: "admins",
   auditLog: "audit-log",
@@ -105,9 +108,7 @@ const MessagePage = ({ label, title }) => (
   </div>
 );
 
-const AccessDenied = () => (
-  <MessagePage label="// 403" title="Akses Ditolak" />
-);
+const AccessDenied = () => <MessagePage label="// 403" title="Akses Ditolak" />;
 
 const NotFoundInApp = () => <MessagePage label="// 404" title="Not Found" />;
 
@@ -147,6 +148,67 @@ const NotFoundPage = () => (
     </Link>
   </div>
 );
+
+// ── Analytics + Trend dalam satu menu (dibagi dua tab) ─────
+const AnalyticsHub = ({ season, seasons, isOwner }) => {
+  const C = useDataPageColors();
+  const [view, setView] = useState("analytics");
+
+  // admin biasa cuma lihat Analytics (Trend itu owner only)
+  if (!isOwner) return <AnalyticsPage season={season} seasons={seasons} />;
+
+  const tabs = [
+    { key: "analytics", label: "ANALYTICS", color: C.cyan },
+    { key: "trend", label: "TREND", color: C.yellow },
+  ];
+
+  return (
+    <div>
+      <div
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 20,
+          display: "flex",
+          gap: "0.5rem",
+          alignItems: "center",
+          // tinggi disamakan dengan blok logo di Sidebar supaya border bawahnya sejajar
+          height: "70px",
+          boxSizing: "border-box",
+          padding: "0 clamp(1rem, 4vw, 2.5rem)",
+          background: C.bg,
+          borderBottom: `1px solid ${C.border}`,
+        }}
+      >
+        {tabs.map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setView(t.key)}
+            style={{
+              background: view === t.key ? t.color : "transparent",
+              border: `1px solid ${view === t.key ? t.color : C.border}`,
+              color: view === t.key ? "#000" : C.muted,
+              padding: "6px 18px",
+              fontSize: "0.68rem",
+              fontWeight: 900,
+              letterSpacing: "2px",
+              cursor: "pointer",
+              fontFamily: "'Courier New', monospace",
+            }}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {view === "analytics" ? (
+        <AnalyticsPage season={season} seasons={seasons} />
+      ) : (
+        <TrendPage season={season} seasons={seasons} />
+      )}
+    </div>
+  );
+};
 
 function AdminApp() {
   const { user, setUser, checkSession, logout } = useAuth();
@@ -345,7 +407,13 @@ function AdminApp() {
           />
         );
       case "analytics":
-        return <AnalyticsPage season={activeSeason} seasons={seasons} />;
+        return (
+          <AnalyticsHub
+            season={activeSeason}
+            seasons={seasons}
+            isOwner={user.role === "owner"}
+          />
+        );
       case "rates":
         return user.role === "owner" ? (
           <RateConfigPage seasons={seasons} onRefresh={fetchAll} />
@@ -357,7 +425,11 @@ function AdminApp() {
       case "auditLog":
         return user.role === "owner" ? <AuditLogPage /> : <AccessDenied />;
       case "workerRegistry":
-        return user.role === "owner" ? <WorkerRegistryPage /> : <AccessDenied />;
+        return user.role === "owner" ? (
+          <WorkerRegistryPage />
+        ) : (
+          <AccessDenied />
+        );
       default:
         return <NotFoundInApp />;
     }

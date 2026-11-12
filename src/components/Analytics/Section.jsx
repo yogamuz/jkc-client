@@ -1,6 +1,6 @@
 import { useDataPageColors } from "../../constants/dataPage.constants";
 
-const Section = ({ title, accent, children }) => {
+const Section = ({ title, accent, children, style }) => {
   const C = useDataPageColors();
   const resolvedAccent = accent ?? C.yellow;
 
@@ -9,15 +9,17 @@ const Section = ({ title, accent, children }) => {
       style={{
         background: C.panel2,
         border: `1px solid ${C.border}`,
-        padding: "1.25rem",
+        padding: "1.1rem 1.25rem",
         display: "flex",
         flexDirection: "column",
-        gap: "1rem",
+        gap: "0.9rem",
+        minWidth: 0,
+        ...style,
       }}
     >
       <div
         style={{
-          fontSize: "0.6rem",
+          fontSize: "0.62rem",
           fontWeight: 900,
           letterSpacing: "3px",
           color: resolvedAccent,

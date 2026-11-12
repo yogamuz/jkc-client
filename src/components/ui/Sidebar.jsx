@@ -84,6 +84,8 @@ const Sidebar = ({
             flexShrink: 0,
             position: "relative",
             overflow: "hidden",
+            height: "70px",
+            boxSizing: "border-box",
           }}
         >
           <div
@@ -104,7 +106,6 @@ const Sidebar = ({
               marginTop: "4px",
             }}
           >
-            <Sparkles size={14} color={C.yellow} strokeWidth={2} />
             <div
               style={{
                 fontSize: "1.1rem",
