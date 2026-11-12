@@ -442,13 +442,10 @@ const DashboardPage = ({ onNavigate, seasons = [], user }) => {
           />
         </div>
       </div>
-
       {/* Stat Cards */}
       <div
+        className="dash-stats"
         style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit, minmax(min(100%, 210px), 1fr))",
           gap: "1rem",
           marginBottom: "2rem",
           position: "relative",
@@ -456,7 +453,10 @@ const DashboardPage = ({ onNavigate, seasons = [], user }) => {
         }}
       >
         {STATS.map((s) => (
-          <div key={s.label} style={glassCard(s.accent, C)}>
+          <div
+            key={s.label}
+            style={{ ...glassCard(s.accent, C), containerType: "inline-size" }}
+          >
             <div
               style={{
                 position: "absolute",
@@ -495,7 +495,7 @@ const DashboardPage = ({ onNavigate, seasons = [], user }) => {
               style={{
                 fontSize:
                   typeof s.value === "string" && s.value.startsWith("Rp")
-                    ? "clamp(1rem, 3.2vw, 1.5rem)"
+                    ? "clamp(0.75rem, 9.5cqw, 1.5rem)"
                     : "clamp(1.4rem, 5vw, 2.2rem)",
                 fontWeight: 900,
                 color: s.accent,
