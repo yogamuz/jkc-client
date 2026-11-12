@@ -9,6 +9,7 @@ import NewSeasonPage from "./pages/NewSeasonPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import AdminsPage from "./pages/AdminsPage";
 import AuditLogPage from "./pages/AuditLogPage";
+import WorkerRegistryPage from "./pages/WorkerRegistryPage";
 import Sidebar from "./components/ui/Sidebar";
 import ThemeToggle from "./components/ui/sidebar/ThemeToggle";
 import { useSidebarColors } from "./components/ui/sidebar/SidebarTokens";
@@ -36,6 +37,7 @@ const PAGE_PATH = {
   rates: "rates",
   admins: "admins",
   auditLog: "audit-log",
+  workerRegistry: "worker-registry",
 };
 const PATH_PAGE = Object.fromEntries(
   Object.entries(PAGE_PATH).map(([page, seg]) => [seg, page]),
@@ -354,6 +356,8 @@ function AdminApp() {
         return user.role === "owner" ? <AdminsPage /> : <AccessDenied />;
       case "auditLog":
         return user.role === "owner" ? <AuditLogPage /> : <AccessDenied />;
+      case "workerRegistry":
+        return user.role === "owner" ? <WorkerRegistryPage /> : <AccessDenied />;
       default:
         return <NotFoundInApp />;
     }

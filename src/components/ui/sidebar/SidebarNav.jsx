@@ -322,6 +322,11 @@ const SidebarNav = ({
                   onClick: onOpenManageAdmin,
                   href: "/admin/admins",
                 },
+                {
+                  label: "Kelola Worker",
+                  onClick: () => onNavigate("workerRegistry"),
+                  href: "/admin/worker-registry",
+                },
               ].map(({ label, onClick, href }) => {
                 const Tag = href ? "a" : "button";
                 return (
