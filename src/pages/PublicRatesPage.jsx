@@ -312,8 +312,7 @@ const PublicRatesPage = () => {
               margin: "1.25rem auto 2rem",
             }}
           >
-            Harga yang tertera di poster toko adalah harga awal. Promo mid
-            season order 10+2. Joki 10+2 Jokgen 10+1
+            Harga yang tertera di poster toko adalah harga awal. Promo akhir season order 10+2 berlaku kelipaatan.
             <br />
             <br />
             <strong>
