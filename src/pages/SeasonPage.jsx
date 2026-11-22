@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import useSeason from "../hooks/useSeason";
+import { SkeletonList } from "../components/ui/Skeleton";
 
 /* ── Design tokens ─────────────────────────────────────── */
 const C = {
@@ -310,19 +311,7 @@ const SeasonPage = () => {
 
         {/* Body */}
         {loading && seasons.length === 0 ? (
-          <div
-            style={{
-              padding: "2.5rem",
-              textAlign: "center",
-              color: C.dim,
-              fontWeight: 900,
-              letterSpacing: "5px",
-              fontSize: "0.72rem",
-              fontFamily: "'Courier New', monospace",
-            }}
-          >
-            MEMUAT...
-          </div>
+          <SkeletonList rows={4} />
         ) : seasons.length === 0 ? (
           <div
             style={{

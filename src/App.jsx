@@ -11,6 +11,8 @@ import TrendPage from "./pages/TrendPage";
 import AdminsPage from "./pages/AdminsPage";
 import AuditLogPage from "./pages/AuditLogPage";
 import WorkerRegistryPage from "./pages/WorkerRegistryPage";
+import SiteSettingsPage from "./pages/SiteSettingsPage";
+import SpendersPage from "./pages/SpendersPage";
 import Sidebar from "./components/ui/Sidebar";
 import ThemeToggle from "./components/ui/sidebar/ThemeToggle";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -28,6 +30,7 @@ import {
 } from "react-router-dom";
 import PublicRatesPage from "./pages/PublicRatesPage";
 import PriceUpdateNotif from "./components/PriceUpdateNotif";
+import ShellSkeleton from "./components/skeletons/ShellSkeleton";
 
 // ── Pemetaan nama halaman (state lama) <-> segmen URL ─────
 const PAGE_PATH = {
@@ -41,6 +44,8 @@ const PAGE_PATH = {
   admins: "admins",
   auditLog: "audit-log",
   workerRegistry: "worker-registry",
+  siteSettings: "site-settings",
+  spenders: "spenders",
 };
 const PATH_PAGE = Object.fromEntries(
   Object.entries(PAGE_PATH).map(([page, seg]) => [seg, page]),
@@ -345,23 +350,9 @@ function AdminApp() {
   };
   if (checking)
     return (
-      <div
-        style={{
-          width: "100vw",
-          height: "100vh",
-          background: C.bg,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontWeight: 900,
-          letterSpacing: "6px",
-          fontSize: "0.75rem",
-          fontFamily: "monospace",
-          color: C.yellow,
-        }}
-      >
-        LOADING...
-      </div>
+      <ShellSkeleton
+        page={location.pathname.startsWith("/login") ? null : activePage}
+      />
     );
 
   if (!user)
@@ -458,6 +449,10 @@ function AdminApp() {
         ) : (
           <AccessDenied />
         );
+      case "siteSettings":
+        return user.role === "owner" ? <SiteSettingsPage /> : <AccessDenied />;
+      case "spenders":
+        return user.role === "owner" ? <SpendersPage /> : <AccessDenied />;
       default:
         return <NotFoundInApp />;
     }

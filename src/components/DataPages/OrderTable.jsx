@@ -6,6 +6,7 @@ import StatusBadge from "../ui/StatusBadge";
 import PaidBadge from "../ui/PaidBadge";
 import EditOrderModal from "./EditOrderModal";
 import ConfirmModal from "../ui/ConfirmModal";
+import { SkeletonRows } from "../ui/Skeleton";
 
 // Tombol mata hanya muncul kalau keterangan lebih panjang dari ini
 const NOTE_LIMIT = 16;
@@ -117,21 +118,7 @@ const OrderTable = ({
             </thead>
             <tbody>
               {loading && orders.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={allCols.length}
-                    style={{
-                      padding: "2.5rem",
-                      textAlign: "center",
-                      color: C.dim,
-                      fontFamily: "monospace",
-                      letterSpacing: "4px",
-                      fontSize: "0.72rem",
-                    }}
-                  >
-                    MEMUAT...
-                  </td>
-                </tr>
+                <SkeletonRows rows={8} cols={allCols.length} />
               ) : orders.length === 0 ? (
                 <tr>
                   <td

@@ -1,5 +1,6 @@
 import { ChevronRight } from "lucide-react";
 import { useWorkersColors, cell } from "./workers.utils";
+import { SkeletonRows } from "../ui/Skeleton";
 
 const AdminsTable = ({ admins, loading, onSelectAdmin }) => {
   const C = useWorkersColors();
@@ -42,21 +43,7 @@ const AdminsTable = ({ admins, loading, onSelectAdmin }) => {
           </thead>
           <tbody>
             {loading && admins.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={4}
-                  style={{
-                    padding: "2.5rem",
-                    textAlign: "center",
-                    color: C.dim,
-                    fontFamily: "monospace",
-                    letterSpacing: "4px",
-                    fontSize: "0.72rem",
-                  }}
-                >
-                  MEMUAT...
-                </td>
-              </tr>
+              <SkeletonRows rows={6} cols={4} />
             ) : admins.length === 0 ? (
               <tr>
                 <td

@@ -16,6 +16,7 @@ import {
 import { markWorkerPaid } from "../../services/orderService";
 
 import { useTheme } from "../../context/ThemeContext";
+import { SkeletonRows } from "../ui/Skeleton";
 
 const WorkerDetailPanel = ({ workerName, seasons, onBack, onGoToOrder }) => {
   const C = useWorkersColors();
@@ -402,21 +403,7 @@ const WorkerDetailPanel = ({ workerName, seasons, onBack, onGoToOrder }) => {
             </thead>
             <tbody>
               {loading && !detail ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    style={{
-                      padding: "2.5rem",
-                      textAlign: "center",
-                      color: C.dim,
-                      fontFamily: "monospace",
-                      letterSpacing: "4px",
-                      fontSize: "0.72rem",
-                    }}
-                  >
-                    MEMUAT...
-                  </td>
-                </tr>
+                <SkeletonRows rows={6} cols={6} />
               ) : !detail ? (
                 <tr>
                   <td

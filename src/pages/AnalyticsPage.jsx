@@ -26,6 +26,7 @@ import {
   calcSeasonTrend,
 } from "../components/Analytics/analytics.utils";
 import * as orderService from "../services/orderService";
+import { Skeleton } from "../components/ui/Skeleton";
 
 const FULL = { gridColumn: "1 / -1" };
 
@@ -764,7 +765,7 @@ const AnalyticsPage = ({ season, seasons = [] }) => {
             zIndex: 999,
           }}
         >
-          MEMUAT...
+          <Skeleton w={96} h={10} />
         </div>
       )}
     </div>

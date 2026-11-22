@@ -4,28 +4,21 @@ import CircuitBg from "../components//ui/CircuitBg";
 import ThemeToggle from "../components/ui/sidebar/ThemeToggle";
 import { useTheme } from "../context/ThemeContext";
 import { getPublicRates } from "../services/seasonService";
-
-// // Harga Joki Statis
-// const STATIC_RATES = {
-//   seasonName: "PRICE LIST S41",
-//   rates: [
-//     { tier: "GRANDMASTER", rate_store_joki: 5000, rate_store_jokgen: 6000 },
-//     { tier: "EPIC", rate_store_joki: 7000, rate_store_jokgen: 8000 },
-//     { tier: "LEGEND", rate_store_joki: 9000, rate_store_jokgen: 10000 },
-//     { tier: "MAWI", rate_store_joki: 16000, rate_store_jokgen: 18000 },
-//     { tier: "HONOR", rate_store_joki: 18000, rate_store_jokgen: 20000 },
-//     { tier: "GLORY", rate_store_joki: 23000, rate_store_jokgen: 25000 },
-//     { tier: "IMO", rate_store_joki: 27000, rate_store_jokgen: 32000 },
-//   ],
-// };
+import { getPublicSite } from "../services/siteService";
+import { Skeleton as Skel } from "../components/ui/Skeleton";
 
 const formatRupiah = (n) =>
   n && n > 0 ? `Rp${n.toLocaleString("id-ID")}` : "Belum tersedia";
 
+// Default; nomor sebenarnya diatur owner dari dashboard (Halaman Harga).
 const WA_NUMBER = "62895385134865";
 
-const buildWaLink = (message) =>
-  `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`;
+// Teks default bila pengaturan dari server belum bisa dimuat.
+const DEFAULT_ANNOUNCEMENT =
+  "Harga yang tertera di poster toko adalah harga awal. Promo akhir season order 10+2 berlaku kelipaatan.";
+
+const buildWaLink = (message, number = WA_NUMBER) =>
+  `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 
 const TIER_ICONS = {
   GRANDMASTER: "/assets/grandmaster.png",
@@ -37,16 +30,6 @@ const TIER_ICONS = {
   IMO: "/assets/immortal.png",
 };
 
-const TIER_BONUS = {
-  GRANDMASTER: "Order 10+1 bonus ⭐",
-  EPIC: "Order 10+1 bonus ⭐",
-  LEGEND: "Order 10+1 bonus ⭐",
-  MAWI: "Order 10+1 bonus ⭐",
-  HONOR: "Order 10+1 bonus ⭐",
-  GLORY: "Order 10+1 bonus ⭐",
-  IMO: "Order 10+1 bonus ⭐",
-};
-
 const TIER_BONUS_COLOR = {
   EPIC: "#4ADE80", // hijau
   LEGEND: "#FACC15", // kuning/emas
@@ -54,21 +37,6 @@ const TIER_BONUS_COLOR = {
   HONOR: "#22D3EE", // cyan
   GLORY: "#FB923C", // oranye
   IMO: "#A78BFA", // ungu
-};
-
-/*
- * (Tidak dipakai lagi) Harga promo kini diatur dari halaman Rate Config
- * dan dikirim lewat API (r.promos). Tabel ini dibiarkan agar tidak
- * mengubah struktur file.
- */
-const TIER_PROMO_PRICE = {
-  GRANDMASTER: { joki: 50000, jokgen: 60000 },
-  EPIC: { joki: 70000, jokgen: 80000 },
-  LEGEND: { joki: 90000, jokgen: 100000 },
-  MAWI: { joki: 160000, jokgen: 180000 },
-  HONOR: { joki: 180000, jokgen: 200000 },
-  GLORY: { joki: 230000, jokgen: 250000 },
-  IMO: { joki: 270000, jokgen: 320000 },
 };
 
 // Alias nama tier dari DB -> nama tier yang dipakai di tabel & tampilan.
@@ -153,9 +121,16 @@ const WaOrderCard = ({ href, label, accentColor, cardBg, textMuted }) => (
  * Ditempatkan di kolom "Joki Rank" atau "Joki Gendong" sesuai layanan
  * promonya (lihat grid 1fr 1fr 1fr di bawah, kolom pertama dikosongkan).
  */
-const PromoOrderButton = ({ message, price, label, accentColor, cardBg }) => (
+const PromoOrderButton = ({
+  message,
+  price,
+  label,
+  accentColor,
+  cardBg,
+  waNumber,
+}) => (
   <a
-    href={buildWaLink(message)}
+    href={buildWaLink(message, waNumber)}
     target="_blank"
     rel="noopener noreferrer"
     style={{
@@ -204,6 +179,208 @@ const PromoOrderButton = ({ message, price, label, accentColor, cardBg }) => (
   </a>
 );
 
+/* ── Animasi & skeleton (keyframes global untuk halaman ini) ── */
+const PUBLIC_CSS = `
+@keyframes jcRise { from { opacity: 0; transform: translateY(22px) scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes jcFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes jcPulse { 0%, 100% { box-shadow: 0 0 10px var(--c); } 50% { box-shadow: 0 0 26px var(--c); } }
+@keyframes jcShine { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.jc-spender { animation: jcRise 0.7s cubic-bezier(.2,.8,.2,1) both; transition: transform .25s ease, box-shadow .25s ease; }
+.jc-spender:hover { transform: translateY(-4px); }
+.jc-first { animation: jcRise 0.7s cubic-bezier(.2,.8,.2,1) both, jcPulse 2.8s ease-in-out 0.9s infinite; }
+.jc-avatar-first { animation: jcFloat 3s ease-in-out infinite; }
+.jc-rank {
+  background: linear-gradient(90deg, var(--c) 0%, #fff 50%, var(--c) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: jcShine 3s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .jc-spender, .jc-first, .jc-avatar-first, .jc-rank { animation: none !important; }
+}
+`;
+
+/* ── Icon tier: skeleton sampai gambar selesai dimuat ── */
+const TierIcon = ({ src, alt }) => {
+  const [ready, setReady] = useState(false);
+  return (
+    <span
+      style={{
+        position: "relative",
+        width: 32,
+        height: 32,
+        flexShrink: 0,
+        display: "inline-block",
+      }}
+    >
+      {!ready && (
+        <Skel w={32} h={32} r={6} style={{ position: "absolute", inset: 0 }} />
+      )}
+      <img
+        src={src}
+        alt={alt}
+        onLoad={() => setReady(true)}
+        onError={() => setReady(true)}
+        style={{
+          width: 32,
+          height: 32,
+          borderRadius: "6px",
+          objectFit: "cover",
+          display: "block",
+          opacity: ready ? 1 : 0,
+          transition: "opacity 0.3s ease",
+        }}
+      />
+    </span>
+  );
+};
+
+/* ── Top Spender: link sosmed (handle @user juga diterima) ── */
+const SOCIAL_BASE = {
+  tiktok: "https://www.tiktok.com/@",
+  instagram: "https://www.instagram.com/",
+};
+const socialHref = (platform, url) => {
+  if (/^https?:\/\//i.test(url)) return url;
+  const base = SOCIAL_BASE[String(platform).toLowerCase()];
+  const handle = url.replace(/^@/, "");
+  return base ? `${base}${handle}` : `https://${url}`;
+};
+
+const PODIUM_COLORS = { 1: "#FFD700", 2: "#C0C0C0", 3: "#CD7F32" };
+
+const SpenderCard = ({ s, cardBg, textPrimary, textMuted }) => {
+  const color = PODIUM_COLORS[s.rank] || "#888";
+  const first = s.rank === 1;
+  const size = first ? 76 : 60;
+  const [avatarReady, setAvatarReady] = useState(!s.avatar);
+  useEffect(() => {
+    if (!s.avatar) return undefined;
+    let active = true;
+    const img = new Image();
+    img.onload = img.onerror = () => {
+      if (active) setAvatarReady(true);
+    };
+    img.src = s.avatar;
+    return () => {
+      active = false;
+    };
+  }, [s.avatar]);
+  return (
+    <div
+      className={first ? "jc-spender jc-first" : "jc-spender"}
+      style={{
+        "--c": color,
+        animationDelay: `${s.rank === 1 ? 0.25 : s.rank === 2 ? 0.1 : 0.4}s`,
+        flex: "1 1 0",
+        minWidth: 0,
+        order: s.rank === 1 ? 2 : s.rank === 2 ? 1 : 3,
+        alignSelf: "flex-end",
+        textAlign: "center",
+        background: `radial-gradient(ellipse at 50% 0%, ${color}22 0%, ${cardBg}00 65%), ${cardBg}`,
+        border: `1px solid ${color}66`,
+        borderRadius: "10px",
+        padding: first ? "1.1rem 0.5rem 1rem" : "0.8rem 0.4rem 0.8rem",
+      }}
+    >
+      <div
+        className={first ? "jc-rank" : undefined}
+        style={{
+          fontSize: "0.7rem",
+          fontWeight: 900,
+          color,
+          letterSpacing: "1px",
+          marginBottom: "0.5rem",
+        }}
+      >
+        TOP {s.rank}
+      </div>
+      {!avatarReady ? (
+        <Skel w={size} h={size} r={999} style={{ margin: "0 auto 0.5rem" }} />
+      ) : (
+      <div
+        className={first ? "jc-avatar-first" : undefined}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          margin: "0 auto 0.5rem",
+          border: `2px solid ${color}`,
+          background: s.avatar ? `url(${s.avatar}) center/cover` : `${color}22`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontWeight: 900,
+          fontSize: first ? "1.6rem" : "1.2rem",
+          color,
+        }}
+      >
+        {!s.avatar && s.name.charAt(0).toUpperCase()}
+      </div>
+      )}
+      <div
+        style={{
+          fontWeight: 800,
+          fontSize: "clamp(0.65rem, 3vw, 0.85rem)",
+          color: textPrimary,
+          textTransform: "uppercase",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          padding: "0 0.25rem",
+        }}
+      >
+        {s.name}
+      </div>
+      {s.total != null && (
+        <div
+          style={{
+            fontWeight: 800,
+            fontSize: "clamp(0.6rem, 2.8vw, 0.78rem)",
+            color,
+            marginTop: "0.2rem",
+          }}
+        >
+          {formatRupiah(s.total)}
+        </div>
+      )}
+      {s.socials?.length > 0 && (
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            gap: "0.3rem",
+            marginTop: "0.55rem",
+          }}
+        >
+          {s.socials.map((soc) => (
+            <a
+              key={`${soc.platform}-${soc.url}`}
+              href={socialHref(soc.platform, soc.url)}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                fontSize: "0.55rem",
+                fontWeight: 800,
+                color: textMuted,
+                textDecoration: "none",
+                border: `1px solid ${color}55`,
+                borderRadius: "999px",
+                padding: "2px 7px",
+                textTransform: "uppercase",
+              }}
+            >
+              {soc.platform}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const PublicRatesPage = () => {
   const { theme } = useTheme();
   const isLight = theme === "light";
@@ -212,6 +389,27 @@ const PublicRatesPage = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Teks, nomor WA & Top Spender dari CMS (diatur owner di dashboard).
+  const [site, setSite] = useState(null);
+  const [siteLoading, setSiteLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    getPublicSite()
+      .then((res) => {
+        if (active && res?.data) setSite(res.data);
+      })
+      .catch(() => {
+        // gagal muat CMS: pakai teks & nomor default
+      })
+      .finally(() => {
+        if (active) setSiteLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -238,6 +436,9 @@ const PublicRatesPage = () => {
     };
   }, []);
 
+  const waNumber = site?.waNumber || WA_NUMBER;
+  const topSpenders = site?.spenders || [];
+
   const bg = isLight ? "#FFF7F0" : "#0D0D0D";
   const textPrimary = isLight ? "#1a1a1a" : "#E8E8E8";
   const textMuted = isLight ? "#8a7a6a" : "#888";
@@ -258,6 +459,7 @@ const PublicRatesPage = () => {
         overflow: "hidden",
       }}
     >
+      <style>{PUBLIC_CSS}</style>
       <CircuitBg />
       <CornerGlow />
 
@@ -312,7 +514,16 @@ const PublicRatesPage = () => {
               margin: "1.25rem auto 2rem",
             }}
           >
-            Harga yang tertera di poster toko adalah harga awal. Promo akhir season order 10+2 berlaku kelipaatan.
+            {siteLoading ? (
+              <span style={{ display: "block" }}>
+                <Skel h={11} style={{ margin: "0 auto 8px" }} />
+                <Skel h={11} w="75%" style={{ margin: "0 auto" }} />
+              </span>
+            ) : (
+              <span style={{ whiteSpace: "pre-line" }}>
+                {site?.announcementText || DEFAULT_ANNOUNCEMENT}
+              </span>
+            )}
             <br />
             <br />
             <strong>
@@ -337,15 +548,32 @@ const PublicRatesPage = () => {
         </div>
 
         {loading && !data && (
-          <p
-            style={{
-              textAlign: "center",
-              color: isLight ? "#0891b2" : "#00E5FF",
-              fontSize: "0.85rem",
-            }}
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
           >
-            Memuat harga...
-          </p>
+            {Array.from({ length: 7 }).map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  background: cardBg,
+                  border: `1px solid ${border}`,
+                  borderRadius: "10px",
+                  padding: "0.9rem 1rem",
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1fr",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                  <Skel w={32} h={32} r={6} style={{ flexShrink: 0 }} />
+                  <Skel w="60%" h={12} />
+                </div>
+                <Skel w="70%" h={14} style={{ marginLeft: "auto" }} />
+                <Skel w="70%" h={14} style={{ marginLeft: "auto" }} />
+              </div>
+            ))}
+          </div>
         )}
 
         {error && !data && (
@@ -433,17 +661,7 @@ const PublicRatesPage = () => {
                           textTransform: "uppercase",
                         }}
                       >
-                        <img
-                          src={getTierIcon(r.tier)}
-                          alt={tierUpper}
-                          style={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: "6px",
-                            flexShrink: 0,
-                            objectFit: "cover",
-                          }}
-                        />
+                        <TierIcon src={getTierIcon(r.tier)} alt={tierUpper} />
                         {tierUpper}
                       </span>
                     </div>
@@ -506,6 +724,7 @@ const PublicRatesPage = () => {
                               price={price}
                               accentColor={btnColor}
                               cardBg={cardBg}
+                              waNumber={waNumber}
                             />
                           ) : null;
                         })}
@@ -533,6 +752,7 @@ const PublicRatesPage = () => {
                               price={price}
                               accentColor={btnColor}
                               cardBg={cardBg}
+                              waNumber={waNumber}
                             />
                           ) : null;
                         })}
@@ -542,6 +762,62 @@ const PublicRatesPage = () => {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {(siteLoading || topSpenders.length > 0) && (
+          <div style={{ marginTop: "2rem" }}>
+            <h2
+              style={{
+                textAlign: "center",
+                fontSize: "clamp(0.9rem, 4vw, 1.1rem)",
+                fontWeight: 900,
+                letterSpacing: "2px",
+                color: accent,
+                textTransform: "uppercase",
+                margin: "0 0 1rem",
+              }}
+            >
+              {siteLoading ? (
+                <Skel w="40%" h={16} style={{ margin: "0 auto" }} />
+              ) : (
+                site?.spenderTitle || "TOP SPENDER"
+              )}
+            </h2>
+            <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end" }}>
+              {siteLoading &&
+                [2, 1, 3].map((n) => (
+                  <div
+                    key={n}
+                    style={{
+                      flex: "1 1 0",
+                      minWidth: 0,
+                      background: cardBg,
+                      border: `1px solid ${border}`,
+                      borderRadius: "10px",
+                      padding: n === 1 ? "1.1rem 0.5rem 1rem" : "0.8rem 0.4rem",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                    }}
+                  >
+                    <Skel w="40%" h={10} />
+                    <Skel w={n === 1 ? 76 : 60} h={n === 1 ? 76 : 60} r={999} />
+                    <Skel w="70%" h={12} />
+                    <Skel w="50%" h={10} />
+                  </div>
+                ))}
+              {topSpenders.map((sp) => (
+                <SpenderCard
+                  key={sp.rank}
+                  s={sp}
+                  cardBg={cardBg}
+                  textPrimary={textPrimary}
+                  textMuted={textMuted}
+                />
+              ))}
+            </div>
           </div>
         )}
 
@@ -555,7 +831,7 @@ const PublicRatesPage = () => {
           }}
         >
           <WaOrderCard
-            href={buildWaLink("mau joko rank dong")}
+            href={buildWaLink("mau joko rank dong", waNumber)}
             label="JOKI RANK"
             accentColor={cyan}
             cardBg={cardBg}
@@ -563,7 +839,7 @@ const PublicRatesPage = () => {
           />
 
           <WaOrderCard
-            href={buildWaLink("mau jokgen dong")}
+            href={buildWaLink("mau jokgen dong", waNumber)}
             label="JOKI GENDONG"
             accentColor={magenta}
             cardBg={cardBg}
@@ -571,7 +847,7 @@ const PublicRatesPage = () => {
           />
 
           <WaOrderCard
-            href={buildWaLink("mau joko rising star dong")}
+            href={buildWaLink("mau joko rising star dong", waNumber)}
             label="RISING STAR"
             accentColor={accent}
             cardBg={cardBg}

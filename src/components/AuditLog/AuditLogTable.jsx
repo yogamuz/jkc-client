@@ -1,5 +1,6 @@
 import { useDataPageColors, cell, glow } from "../../constants/dataPage.constants";
 import { useTheme } from "../../context/ThemeContext";
+import { SkeletonRows } from "../ui/Skeleton";
 
 const ACTION_COLOR_KEY = {
   CREATE: "green",
@@ -172,11 +173,7 @@ const AuditLogTable = ({ logs, loading }) => {
           </thead>
           <tbody>
             {loading && logs.length === 0 ? (
-              <tr>
-                <td colSpan={5} style={{ padding: "2.5rem", textAlign: "center", color: C.dim, fontFamily: "monospace", letterSpacing: "4px", fontSize: "0.72rem" }}>
-                  MEMUAT...
-                </td>
-              </tr>
+              <SkeletonRows rows={6} cols={5} />
             ) : logs.length === 0 ? (
               <tr>
                 <td colSpan={5} style={{ padding: "2.5rem", textAlign: "center", color: C.dim, fontFamily: "monospace", letterSpacing: "4px", fontSize: "0.72rem" }}>

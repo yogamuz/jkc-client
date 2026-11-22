@@ -8,6 +8,7 @@ import Section from "../components/Analytics/Section";
 import TrendChart from "../components/Analytics/TrendChart";
 import { fmtRp, fmtK } from "../components/Analytics/analytics.utils";
 import * as orderService from "../services/orderService";
+import { Skeleton } from "../components/ui/Skeleton";
 
 const DAY_LABEL = { day: "numeric", month: "short" };
 
@@ -354,7 +355,7 @@ const TrendPage = ({ season, seasons = [] }) => {
             zIndex: 999,
           }}
         >
-          MEMUAT...
+          <Skeleton w={96} h={10} />
         </div>
       )}
     </div>

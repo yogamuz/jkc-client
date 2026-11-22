@@ -1,5 +1,6 @@
 import { AlertCircle, ChevronRight } from "lucide-react";
 import { useWorkersColors, cell, fmtRp } from "./workers.utils";
+import { SkeletonRows } from "../ui/Skeleton";
 
 const WorkersTable = ({ workers, loading, onSelectWorker }) => {
   const C = useWorkersColors();
@@ -19,7 +20,7 @@ const WorkersTable = ({ workers, loading, onSelectWorker }) => {
           </thead>
           <tbody>
             {loading && workers.length === 0 ? (
-              <tr><td colSpan={8} style={{ padding: "2.5rem", textAlign: "center", color: C.dim, fontFamily: "monospace", letterSpacing: "4px", fontSize: "0.72rem" }}>MEMUAT...</td></tr>
+              <SkeletonRows rows={6} cols={8} />
             ) : workers.length === 0 ? (
               <tr><td colSpan={8} style={{ padding: "2.5rem", textAlign: "center", color: C.dim, fontFamily: "monospace", letterSpacing: "4px", fontSize: "0.72rem" }}>BELUM ADA WORKER</td></tr>
             ) : (

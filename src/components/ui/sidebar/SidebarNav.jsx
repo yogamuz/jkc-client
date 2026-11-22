@@ -5,6 +5,9 @@ import {
   BarChart2,
   SlidersHorizontal,
   History,
+  UserCheck,
+  Globe,
+  Trophy,
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
@@ -283,6 +286,48 @@ const SidebarNav = ({
         </a>
       )}
 
+      {/* Kelola Worker — owner only */}
+      {user?.role === "owner" && (
+        <a
+          href="/admin/worker-registry"
+          onClick={(e) => linkClick(e, () => onNavigate("workerRegistry"))}
+          style={navItemStyle(activePage === "workerRegistry")}
+          onMouseEnter={(e) => hoverOn(e, activePage === "workerRegistry")}
+          onMouseLeave={(e) => hoverOff(e, activePage === "workerRegistry")}
+        >
+          <UserCheck size={14} strokeWidth={2} />
+          Kelola Worker
+        </a>
+      )}
+
+      {/* Top Spender — owner only */}
+      {user?.role === "owner" && (
+        <a
+          href="/admin/spenders"
+          onClick={(e) => linkClick(e, () => onNavigate("spenders"))}
+          style={navItemStyle(activePage === "spenders")}
+          onMouseEnter={(e) => hoverOn(e, activePage === "spenders")}
+          onMouseLeave={(e) => hoverOff(e, activePage === "spenders")}
+        >
+          <Trophy size={14} strokeWidth={2} />
+          Top Spender
+        </a>
+      )}
+
+      {/* Halaman Harga — owner only */}
+      {user?.role === "owner" && (
+        <a
+          href="/admin/site-settings"
+          onClick={(e) => linkClick(e, () => onNavigate("siteSettings"))}
+          style={navItemStyle(activePage === "siteSettings")}
+          onMouseEnter={(e) => hoverOn(e, activePage === "siteSettings")}
+          onMouseLeave={(e) => hoverOff(e, activePage === "siteSettings")}
+        >
+          <Globe size={14} strokeWidth={2} />
+          Halaman Harga
+        </a>
+      )}
+
       {/* Account — owner only */}
       {user?.role === "owner" && (
         <div>
@@ -321,11 +366,6 @@ const SidebarNav = ({
                   label: "Kelola Admin",
                   onClick: onOpenManageAdmin,
                   href: "/admin/admins",
-                },
-                {
-                  label: "Kelola Worker",
-                  onClick: () => onNavigate("workerRegistry"),
-                  href: "/admin/worker-registry",
                 },
               ].map(({ label, onClick, href }) => {
                 const Tag = href ? "a" : "button";

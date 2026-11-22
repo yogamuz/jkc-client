@@ -14,6 +14,7 @@ import useOrder from "../hooks/useOrder";
 import CircuitBg from "../components/ui/CircuitBg";
 import CornerGlow from "../components/ui/CornerGlow";
 import SeasonCountdown from "../components/SeasonCountdown";
+import { Skeleton } from "../components/ui/Skeleton";
 import ThemeContext from "../context/ThemeContext"; // sesuaikan path
 
 /* ── Design tokens ─────────────────────────────────────── */
@@ -284,19 +285,19 @@ const DashboardPage = ({ onNavigate, seasons = [], user }) => {
   const STATS = [
     {
       label: "TOTAL SEASON",
-      value: loading ? "..." : (dashboard?.totalSeason ?? "—"),
+      value: loading ? <Skeleton w="60%" h={26} /> : (dashboard?.totalSeason ?? "—"),
       accent: C.yellow,
       Icon: ShoppingBag,
     },
     {
       label: "TOTAL ORDER",
-      value: loading ? "..." : (dashboard?.totalOrder ?? "—"),
+      value: loading ? <Skeleton w="60%" h={26} /> : (dashboard?.totalOrder ?? "—"),
       accent: C.cyan,
       Icon: TrendingUp,
     },
     {
       label: "TOTAL WORKER",
-      value: loading ? "..." : (dashboard?.totalWorker ?? "—"),
+      value: loading ? <Skeleton w="60%" h={26} /> : (dashboard?.totalWorker ?? "—"),
       accent: C.magenta,
       Icon: Users,
     },
@@ -305,7 +306,7 @@ const DashboardPage = ({ onNavigate, seasons = [], user }) => {
       value: !isOwner
         ? "••••••"
         : loading
-          ? "..."
+          ? <Skeleton w="60%" h={26} />
           : fmtRp(dashboard?.totalOmset),
       accent: C.green,
       Icon: Wallet,
@@ -316,7 +317,7 @@ const DashboardPage = ({ onNavigate, seasons = [], user }) => {
       value: !isOwner
         ? "••••••"
         : loading
-          ? "..."
+          ? <Skeleton w="60%" h={26} />
           : fmtRp(dashboard?.totalGaji),
       accent: C.magenta,
       Icon: Users,
@@ -327,7 +328,7 @@ const DashboardPage = ({ onNavigate, seasons = [], user }) => {
       value: !isOwner
         ? "••••••"
         : loading
-          ? "..."
+          ? <Skeleton w="60%" h={26} />
           : fmtRp(dashboard?.totalProfit),
       accent: C.yellow,
       Icon: DollarSign,
@@ -1206,7 +1207,7 @@ const DashboardPage = ({ onNavigate, seasons = [], user }) => {
             zIndex: 999,
           }}
         >
-          MEMUAT...
+          <Skeleton w={96} h={10} />
         </div>
       )}
     </div>

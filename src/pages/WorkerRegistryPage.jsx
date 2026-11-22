@@ -18,6 +18,7 @@ import {
   setRegistryWorkerActive,
   deleteRegistryWorker,
 } from "../services/workerRegistryService";
+import { SkeletonRows } from "../components/ui/Skeleton";
 
 const mono = { fontFamily: "'Courier New', monospace" };
 
@@ -573,11 +574,7 @@ const WorkerRegistryPage = () => {
             </thead>
             <tbody>
               {loading && workers.length === 0 ? (
-                <tr>
-                  <td colSpan={6} style={{ ...mono, padding: "2.5rem", textAlign: "center", color: C.dim, letterSpacing: "4px", fontSize: "0.72rem" }}>
-                    MEMUAT...
-                  </td>
-                </tr>
+                <SkeletonRows rows={6} cols={6} />
               ) : workers.length === 0 ? (
                 <tr>
                   <td colSpan={6} style={{ ...mono, padding: "2.5rem", textAlign: "center", color: C.dim, letterSpacing: "4px", fontSize: "0.72rem" }}>
